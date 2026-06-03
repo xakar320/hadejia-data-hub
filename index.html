@@ -5,8 +5,7 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Hadejia Data Hub</title>
 
@@ -35,10 +34,6 @@ font-size:35px;
 margin-bottom:10px;
 }
 
-header p{
-font-size:18px;
-}
-
 .container{
 padding:20px;
 }
@@ -48,8 +43,8 @@ background:white;
 padding:25px;
 border-radius:15px;
 text-align:center;
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
 margin-bottom:20px;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }
 
 .balance h2{
@@ -73,21 +68,21 @@ text-align:center;
 box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }
 
+.icon{
+font-size:40px;
+}
+
 .card h3{
 margin-top:10px;
 font-size:20px;
-}
-
-.icon{
-font-size:40px;
 }
 
 .box{
 background:white;
 padding:20px;
 border-radius:15px;
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
 margin-top:20px;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }
 
 .box h2{
@@ -117,15 +112,11 @@ font-size:18px;
 cursor:pointer;
 }
 
-.box button:hover{
-background:darkgreen;
-}
-
 .footer{
 text-align:center;
 padding:20px;
 font-size:15px;
-color:#555;
+color:#666;
 margin-top:20px;
 }
 
@@ -149,7 +140,7 @@ margin-top:20px;
 
 <p>Wallet Balance</p>
 
-<h2>₦0.00</h2>
+<h2 id="balance">₦0.00</h2>
 
 </div>
 
@@ -187,7 +178,7 @@ margin-top:20px;
 
 </div>
 
-<!-- AIRTIME BOX -->
+<!-- AIRTIME -->
 
 <div class="box">
 
@@ -200,21 +191,13 @@ placeholder="Phone Number">
 
 <select id="airtimeNetwork">
 
-<option value="mtn">
-MTN
-</option>
+<option value="mtn">MTN</option>
 
-<option value="airtel">
-Airtel
-</option>
+<option value="airtel">Airtel</option>
 
-<option value="glo">
-GLO
-</option>
+<option value="glo">GLO</option>
 
-<option value="9mobile">
-9mobile
-</option>
+<option value="9mobile">9mobile</option>
 
 </select>
 
@@ -236,7 +219,7 @@ Buy Airtime
 
 </div>
 
-<!-- VOICE BUNDLE BOX -->
+<!-- VOICE BUNDLE -->
 
 <div class="box">
 
@@ -313,6 +296,57 @@ Buy Voice Bundle
 const API_TOKEN =
 "988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515";
 
+async function loadBalance(){
+
+try{
+
+const response =
+await fetch(
+"https://autosyncng.com/api/v1/account-data",
+{
+
+method:"GET",
+
+headers:{
+
+"Authorization":
+"Bearer " + API_TOKEN,
+
+"Accept":
+"application/json"
+
+}
+
+}
+
+);
+
+const data =
+await response.json();
+
+console.log(data);
+
+document.getElementById(
+"balance"
+).innerHTML =
+"₦" +
+data.data.user.wallet.balance;
+
+}catch(error){
+
+console.log(error);
+
+document.getElementById(
+"balance"
+).innerHTML =
+"API Failed";
+
+}
+
+}
+
+loadBalance();
+
 async function buyAirtime(){
 
 let phone =
@@ -337,20 +371,6 @@ document.getElementById(
 
 let request_ref =
 "HDH" + Date.now();
-
-if(
-phone == "" ||
-amount == "" ||
-pin == ""
-){
-
-alert(
-"Please fill all fields"
-);
-
-return;
-
-}
 
 try{
 
@@ -414,6 +434,8 @@ alert(
 "Airtime Purchased Successfully"
 );
 
+loadBalance();
+
 }else{
 
 alert(
@@ -460,25 +482,11 @@ document.getElementById(
 let request_ref =
 "HDH" + Date.now();
 
-if(
-phone == "" ||
-amount == "" ||
-pin == ""
-){
-
-alert(
-"Please fill all fields"
-);
-
-return;
-
-}
-
 try{
 
 const response =
 await fetch(
-"https://autosyncng.com/api/v1/talk_more",
+"https://autosyncng.com/api/v1/data/talk-more",
 {
 
 method:"POST",
@@ -504,7 +512,7 @@ phone:phone,
 
 product_id:network,
 
-amount:amount,
+variation_code:amount,
 
 webhook_url:
 "https://yourwebsite.com/webhook",
@@ -534,6 +542,8 @@ alert(
 "Voice Bundle Purchased Successfully"
 );
 
+loadBalance();
+
 }else{
 
 alert(
@@ -558,4 +568,4 @@ alert(
 </script>
 
 </body>
-  </html>
+</html>
