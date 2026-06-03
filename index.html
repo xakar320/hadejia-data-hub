@@ -342,6 +342,8 @@ alert("Network Error");
 
 }
 
+<script>
+
 async function buyVoice(){
 
 const phone =
@@ -358,7 +360,7 @@ document.getElementById("voice_pin").value;
 
 try{
 
-const response = await fetch(`${BASE_URL}/data/talk-more`,{
+const response = await fetch(`${BASE_URL}/data/talk-more/purchase`,{
 
 method:"POST",
 
@@ -375,7 +377,7 @@ phone:phone,
 
 product_id:network,
 
-variation_code:amount,
+amount:amount,
 
 ported_no:true,
 
