@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
@@ -34,6 +35,10 @@ font-size:35px;
 margin-bottom:10px;
 }
 
+header p{
+font-size:18px;
+}
+
 .container{
 padding:20px;
 }
@@ -48,8 +53,8 @@ margin-bottom:20px;
 }
 
 .balance h2{
-color:green;
 font-size:40px;
+color:green;
 margin-top:10px;
 }
 
@@ -98,6 +103,7 @@ margin-bottom:15px;
 border:1px solid #ccc;
 border-radius:10px;
 font-size:16px;
+outline:none;
 }
 
 .box button{
@@ -118,8 +124,9 @@ background:darkgreen;
 .footer{
 text-align:center;
 padding:20px;
-margin-top:20px;
 font-size:15px;
+color:#555;
+margin-top:20px;
 }
 
 </style>
@@ -180,6 +187,8 @@ font-size:15px;
 
 </div>
 
+<!-- AIRTIME BOX -->
+
 <div class="box">
 
 <h2>Buy Airtime</h2>
@@ -227,6 +236,8 @@ Buy Airtime
 
 </div>
 
+<!-- VOICE BUNDLE BOX -->
+
 <div class="box">
 
 <h2>Buy Voice Bundle</h2>
@@ -251,27 +262,27 @@ MTN Voice Bundle
 <select id="voiceAmount">
 
 <option value="100">
-₦100
+₦100 Voice Bundle
 </option>
 
 <option value="200">
-₦200
+₦200 Voice Bundle
 </option>
 
 <option value="300">
-₦300
+₦300 Voice Bundle
 </option>
 
 <option value="500">
-₦500
+₦500 Voice Bundle
 </option>
 
 <option value="1000">
-₦1000
+₦1000 Voice Bundle
 </option>
 
 <option value="1500">
-₦1500
+₦1500 Voice Bundle
 </option>
 
 </select>
@@ -327,6 +338,20 @@ document.getElementById(
 let request_ref =
 "HDH" + Date.now();
 
+if(
+phone == "" ||
+amount == "" ||
+pin == ""
+){
+
+alert(
+"Please fill all fields"
+);
+
+return;
+
+}
+
 try{
 
 const response =
@@ -337,11 +362,16 @@ await fetch(
 method:"POST",
 
 headers:{
+
 "Content-Type":
 "application/json",
 
 "Authorization":
-"Bearer " + API_TOKEN
+"Bearer " + API_TOKEN,
+
+"Accept":
+"application/json"
+
 },
 
 body:JSON.stringify({
@@ -395,7 +425,11 @@ data.message ||
 
 }catch(error){
 
-alert("Network Error");
+console.log(error);
+
+alert(
+"Network Error"
+);
 
 }
 
@@ -426,6 +460,20 @@ document.getElementById(
 let request_ref =
 "HDH" + Date.now();
 
+if(
+phone == "" ||
+amount == "" ||
+pin == ""
+){
+
+alert(
+"Please fill all fields"
+);
+
+return;
+
+}
+
 try{
 
 const response =
@@ -436,11 +484,16 @@ await fetch(
 method:"POST",
 
 headers:{
+
 "Content-Type":
 "application/json",
 
 "Authorization":
-"Bearer " + API_TOKEN
+"Bearer " + API_TOKEN,
+
+"Accept":
+"application/json"
+
 },
 
 body:JSON.stringify({
@@ -450,8 +503,6 @@ request_ref:request_ref,
 phone:phone,
 
 product_id:network,
-
-variation_code:network,
 
 amount:amount,
 
@@ -494,7 +545,11 @@ data.message ||
 
 }catch(error){
 
-alert("Network Error");
+console.log(error);
+
+alert(
+"Network Error"
+);
 
 }
 
@@ -503,4 +558,4 @@ alert("Network Error");
 </script>
 
 </body>
-</html>
+  </html>
