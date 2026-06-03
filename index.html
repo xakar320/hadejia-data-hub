@@ -20,14 +20,13 @@ background:#f1f5f2;
 
 .header{
 background:green;
-color:white;
 padding:30px 20px;
 text-align:center;
+color:white;
 }
 
 .header h1{
-font-size:50px;
-font-weight:bold;
+font-size:45px;
 }
 
 .header p{
@@ -39,21 +38,17 @@ margin-top:10px;
 padding:20px;
 }
 
-.balance-card{
+.balance{
 background:white;
 padding:25px;
-border-radius:20px;
+border-radius:15px;
 text-align:center;
 box-shadow:0 2px 10px rgba(0,0,0,0.1);
-margin-bottom:25px;
+margin-bottom:20px;
 }
 
-.balance-card p{
-font-size:25px;
-}
-
-.balance-card h2{
-font-size:55px;
+.balance h2{
+font-size:45px;
 color:green;
 margin-top:10px;
 }
@@ -62,32 +57,32 @@ margin-top:10px;
 display:grid;
 grid-template-columns:repeat(2,1fr);
 gap:15px;
-margin-bottom:30px;
+margin-bottom:25px;
 }
 
 .card{
 background:white;
-padding:35px 20px;
-border-radius:20px;
+padding:25px;
+border-radius:15px;
 text-align:center;
 box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }
 
-.icon{
-font-size:55px;
+.card h3{
+margin-top:10px;
+font-size:20px;
 }
 
-.card h3{
-margin-top:15px;
-font-size:20px;
+.icon{
+font-size:45px;
 }
 
 .box{
 background:white;
 padding:20px;
-border-radius:20px;
+border-radius:15px;
 box-shadow:0 2px 10px rgba(0,0,0,0.1);
-margin-bottom:20px;
+margin-bottom:25px;
 }
 
 .box h2{
@@ -98,10 +93,10 @@ margin-bottom:15px;
 .box input,
 .box select{
 width:100%;
-padding:17px;
+padding:18px;
 margin-bottom:15px;
 border:1px solid #ccc;
-border-radius:12px;
+border-radius:10px;
 font-size:17px;
 }
 
@@ -109,23 +104,22 @@ font-size:17px;
 width:100%;
 padding:18px;
 background:green;
-border:none;
 color:white;
+border:none;
+border-radius:10px;
 font-size:22px;
-border-radius:12px;
 cursor:pointer;
 }
 
 footer{
 text-align:center;
 padding:20px;
-font-size:18px;
-color:#666;
+font-size:20px;
+color:#555;
 }
 
 </style>
 </head>
-
 <body>
 
 <div class="header">
@@ -135,7 +129,7 @@ color:#666;
 
 <div class="container">
 
-<div class="balance-card">
+<div class="balance">
 <p>Wallet Balance</p>
 <h2 id="balance">Loading...</h2>
 </div>
@@ -162,16 +156,6 @@ color:#666;
 <h3>Electricity</h3>
 </div>
 
-<div class="card">
-<div class="icon">📺</div>
-<h3>Cable TV</h3>
-</div>
-
-<div class="card">
-<div class="icon">💰</div>
-<h3>Fund Wallet</h3>
-</div>
-
 </div>
 
 <!-- AIRTIME -->
@@ -180,20 +164,22 @@ color:#666;
 
 <h2>Buy Airtime</h2>
 
-<input type="text" id="airtime_phone" placeholder="Phone Number">
+<input type="number" id="airtimePhone" placeholder="Phone Number">
 
-<select id="airtime_network">
+<select id="airtimeNetwork">
 <option value="mtn">MTN</option>
 <option value="airtel">Airtel</option>
 <option value="glo">GLO</option>
 <option value="9mobile">9mobile</option>
 </select>
 
-<input type="number" id="airtime_amount" placeholder="Amount">
+<input type="number" id="airtimeAmount" placeholder="Amount">
 
-<input type="password" id="airtime_pin" placeholder="Transaction Pin">
+<input type="password" id="airtimePin" placeholder="Transaction Pin">
 
-<button onclick="buyAirtime()">Buy Airtime</button>
+<button onclick="buyAirtime()">
+Buy Airtime
+</button>
 
 </div>
 
@@ -203,38 +189,45 @@ color:#666;
 
 <h2>Buy Voice Bundle</h2>
 
-<input type="text" id="voice_phone" placeholder="Phone Number">
+<input type="number" id="voicePhone" placeholder="Phone Number">
 
-<select id="voice_network">
+<select id="voiceNetwork">
 <option value="airtel">Airtel Voice Bundle</option>
 <option value="mtn">MTN Voice Bundle</option>
 </select>
 
-<select id="voice_amount">
+<select id="voiceAmount">
+
 <option value="100">₦100 Voice Bundle</option>
 <option value="200">₦200 Voice Bundle</option>
 <option value="300">₦300 Voice Bundle</option>
 <option value="500">₦500 Voice Bundle</option>
 <option value="1000">₦1000 Voice Bundle</option>
 <option value="1500">₦1500 Voice Bundle</option>
+
 </select>
 
-<input type="password" id="voice_pin" placeholder="Transaction Pin">
+<input type="password" id="voicePin" placeholder="Transaction Pin">
 
-<button onclick="buyVoice()">Buy Voice Bundle</button>
+<button onclick="buyVoice()">
+Buy Voice Bundle
+</button>
 
 </div>
 
 </div>
 
 <footer>
-© 2026 Hadejia Data Hub. All Rights Reserved.
+© 2026 Hadejia Data Hub
 </footer>
 
 <script>
 
 const API_TOKEN = "988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515";
 const BASE_URL = "https://autosyncng.com/api";
+
+
+// LOAD BALANCE
 
 async function loadBalance(){
 
@@ -254,13 +247,17 @@ console.log(data);
 
 if(data.status === "ok"){
 
+const balance =
+data.data.user.wallet.balance ||
+data.data.user.wallet_balance;
+
 document.getElementById("balance").innerHTML =
-"₦" + data.data.user.wallet.balance;
+"₦" + balance;
 
 }else{
 
 document.getElementById("balance").innerHTML =
-"Failed";
+"API Failed";
 
 }
 
@@ -269,27 +266,28 @@ document.getElementById("balance").innerHTML =
 console.log(error);
 
 document.getElementById("balance").innerHTML =
-"API Failed";
+"Network Error";
 
 }
 
 }
 
-loadBalance();
+
+// BUY AIRTIME
 
 async function buyAirtime(){
 
 const phone =
-document.getElementById("airtime_phone").value;
+document.getElementById("airtimePhone").value;
 
 const network =
-document.getElementById("airtime_network").value;
+document.getElementById("airtimeNetwork").value;
 
 const amount =
-document.getElementById("airtime_amount").value;
+document.getElementById("airtimeAmount").value;
 
 const pin =
-document.getElementById("airtime_pin").value;
+document.getElementById("airtimePin").value;
 
 try{
 
@@ -304,7 +302,7 @@ headers:{
 
 body:JSON.stringify({
 
-request_ref:Date.now().toString(),
+request_ref:"REF"+Date.now(),
 
 phone:phone,
 
@@ -315,8 +313,6 @@ amount:amount,
 ported_no:true,
 
 is_mtn_awuf:false,
-
-webhook_url:"",
 
 pin:pin
 
@@ -342,25 +338,26 @@ alert("Network Error");
 
 }
 
-<script>
+
+// BUY VOICE
 
 async function buyVoice(){
 
 const phone =
-document.getElementById("voice_phone").value;
+document.getElementById("voicePhone").value;
 
 const network =
-document.getElementById("voice_network").value;
+document.getElementById("voiceNetwork").value;
 
 const amount =
-document.getElementById("voice_amount").value;
+document.getElementById("voiceAmount").value;
 
 const pin =
-document.getElementById("voice_pin").value;
+document.getElementById("voicePin").value;
 
 try{
 
-const response = await fetch(`${BASE_URL}/data/talk-more/purchase`,{
+const response = await fetch(`${BASE_URL}/data/talk-more`,{
 
 method:"POST",
 
@@ -371,17 +368,15 @@ headers:{
 
 body:JSON.stringify({
 
-request_ref:Date.now().toString(),
+request_ref:"REF"+Date.now(),
 
 phone:phone,
 
 product_id:network,
 
-amount:amount,
+variation_code:amount,
 
 ported_no:true,
-
-webhook_url:"",
 
 pin:pin
 
@@ -401,11 +396,13 @@ loadBalance();
 
 console.log(error);
 
-alert("Voice Bundle Failed");
+alert("Network Error");
 
 }
 
 }
+
+loadBalance();
 
 </script>
 
