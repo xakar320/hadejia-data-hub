@@ -2,7 +2,7 @@ export default async function handler(req, res) {
 
   try {
 
-    const response = await fetch("https://autosyncng.com/api/user/", {
+    const response = await fetch("https://autosyncng.com/api/reseller/", {
       method: "GET",
       headers: {
         Authorization: "Bearer 988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515",
@@ -10,21 +10,13 @@ export default async function handler(req, res) {
       }
     });
 
-    const text = await response.text();
+    const data = await response.json();
 
-    try {
-      const data = JSON.parse(text);
-      return res.status(200).json(data);
-    } catch {
-      return res.status(500).json({
-        status: "error",
-        message: text
-      });
-    }
+    res.status(200).json(data);
 
   } catch (error) {
 
-    return res.status(500).json({
+    res.status(500).json({
       status: "error",
       message: error.message
     });
