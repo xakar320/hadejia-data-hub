@@ -2,7 +2,7 @@ export default async function handler(req, res) {
 
   try {
 
-    const response = await fetch("https://autosyncng.com/api/profile", {
+    const response = await fetch("https://autosyncng.com/api/user", {
 
       method: "GET",
 
