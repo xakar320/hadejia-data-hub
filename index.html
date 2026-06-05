@@ -3,151 +3,156 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Hadejia Data Hub</title>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial;
-}
 
 body{
-background:#f1f1f1;
+    margin:0;
+    padding:0;
+    font-family:Arial,sans-serif;
+    background:#f2f2f2;
 }
 
 .header{
-background:green;
-color:white;
-padding:30px;
-text-align:center;
+    background:green;
+    color:white;
+    text-align:center;
+    padding:40px 20px;
 }
 
 .header h1{
-font-size:45px;
+    font-size:60px;
+    margin:0;
+}
+
+.header p{
+    font-size:25px;
 }
 
 .balance-card{
-background:white;
-margin:20px;
-padding:30px;
-border-radius:20px;
-text-align:center;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
+    background:white;
+    margin:20px;
+    padding:30px;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
 .balance-card h2{
-font-size:45px;
-color:green;
-margin-top:10px;
+    font-size:35px;
+    color:black;
+}
+
+.balance-card h1{
+    font-size:60px;
+    color:green;
 }
 
 .grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:20px;
-padding:20px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    padding:20px;
 }
 
 .card{
-background:white;
-padding:30px 20px;
-border-radius:20px;
-text-align:center;
-font-size:35px;
-font-weight:bold;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
+    background:white;
+    border-radius:20px;
+    padding:30px;
+    text-align:center;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
-.section{
-background:white;
-margin:20px;
-padding:20px;
-border-radius:20px;
+.card h2{
+    font-size:28px;
 }
 
-.section h1{
-color:green;
-margin-bottom:20px;
+.form-box{
+    background:white;
+    margin:20px;
+    padding:20px;
+    border-radius:20px;
 }
 
-input,select,button{
-width:100%;
-padding:18px;
-margin-top:15px;
-border-radius:12px;
-border:1px solid #ccc;
-font-size:18px;
+.form-box h2{
+    color:green;
+    font-size:40px;
+}
+
+input,select{
+    width:100%;
+    padding:20px;
+    margin-top:15px;
+    border-radius:15px;
+    border:1px solid #ccc;
+    font-size:22px;
+    box-sizing:border-box;
 }
 
 button{
-background:green;
-color:white;
-border:none;
-font-size:25px;
-font-weight:bold;
+    width:100%;
+    padding:20px;
+    margin-top:20px;
+    background:green;
+    color:white;
+    border:none;
+    border-radius:15px;
+    font-size:30px;
+    font-weight:bold;
 }
 
-footer{
-text-align:center;
-padding:30px;
-font-size:20px;
+.footer{
+    text-align:center;
+    padding:30px;
+    font-size:25px;
 }
+
 </style>
-
 </head>
+
 <body>
 
 <div class="header">
-<h1>Hadejia Data Hub</h1>
-<p>Cheap & Fast VTU Services</p>
+    <h1>Hadejia Data Hub</h1>
+    <p>Cheap & Fast VTU Services</p>
 </div>
 
 <div class="balance-card">
-<p>Wallet Balance</p>
-<h2 id="balance">Loading...</h2>
+    <h2>Wallet Balance</h2>
+    <h1 id="balance">Loading...</h1>
 </div>
 
 <div class="grid">
 
-<div class="card">
-📶
-<br>
-Buy Data
-</div>
+    <div class="card">
+        <h2>📶<br>Buy Data</h2>
+    </div>
 
-<div class="card">
-📱
-<br>
-Airtime
-</div>
+    <div class="card">
+        <h2>📱<br>Airtime</h2>
+    </div>
 
-<div class="card">
-📞
-<br>
-Voice Bundle
-</div>
+    <div class="card">
+        <h2>📞<br>Voice Bundle</h2>
+    </div>
 
-<div class="card">
-💡
-<br>
-Electricity
-</div>
+    <div class="card">
+        <h2>💡<br>Electricity</h2>
+    </div>
 
 </div>
 
 <!-- AIRTIME -->
 
-<div class="section">
+<div class="form-box">
 
-<h1>Buy Airtime</h1>
+<h2>Buy Airtime</h2>
 
 <select id="network">
 <option value="mtn">MTN</option>
 <option value="airtel">Airtel</option>
-<option value="glo">GLO</option>
+<option value="glo">Glo</option>
 <option value="9mobile">9mobile</option>
 </select>
 
@@ -163,9 +168,9 @@ Electricity
 
 <!-- VOICE -->
 
-<div class="section">
+<div class="form-box">
 
-<h1>Buy Voice Bundle</h1>
+<h2>Buy Voice Bundle</h2>
 
 <select id="voicePlan">
 
@@ -177,8 +182,6 @@ Electricity
 
 <option value="TalkMore_500">Talk More N500 - 50 Minutes</option>
 
-<option value="TalkMore_1000">Talk More N1000 - 100 Minutes</option>
-
 </select>
 
 <input type="number" id="voicePhone" placeholder="Phone Number">
@@ -189,181 +192,101 @@ Electricity
 
 </div>
 
-<footer>
+<div class="footer">
 © 2026 Hadejia Data Hub
-</footer>
+</div>
 
 <script>
 
 const API_TOKEN = "988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515";
 
-
-// LOAD BALANCE
-
 async function loadBalance(){
-<!-- WALLET BALANCE CARD -->
-<div class="balance-card">
-  <h2>Wallet Balance</h2>
-  <h1 id="balance">Loading...</h1>
-</div>
 
-<script>
-
-async function loadBalance() {
-
-  try {
-
-    // CUSTOM BALANCE
-    let myBalance = "₦50,000";
-
-    document.getElementById("balance").innerHTML = myBalance;
-
-  } catch (error) {
-
-    document.getElementById("balance").innerHTML = "₦0.00";
-
-  }
+    document.getElementById("balance").innerHTML = "₦50,000";
 
 }
 
 loadBalance();
-
-</script>
-
-<style>
-
-.balance-card{
-  background:#fff;
-  margin:20px;
-  padding:30px;
-  border-radius:20px;
-  text-align:center;
-  box-shadow:0 0 10px rgba(0,0,0,0.1);
-}
-
-.balance-card h2{
-  font-size:35px;
-  color:#111;
-}
-
-.balance-card h1{
-  font-size:60px;
-  color:green;
-  margin-top:20px;
-}
-
-</style>
-
-loadBalance();
-
-
-// BUY AIRTIME
 
 async function buyAirtime(){
 
-const network = document.getElementById("network").value;
+    const network = document.getElementById("network").value;
 
-const amount = document.getElementById("airtimeAmount").value;
+    const amount = document.getElementById("airtimeAmount").value;
 
-const phone = document.getElementById("airtimePhone").value;
+    const phone = document.getElementById("airtimePhone").value;
 
-const pin = document.getElementById("airtimePin").value;
+    const pin = document.getElementById("airtimePin").value;
 
-try{
+    try{
 
-const response = await fetch("https://autosyncng.com/api/topup",{
+        const response = await fetch("https://autosyncng.com/api/topup/",{
 
-method:"POST",
+            method:"POST",
 
-headers:{
-"Content-Type":"application/json",
-"Authorization":"Bearer " + API_TOKEN
-},
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":"Bearer " + API_TOKEN
+            },
 
-body:JSON.stringify({
+            body:JSON.stringify({
+                network:network,
+                amount:amount,
+                phone:phone,
+                pin:pin
+            })
 
-network:network,
-amount:amount,
-phone:phone,
-pin:pin
+        });
 
-})
+        const data = await response.json();
 
-});
+        alert(data.message || "Airtime Sent Successfully");
 
-const data = await response.json();
+    }catch(error){
 
-console.log(data);
+        alert("Network Error");
 
-alert(data.message);
-
-loadBalance();
-
-}catch(error){
-
-console.log(error);
-
-alert("Network Error");
+    }
 
 }
-
-}
-
-
-// BUY VOICE
 
 async function buyVoice(){
 
-const plan = document.getElementById("voicePlan").value;
+    const variation = document.getElementById("voicePlan").value;
 
-const phone = document.getElementById("voicePhone").value;
+    const phone = document.getElementById("voicePhone").value;
 
-const pin = document.getElementById("voicePin").value;
+    const pin = document.getElementById("voicePin").value;
 
-try{
+    try{
 
-const response = await fetch("https://autosyncng.com/api/data/talk-more",{
+        const response = await fetch("https://autosyncng.com/api/bundle/",{
 
-method:"POST",
+            method:"POST",
 
-headers:{
-"Content-Type":"application/json",
-"Authorization":"Bearer " + API_TOKEN
-},
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":"Bearer " + API_TOKEN
+            },
 
-body:JSON.stringify({
+            body:JSON.stringify({
+                network:"airtel",
+                variation:variation,
+                phone:phone,
+                pin:pin
+            })
 
-request_ref:"REF"+Date.now(),
+        });
 
-phone:phone,
+        const data = await response.json();
 
-product_id:"airtel",
+        alert(data.message || "Voice Bundle Sent Successfully");
 
-variation_code:plan,
+    }catch(error){
 
-ported_no:true,
+        alert("Network Error");
 
-pin:pin
-
-})
-
-});
-
-const data = await response.json();
-
-console.log(data);
-
-alert(data.message);
-
-loadBalance();
-
-}catch(error){
-
-console.log(error);
-
-alert("Network Error");
-
-}
+    }
 
 }
 
