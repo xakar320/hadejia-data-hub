@@ -233,49 +233,49 @@ const BASE_URL = "https://autosyncng.com/api";
 
 // LOAD BALANCE
 
-async function loadBalance(){
+async function loadBalance() {
 
-try{
+  const balanceEl = document.getElementById("balance");
 
-const response = await fetch(`${BASE_URL}/user`,{
-method:"GET",
-headers:{
-"Authorization":`Bearer ${API_TOKEN}`,
-"Content-Type":"application/json"
+  balanceEl.innerHTML = "Loading...";
+
+  try {
+
+    const res = await fetch("https://autosyncng.com/api/user", {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer 988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515",
+        "Accept": "application/json"
+      }
+    });
+
+    const data = await res.json();
+
+    console.log(data);
+
+    if (data.status === "ok") {
+
+      const balance =
+        data.data.user.wallet.balance ||
+        data.data.user.wallet_balance;
+
+      balanceEl.innerHTML = "₦" + balance;
+
+    } else {
+
+      balanceEl.innerHTML = "API Failed";
+
+    }
+
+  } catch (err) {
+
+    console.log(err);
+
+    balanceEl.innerHTML = "Network Error";
+
+  }
+
 }
-});
-
-const data = await response.json();
-
-console.log(data);
-
-if(data.status === "ok"){
-
-const balance =
-data.data.user.wallet.balance ||
-data.data.user.wallet_balance;
-
-document.getElementById("balance").innerHTML =
-"₦" + balance;
-
-}else{
-
-document.getElementById("balance").innerHTML =
-"API Failed";
-
-}
-
-}catch(error){
-
-console.log(error);
-
-document.getElementById("balance").innerHTML =
-"Network Error";
-
-}
-
-}
-
 
 // BUY AIRTIME
 
