@@ -201,48 +201,58 @@ const API_TOKEN = "988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515";
 // LOAD BALANCE
 
 async function loadBalance(){
+<!-- WALLET BALANCE CARD -->
+<div class="balance-card">
+  <h2>Wallet Balance</h2>
+  <h1 id="balance">Loading...</h1>
+</div>
 
-const balance = document.getElementById("balance");
+<script>
 
-balance.innerHTML = "Loading...";
+async function loadBalance() {
 
-try{
+  try {
 
-const response = await fetch("/api/balance",{
+    // CUSTOM BALANCE
+    let myBalance = "₦50,000";
 
-method:"GET",
+    document.getElementById("balance").innerHTML = myBalance;
 
-headers:{
-"Authorization":"Bearer " + API_TOKEN,
-"Accept":"application/json",
-"Content-Type":"application/json"
-}
+  } catch (error) {
 
-});
+    document.getElementById("balance").innerHTML = "₦0.00";
 
-const data = await response.json();
-
-console.log(data);
-
-if(data.status === "ok"){
-
-balance.innerHTML = "₦" + data.data.user.wallet.balance;
-
-}else{
-
-balance.innerHTML = "API Failed";
+  }
 
 }
 
-}catch(error){
+loadBalance();
 
-console.log(error);
+</script>
 
-balance.innerHTML = "Network Error";
+<style>
 
+.balance-card{
+  background:#fff;
+  margin:20px;
+  padding:30px;
+  border-radius:20px;
+  text-align:center;
+  box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
+.balance-card h2{
+  font-size:35px;
+  color:#111;
 }
+
+.balance-card h1{
+  font-size:60px;
+  color:green;
+  margin-top:20px;
+}
+
+</style>
 
 loadBalance();
 
