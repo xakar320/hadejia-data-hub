@@ -291,6 +291,67 @@ async function buyVoice(){
 }
 
 </script>
+<script>
 
+// sauran functions naka
+
+async function buyVoice() {
+
+}
+
+/* NAN ZAKA SAKA SHI */
+
+const API_TOKEN = "988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515";
+
+// LOAD BALANCE
+async function loadBalance() {
+
+    try {
+
+        const response = await fetch("/api/balance");
+
+        const data = await response.json();
+
+        console.log(data);
+
+        if (data.balance) {
+
+            document.getElementById("walletBalance").innerText =
+                "₦" + Number(data.balance).toLocaleString();
+
+        }
+
+        else if (data.wallet && data.wallet.balance) {
+
+            document.getElementById("walletBalance").innerText =
+                "₦" + Number(data.wallet.balance).toLocaleString();
+
+        }
+
+        else {
+
+            document.getElementById("walletBalance").innerText =
+                "Balance Error";
+
+        }
+
+    } catch (error) {
+
+        console.log(error);
+
+        document.getElementById("walletBalance").innerText =
+            "Network Error";
+
+    }
+
+}
+
+// LOAD PAGE
+loadBalance();
+
+</script>
+
+</body>
+</html>
 </body>
 </html>
