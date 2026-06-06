@@ -281,17 +281,26 @@ async function buyAirtime(){
 
 }
 
+<script>
+
 async function buyVoice(){
 
-    const variation = document.getElementById("voicePlan").value;
+    const network =
+    document.getElementById("voiceNetwork").value;
 
-    const phone = document.getElementById("voicePhone").value;
+    const variation =
+    document.getElementById("voicePlan").value;
 
-    const pin = document.getElementById("voicePin").value;
+    const phone =
+    document.getElementById("voicePhone").value;
+
+    const pin =
+    document.getElementById("voicePin").value;
 
     try{
 
-        const response = await fetch("https://autosyncng.com/api/bundle/",{
+        const response = await fetch(
+        "https://autosyncng.com/api/data/",{
 
             method:"POST",
 
@@ -301,19 +310,32 @@ async function buyVoice(){
             },
 
             body:JSON.stringify({
-                network:"airtel",
-                variation:variation,
+
+                request_ref:"REF"+Date.now(),
+
+                product_id:network,
+
+                variation_code:variation,
+
                 phone:phone,
+
                 pin:pin
+
             })
 
         });
 
         const data = await response.json();
 
-        alert(data.message || "Voice Bundle Sent Successfully");
+        console.log(data);
+
+        alert(data.message || "Voice Bundle Success");
+
+        loadBalance();
 
     }catch(error){
+
+        console.log(error);
 
         alert("Network Error");
 
