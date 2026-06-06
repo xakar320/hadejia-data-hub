@@ -348,7 +348,59 @@ async function loadBalance() {
 
 // LOAD PAGE
 loadBalance();
+async function buyData(){
 
+    const network =
+    document.getElementById("dataNetwork").value;
+
+    const variation =
+    document.getElementById("dataPlan").value;
+
+    const phone =
+    document.getElementById("dataPhone").value;
+
+    const pin =
+    document.getElementById("dataPin").value;
+
+    try{
+
+        const response = await fetch(
+        "https://autosyncng.com/api/data/",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":"Bearer " + API_TOKEN
+            },
+
+            body:JSON.stringify({
+
+                network:network,
+
+                variation:variation,
+
+                phone:phone,
+
+                pin:pin
+
+            })
+
+        });
+
+        const data = await response.json();
+
+        alert(data.message || "Data Purchased Successfully");
+
+        loadBalance();
+
+    }catch(error){
+
+        alert("Network Error");
+
+    }
+
+}
 </script>
 
 </body>
