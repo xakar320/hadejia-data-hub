@@ -286,15 +286,17 @@ const response = await fetch("/api/balance");
 
 const data = await response.json();
 
-if(data.balance){
+if(data.balance !== undefined){
 
 document.getElementById("walletBalance").innerText =
 "₦" + Number(data.balance).toLocaleString();
 
 }else{
 
+console.log(data);
+
 document.getElementById("walletBalance").innerText =
-"Balance Error";
+"₦0";
 
 }
 
