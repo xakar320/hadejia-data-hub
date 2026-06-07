@@ -138,6 +138,7 @@ REGISTER
 ========================= */
 
 async function register(){
+async function register(){
 
 const fullname =
 document.getElementById(
@@ -169,13 +170,13 @@ return;
 const { data, error } =
 await supabase.auth.signUp({
 
-email:email,
+email: email,
 
-password:password,
+password: password,
 
 options:{
 data:{
-full_name:fullname
+full_name: fullname
 }
 }
 
@@ -188,7 +189,7 @@ alert(error.message);
 }else{
 
 alert(
-"Registration Successful"
+"Account Created Successfully"
 );
 
 window.location.href =
