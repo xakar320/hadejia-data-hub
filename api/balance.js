@@ -3,41 +3,69 @@ export default async function handler(req, res) {
     try {
 
         const response = await fetch(
-            "https://autosyncng.com/api/user", {
+            "https://autosyncng.com/api/user",
+            {
+                method: "GET",
 
-            method: "GET",
+                headers: {
+                    "Authorization":
+                    "Bearer 988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515",
 
-            headers: {
-                Authorization: "Bearer 988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515",
-                Accept: "application/json"
+                    "Accept":
+                    "application/json"
+                }
             }
-
-        });
+        );
 
         const data = await response.json();
 
-        // idan balance yana cikin wallet
-        if (data.wallet && data.wallet.balance) {
+        console.log(data);
 
-            res.status(200).json({
-                balance: data.wallet.balance
-            });
+        // CHECK ALL POSSIBLE BALANCE TYPES
 
-        }
+        let balance = null;
 
-        // idan balance yana direct
-        else if (data.balance) {
+        if (data.balance) {
 
-            res.status(200).json({
-                balance: data.balance
-            });
+            balance = data.balance;
 
         }
 
-        else {
+        else if (data.wallet_balance) {
+
+            balance = data.wallet_balance;
+
+        }
+
+        else if (
+            data.wallet &&
+            data.wallet.balance
+        ) {
+
+            balance = data.wallet.balance;
+
+        }
+
+        else if (
+            data.data &&
+            data.data.balance
+        ) {
+
+            balance = data.data.balance;
+
+        }
+
+        if (balance !== null) {
 
             res.status(200).json({
-                balance: 0
+                balance: balance
+            });
+
+        } else {
+
+            res.status(200).json({
+                balance: 0,
+                raw: data
             });
 
         }
