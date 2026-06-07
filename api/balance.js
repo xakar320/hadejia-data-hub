@@ -8,7 +8,7 @@ export default async function handler(req, res) {
             method: "GET",
 
             headers: {
-                Authorization: "Bearer SAKA_API_TOKEN_DINKA",
+                Authorization: "Bearer 988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515",
                 Accept: "application/json"
             }
 
