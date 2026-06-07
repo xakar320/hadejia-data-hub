@@ -4,108 +4,51 @@
 <head>
 
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<title>User Dashboard</title>
+<title>Dashboard</title>
 
 <style>
 
 body{
-
 margin:0;
-
-padding:20px;
-
-font-family:Arial,sans-serif;
-
+font-family:Arial;
 background:#f1f1f1;
-
 }
 
 .box{
-
-background:white;
-
-padding:30px;
-
-border-radius:20px;
-
 max-width:500px;
-
-margin:auto;
-
-margin-top:50px;
-
+margin:50px auto;
+background:white;
+padding:25px;
+border-radius:20px;
 box-shadow:0 5px 20px rgba(0,0,0,0.1);
-
+text-align:center;
 }
 
 h1{
-
 color:green;
-
-font-size:40px;
-
-margin-bottom:20px;
-
-text-align:center;
-
-}
-
-p{
-
-font-size:22px;
-
-margin-bottom:20px;
-
-text-align:center;
-
 }
 
 .balance{
-
-background:green;
-
-color:white;
-
-padding:20px;
-
-border-radius:15px;
-
 font-size:30px;
-
-font-weight:bold;
-
-text-align:center;
-
+background:green;
+color:white;
+padding:15px;
+border-radius:10px;
 margin-top:20px;
-
 }
 
 button{
-
 width:100%;
-
-height:60px;
-
+padding:15px;
+margin-top:20px;
 border:none;
-
-border-radius:15px;
-
 background:red;
-
 color:white;
-
-font-size:24px;
-
-font-weight:bold;
-
+font-size:20px;
+border-radius:10px;
 cursor:pointer;
-
-margin-top:30px;
-
 }
 
 </style>
@@ -116,24 +59,15 @@ margin-top:30px;
 
 <div class="box">
 
-<h1>
-Dashboard
-</h1>
+<h1 id="welcomeText">Loading...</h1>
 
-<p id="welcomeText">
-Loading...
-</p>
+<div class="balance">₦0</div>
 
-<div class="balance">
-₦0
-</div>
-
-<button onclick="logout()">
-Logout
-</button>
+<button onclick="logout()">Logout</button>
 
 </div>
 
+<!-- 🔥 JS STARTS HERE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -145,57 +79,54 @@ const supabaseKey =
 "sb_publishable_PsygV812Dm2ORo2JcnhjzA_I_xbjqG4";
 
 const client =
-window.supabase.createClient(
-supabaseUrl,
-supabaseKey
-);
+supabase.createClient(supabaseUrl, supabaseKey);
+
+let currentUser = null;
 
 /* CHECK USER */
-
 async function checkUser(){
 
-const {
-data:{session}
-} =
+const { data:{session} } =
 await client.auth.getSession();
 
 if(!session){
-
-window.location.href =
-"auth.html";
-
+window.location.href = "auth.html";
 return;
+}
+
+currentUser = session.user;
+
+document.getElementById("welcomeText").innerText =
+"Welcome " + (currentUser.user_metadata.full_name || "User");
+
+loadBalance();
 
 }
 
-/* SHOW USER */
+/* LOAD BALANCE */
+async function loadBalance(){
 
-const user =
-session.user;
+const { data } =
+await client
+.from("users")
+.select("balance")
+.eq("email", currentUser.email)
+.single();
 
-document.getElementById(
-"welcomeText"
-).innerHTML =
+if(data){
+document.querySelector(".balance").innerText =
+"₦" + Number(data.balance).toLocaleString();
+}
 
-"Welcome, <b>" +
-(user.user_metadata.full_name || "User")
-+
-"</b>";
+}
 
+/* LOGOUT */
+async function logout(){
+await client.auth.signOut();
+window.location.href = "auth.html";
 }
 
 checkUser();
-
-/* LOGOUT */
-
-async function logout(){
-
-await client.auth.signOut();
-
-window.location.href =
-"auth.html";
-
-}
 
 </script>
 
