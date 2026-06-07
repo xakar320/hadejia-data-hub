@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
@@ -23,43 +22,44 @@ body{
 
 background:#f1f1f1;
 
+width:100%;
+min-height:100vh;
+
 display:flex;
 
 justify-content:center;
 
 align-items:center;
 
-height:100vh;
-
 padding:20px;
 
 }
 
-.auth-box{
+.container{
 
 width:100%;
 
-max-width:420px;
+max-width:450px;
 
 background:white;
 
-padding:30px;
+padding:40px 25px;
 
 border-radius:20px;
 
-box-shadow:0 0 15px rgba(0,0,0,0.1);
+box-shadow:0 5px 20px rgba(0,0,0,0.1);
 
 }
 
-.auth-box h1{
+h1{
 
 text-align:center;
 
 color:green;
 
-margin-bottom:30px;
+font-size:45px;
 
-font-size:40px;
+margin-bottom:35px;
 
 }
 
@@ -67,15 +67,17 @@ input{
 
 width:100%;
 
-padding:18px;
-
-margin-bottom:18px;
+height:60px;
 
 border:2px solid #ddd;
 
 border-radius:15px;
 
-font-size:18px;
+padding:15px;
+
+font-size:20px;
+
+margin-bottom:20px;
 
 outline:none;
 
@@ -85,23 +87,23 @@ button{
 
 width:100%;
 
-padding:18px;
+height:60px;
 
 border:none;
 
 border-radius:15px;
 
-background:green;
-
-color:white;
-
-font-size:22px;
+font-size:28px;
 
 font-weight:bold;
 
-margin-top:10px;
-
 cursor:pointer;
+
+margin-bottom:20px;
+
+background:green;
+
+color:white;
 
 }
 
@@ -115,11 +117,11 @@ p{
 
 text-align:center;
 
-margin-top:20px;
-
-color:#666;
-
 font-size:18px;
+
+color:#555;
+
+margin-top:10px;
 
 }
 
@@ -129,7 +131,7 @@ font-size:18px;
 
 <body>
 
-<div class="auth-box">
+<div class="container">
 
 <h1>Hadejia Data Hub</h1>
 
@@ -171,16 +173,8 @@ const supabaseUrl =
 
 const supabaseKey =
 "sb_publishable_PsygV812Dm2ORo2JcnhjzA_I_xbjqG4";
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
 
-const supabaseUrl =
-"https://zjenhfapfhuoogxorung.supabase.co";
-
-const supabaseKey =
-"sb_publishable_PsygV812Dm2ORo2JcnhjzA_I_xbjqG4";
-
-const supabase =
+const client =
 supabase.createClient(
 supabaseUrl,
 supabaseKey
@@ -203,112 +197,27 @@ document.getElementById(
 "password"
 ).value;
 
-const { data, error } =
-await supabase.auth.signUp({
+if(!fullname || !email || !password){
 
-email: email,
-
-password: password,
-
-options:{
-data:{
-full_name: fullname
-}
-}
-
-});
-
-if(error){
-
-alert(error.message);
-
-}else{
-
-alert("Registration Successful");
-
-}
-
-}
-
-async function login(){
-
-const email =
-document.getElementById(
-"email"
-).value;
-
-const password =
-document.getElementById(
-"password"
-).value;
-
-const { data, error } =
-await supabase.auth.signInWithPassword({
-
-email: email,
-
-password: password
-
-});
-
-if(error){
-
-alert(error.message);
-
-}else{
-
-alert("Login Successful");
-
-window.location.href = "/";
-
-}
-
-}
-
-</script>
-
-async function register(){
-
-const fullname =
-document.getElementById(
-"fullname"
-).value;
-
-const email =
-document.getElementById(
-"email"
-).value;
-
-const password =
-document.getElementById(
-"password"
-).value;
-
-if(
-!fullname ||
-!email ||
-!password
-){
-
-alert(
-"Please fill all fields"
-);
+alert("Please fill all fields");
 
 return;
 
 }
 
 const { data, error } =
-await supabase.auth.signUp({
+await client.auth.signUp({
 
-email: email,
+email:email,
 
-password: password,
+password:password,
 
 options:{
+
 data:{
-full_name: fullname
+full_name:fullname
 }
+
 }
 
 });
@@ -339,10 +248,7 @@ document.getElementById(
 "password"
 ).value;
 
-if(
-!email ||
-!password
-){
+if(!email || !password){
 
 alert(
 "Enter Email & Password"
@@ -353,11 +259,11 @@ return;
 }
 
 const { data, error } =
-await supabase.auth.signInWithPassword({
+await client.auth.signInWithPassword({
 
-email: email,
+email:email,
 
-password: password
+password:password
 
 });
 
@@ -367,12 +273,9 @@ alert(error.message);
 
 }else{
 
-alert(
-"Login Successful"
-);
+alert("Login Successful");
 
-window.location.href =
-"/";
+window.location.href = "/";
 
 }
 
@@ -381,5 +284,4 @@ window.location.href =
 </script>
 
 </body>
-
 </html>
