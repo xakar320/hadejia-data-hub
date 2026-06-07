@@ -1,115 +1,183 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Login & Register</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Hadejia Data Hub Auth</title>
 
 <style>
-body{
-font-family:Arial;
-background:#f2f2f2;
+
+*{
 margin:0;
-padding:20px;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+background:#f2f2f2;
+width:100%;
+min-height:100vh;
 display:flex;
 justify-content:center;
 align-items:center;
-min-height:100vh;
-box-sizing:border-box;
+padding:20px;
 }
 
 .card{
-background:white;
-padding:25px;
-border-radius:20px;
 width:100%;
 max-width:500px;
+background:white;
+padding:30px;
+border-radius:20px;
 box-shadow:0 0 15px rgba(0,0,0,0.1);
+}
+
+h2{
+text-align:center;
+color:green;
+margin-bottom:25px;
+font-size:32px;
 }
 
 input{
 width:100%;
-padding:15px;
-margin-top:10px;
-border-radius:12px;
+padding:16px;
+margin-top:15px;
 border:1px solid #ccc;
+border-radius:12px;
 font-size:16px;
-box-sizing:border-box;
+outline:none;
 }
 
 button{
 width:100%;
-padding:15px;
-margin-top:15px;
+padding:16px;
+margin-top:18px;
 border:none;
+border-radius:12px;
 background:green;
 color:white;
 font-size:18px;
-border-radius:12px;
 font-weight:bold;
+cursor:pointer;
 }
 
-h2{
-text-align:center;
-color:green;
-margin-bottom:20px;
+button:hover{
+opacity:0.9;
 }
 
-h2{
+.small{
 text-align:center;
-color:green;
+margin-top:15px;
+font-size:15px;
+color:#666;
 }
+
 </style>
 
 </head>
+
 <body>
 
 <div class="card">
 
 <h2>Hadejia Data Hub</h2>
 
-<input type="text" id="name" placeholder="Full Name">
+<input
+type="text"
+id="fullname"
+placeholder="Full Name">
 
-<input type="email" id="email" placeholder="Email">
+<input
+type="email"
+id="email"
+placeholder="Email Address">
 
-<input type="password" id="password" placeholder="Password">
+<input
+type="password"
+id="password"
+placeholder="Password">
 
-<button onclick="register()">Register</button>
+<button onclick="register()">
+Register
+</button>
 
-<button onclick="login()">Login</button>
+<button onclick="login()">
+Login
+</button>
+
+<div class="small">
+Secure Login System
+</div>
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
 
-const supabaseUrl =
+const SUPABASE_URL =
 "https://zjenhfapfhuoogxorung.supabase.co";
 
-const supabaseKey =
+const SUPABASE_KEY =
 "sb_publishable_PsygV812Dm2ORo2JcnhjzA_I_xbjqG4";
 
 const supabase =
 window.supabase.createClient(
-supabaseUrl,
-supabaseKey
+SUPABASE_URL,
+SUPABASE_KEY
 );
+
+/* =========================
+REGISTER
+========================= */
 
 async function register(){
 
-const name =
-document.getElementById("name").value;
+const fullname =
+document.getElementById(
+"fullname"
+).value;
 
 const email =
-document.getElementById("email").value;
+document.getElementById(
+"email"
+).value;
 
 const password =
-document.getElementById("password").value;
+document.getElementById(
+"password"
+).value;
+
+if(
+!fullname ||
+!email ||
+!password
+){
+
+alert("Fill all fields");
+
+return;
+
+}
 
 const { data, error } =
 await supabase.auth.signUp({
 
 email:email,
-password:password
+
+password:password,
+
+options:{
+data:{
+full_name:fullname
+}
+}
 
 });
 
@@ -119,33 +187,49 @@ alert(error.message);
 
 }else{
 
-await supabase
-.from("users")
-.insert([{
+alert(
+"Registration Successful"
+);
 
-name:name,
-email:email
-
-}]);
-
-alert("Registration Successful");
+window.location.href =
+"/";
 
 }
 
 }
+
+/* =========================
+LOGIN
+========================= */
 
 async function login(){
 
 const email =
-document.getElementById("email").value;
+document.getElementById(
+"email"
+).value;
 
 const password =
-document.getElementById("password").value;
+document.getElementById(
+"password"
+).value;
+
+if(
+!email ||
+!password
+){
+
+alert("Enter Email & Password");
+
+return;
+
+}
 
 const { data, error } =
 await supabase.auth.signInWithPassword({
 
 email:email,
+
 password:password
 
 });
@@ -156,9 +240,12 @@ alert(error.message);
 
 }else{
 
-alert("Login Successful");
+alert(
+"Login Successful"
+);
 
-window.location.href="/";
+window.location.href =
+"/";
 
 }
 
