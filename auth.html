@@ -171,12 +171,101 @@ const supabaseUrl =
 
 const supabaseKey =
 "sb_publishable_PsygV812Dm2ORo2JcnhjzA_I_xbjqG4";
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+
+const supabaseUrl =
+"https://zjenhfapfhuoogxorung.supabase.co";
+
+const supabaseKey =
+"sb_publishable_PsygV812Dm2ORo2JcnhjzA_I_xbjqG4";
 
 const supabase =
-window.supabase.createClient(
+supabase.createClient(
 supabaseUrl,
 supabaseKey
 );
+
+async function register(){
+
+const fullname =
+document.getElementById(
+"fullname"
+).value;
+
+const email =
+document.getElementById(
+"email"
+).value;
+
+const password =
+document.getElementById(
+"password"
+).value;
+
+const { data, error } =
+await supabase.auth.signUp({
+
+email: email,
+
+password: password,
+
+options:{
+data:{
+full_name: fullname
+}
+}
+
+});
+
+if(error){
+
+alert(error.message);
+
+}else{
+
+alert("Registration Successful");
+
+}
+
+}
+
+async function login(){
+
+const email =
+document.getElementById(
+"email"
+).value;
+
+const password =
+document.getElementById(
+"password"
+).value;
+
+const { data, error } =
+await supabase.auth.signInWithPassword({
+
+email: email,
+
+password: password
+
+});
+
+if(error){
+
+alert(error.message);
+
+}else{
+
+alert("Login Successful");
+
+window.location.href = "/";
+
+}
+
+}
+
+</script>
 
 async function register(){
 
