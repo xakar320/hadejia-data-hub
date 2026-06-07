@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
@@ -7,7 +8,7 @@
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<title>Hadejia Data Hub</title>
+<title>Hadejia Data Hub Auth</title>
 
 <style>
 
@@ -55,9 +56,9 @@ h1{
 
 text-align:center;
 
-color:green;
+font-size:50px;
 
-font-size:45px;
+color:green;
 
 margin-bottom:35px;
 
@@ -93,17 +94,17 @@ border:none;
 
 border-radius:15px;
 
+background:green;
+
+color:white;
+
 font-size:28px;
 
 font-weight:bold;
 
-cursor:pointer;
-
 margin-bottom:20px;
 
-background:green;
-
-color:white;
+cursor:pointer;
 
 }
 
@@ -120,8 +121,6 @@ text-align:center;
 font-size:18px;
 
 color:#555;
-
-margin-top:10px;
 
 }
 
@@ -175,10 +174,12 @@ const supabaseKey =
 "sb_publishable_PsygV812Dm2ORo2JcnhjzA_I_xbjqG4";
 
 const client =
-supabase.createClient(
+window.supabase.createClient(
 supabaseUrl,
 supabaseKey
 );
+
+/* REGISTER */
 
 async function register(){
 
@@ -197,9 +198,15 @@ document.getElementById(
 "password"
 ).value;
 
-if(!fullname || !email || !password){
+if(
+!fullname ||
+!email ||
+!password
+){
 
-alert("Please fill all fields");
+alert(
+"Please fill all fields"
+);
 
 return;
 
@@ -208,14 +215,16 @@ return;
 const { data, error } =
 await client.auth.signUp({
 
-email:email,
+email: email,
 
-password:password,
+password: password,
 
 options:{
 
 data:{
-full_name:fullname
+
+full_name: fullname
+
 }
 
 }
@@ -236,26 +245,35 @@ alert(
 
 }
 
-<script>
+/* LOGIN */
 
-async function login() {
+async function login(){
 
 const email =
-document.getElementById("email").value;
+document.getElementById(
+"email"
+).value;
 
 const password =
-document.getElementById("password").value;
+document.getElementById(
+"password"
+).value;
 
-if (!email || !password) {
+if(
+!email ||
+!password
+){
 
-alert("Enter Email and Password");
+alert(
+"Enter Email & Password"
+);
 
 return;
 
 }
 
 const { data, error } =
-await supabase.auth.signInWithPassword({
+await client.auth.signInWithPassword({
 
 email: email,
 
@@ -263,23 +281,22 @@ password: password
 
 });
 
-if (error) {
+if(error){
 
 alert(error.message);
 
-} else {
+}else{
 
-alert("Login Successful");
+alert(
+"Login Successful"
+);
 
-/* redirect after login */
-
-window.location.href = "dashboard.html";
+window.location.href =
+"dashboard.html";
 
 }
 
 }
-
-</script>
 
 </script>
 
