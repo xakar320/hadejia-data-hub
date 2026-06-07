@@ -1,127 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<title>Hadejia Data Hub Auth</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auth</title>
 
 <style>
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
 body{
-
+font-family:Arial;
 background:#f1f1f1;
-
-width:100%;
-min-height:100vh;
-
 display:flex;
-
 justify-content:center;
-
 align-items:center;
-
-padding:20px;
-
+height:100vh;
 }
 
-.container{
-
-width:100%;
-
-max-width:450px;
-
+.box{
 background:white;
-
-padding:40px 25px;
-
-border-radius:20px;
-
-box-shadow:0 5px 20px rgba(0,0,0,0.1);
-
-}
-
-h1{
-
-text-align:center;
-
-font-size:50px;
-
-color:green;
-
-margin-bottom:35px;
-
+padding:25px;
+border-radius:15px;
+width:90%;
+max-width:400px;
 }
 
 input{
-
 width:100%;
-
-height:60px;
-
-border:2px solid #ddd;
-
-border-radius:15px;
-
 padding:15px;
-
-font-size:20px;
-
-margin-bottom:20px;
-
-outline:none;
-
+margin-top:10px;
+border:1px solid #ccc;
+border-radius:10px;
 }
 
 button{
-
 width:100%;
-
-height:60px;
-
+padding:15px;
+margin-top:10px;
 border:none;
-
-border-radius:15px;
-
 background:green;
-
 color:white;
-
-font-size:28px;
-
-font-weight:bold;
-
-margin-bottom:20px;
-
-cursor:pointer;
-
-}
-
-button:hover{
-
-opacity:0.9;
-
-}
-
-p{
-
-text-align:center;
-
+border-radius:10px;
 font-size:18px;
+}
 
-color:#555;
+.switch{
+text-align:center;
+margin-top:10px;
+color:blue;
+cursor:pointer;
+}
 
+.hidden{
+display:none;
 }
 
 </style>
@@ -130,36 +60,40 @@ color:#555;
 
 <body>
 
-<div class="container">
+<div class="box">
 
-<h1>Hadejia Data Hub</h1>
+<!-- REGISTER -->
+<div id="registerBox">
 
-<input
-type="text"
-id="fullname"
-placeholder="Full Name">
+<h2>Register</h2>
 
-<input
-type="email"
-id="email"
-placeholder="Email Address">
+<input type="text" id="reg_name" placeholder="Full Name">
+<input type="email" id="reg_email" placeholder="Email">
+<input type="password" id="reg_password" placeholder="Password">
 
-<input
-type="password"
-id="password"
-placeholder="Password">
+<button onclick="register()">Register</button>
 
-<button onclick="register()">
-Register
-</button>
+<div class="switch" onclick="showLogin()">
+Already have account? Login
+</div>
 
-<button onclick="login()">
-Login
-</button>
+</div>
 
-<p>
-Secure Login System
-</p>
+<!-- LOGIN -->
+<div id="loginBox" class="hidden">
+
+<h2>Login</h2>
+
+<input type="email" id="login_email" placeholder="Email">
+<input type="password" id="login_password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<div class="switch" onclick="showRegister()">
+Don't have account? Register
+</div>
+
+</div>
 
 </div>
 
@@ -174,73 +108,47 @@ const supabaseKey =
 "sb_publishable_PsygV812Dm2ORo2JcnhjzA_I_xbjqG4";
 
 const client =
-window.supabase.createClient(
-supabaseUrl,
-supabaseKey
-);
+supabase.createClient(supabaseUrl, supabaseKey);
+
+/* SWITCH UI */
+
+function showLogin(){
+document.getElementById("registerBox").classList.add("hidden");
+document.getElementById("loginBox").classList.remove("hidden");
+}
+
+function showRegister(){
+document.getElementById("loginBox").classList.add("hidden");
+document.getElementById("registerBox").classList.remove("hidden");
+}
 
 /* REGISTER */
 
 async function register(){
 
-const fullname =
-document.getElementById(
-"fullname"
-).value;
+const name =
+document.getElementById("reg_name").value;
 
 const email =
-document.getElementById(
-"email"
-).value;
+document.getElementById("reg_email").value;
 
 const password =
-document.getElementById(
-"password"
-).value;
-
-if(
-!fullname ||
-!email ||
-!password
-){
-
-alert(
-"Please fill all fields"
-);
-
-return;
-
-}
+document.getElementById("reg_password").value;
 
 const { data, error } =
 await client.auth.signUp({
-
-email: email,
-
-password: password,
-
+email,
+password,
 options:{
-
-data:{
-
-full_name: fullname
-
+data:{ full_name: name }
 }
-
-}
-
 });
 
 if(error){
-
 alert(error.message);
-
 }else{
-
-alert(
-"Registration Successful"
-);
-
+alert("Registered Successfully");
+showLogin();
 }
 
 }
@@ -250,50 +158,22 @@ alert(
 async function login(){
 
 const email =
-document.getElementById(
-"email"
-).value;
+document.getElementById("login_email").value;
 
 const password =
-document.getElementById(
-"password"
-).value;
-
-if(
-!email ||
-!password
-){
-
-alert(
-"Enter Email & Password"
-);
-
-return;
-
-}
+document.getElementById("login_password").value;
 
 const { data, error } =
 await client.auth.signInWithPassword({
-
-email: email,
-
-password: password
-
+email,
+password
 });
 
 if(error){
-
 alert(error.message);
-
 }else{
-
-alert(
-"Login Successful"
-);
-
-window.location.href =
-"dashboard.html";
-
+alert("Login Successful");
+window.location.href = "dashboard.html";
 }
 
 }
