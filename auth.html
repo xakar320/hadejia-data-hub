@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
@@ -7,7 +8,7 @@
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<title>Hadejia Data Hub Auth</title>
+<title>Hadejia Data Hub</title>
 
 <style>
 
@@ -15,67 +16,111 @@ content="width=device-width, initial-scale=1.0">
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Arial;
+font-family:Arial,sans-serif;
 }
 
 body{
-background:#f2f2f2;
-width:100%;
-min-height:100vh;
+
+background:#f1f1f1;
+
 display:flex;
+
 justify-content:center;
+
 align-items:center;
+
+height:100vh;
+
 padding:20px;
+
 }
 
-.card{
+.auth-box{
+
 width:100%;
-max-width:500px;
+
+max-width:420px;
+
 background:white;
+
 padding:30px;
+
 border-radius:20px;
+
 box-shadow:0 0 15px rgba(0,0,0,0.1);
+
 }
 
-h2{
+.auth-box h1{
+
 text-align:center;
+
 color:green;
-margin-bottom:25px;
-font-size:32px;
+
+margin-bottom:30px;
+
+font-size:40px;
+
 }
 
 input{
+
 width:100%;
-padding:16px;
-margin-top:15px;
-border:1px solid #ccc;
-border-radius:12px;
-font-size:16px;
+
+padding:18px;
+
+margin-bottom:18px;
+
+border:2px solid #ddd;
+
+border-radius:15px;
+
+font-size:18px;
+
 outline:none;
+
 }
 
 button{
+
 width:100%;
-padding:16px;
-margin-top:18px;
+
+padding:18px;
+
 border:none;
-border-radius:12px;
+
+border-radius:15px;
+
 background:green;
+
 color:white;
-font-size:18px;
+
+font-size:22px;
+
 font-weight:bold;
+
+margin-top:10px;
+
 cursor:pointer;
+
 }
 
 button:hover{
+
 opacity:0.9;
+
 }
 
-.small{
+p{
+
 text-align:center;
-margin-top:15px;
-font-size:15px;
+
+margin-top:20px;
+
 color:#666;
+
+font-size:18px;
+
 }
 
 </style>
@@ -84,9 +129,9 @@ color:#666;
 
 <body>
 
-<div class="card">
+<div class="auth-box">
 
-<h2>Hadejia Data Hub</h2>
+<h1>Hadejia Data Hub</h1>
 
 <input
 type="text"
@@ -96,7 +141,7 @@ placeholder="Full Name">
 <input
 type="email"
 id="email"
-placeholder="Email">
+placeholder="Email Address">
 
 <input
 type="password"
@@ -111,148 +156,12 @@ Register
 Login
 </button>
 
-<div class="small">
+<p>
 Secure Login System
-</div>
+</p>
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-
-const SUPABASE_URL =
-"https://zjenhfapfhuoogxorung.supabase.co";
-
-const SUPABASE_KEY =
-"sb_publishable_PsygV812Dm2ORo2JcnhjzA_I_xbjqG4";
-
-const supabase =
-window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
-
-/* =========================
-REGISTER
-========================= */
-
-async function register(){
-async function register(){
-
-const fullname =
-document.getElementById(
-"fullname"
-).value;
-
-const email =
-document.getElementById(
-"email"
-).value;
-
-const password =
-document.getElementById(
-"password"
-).value;
-
-if(
-!fullname ||
-!email ||
-!password
-){
-
-alert("Fill all fields");
-
-return;
-
-}
-
-const { data, error } =
-await supabase.auth.signUp({
-
-email: email,
-
-password: password,
-
-options:{
-data:{
-full_name: fullname
-}
-}
-
-});
-
-if(error){
-
-alert(error.message);
-
-}else{
-
-alert(
-"Account Created Successfully"
-);
-
-window.location.href =
-"/";
-
-}
-
-}
-
-/* =========================
-LOGIN
-========================= */
-
-async function login(){
-
-const email =
-document.getElementById(
-"email"
-).value;
-
-const password =
-document.getElementById(
-"password"
-).value;
-
-if(
-!email ||
-!password
-){
-
-alert("Enter Email & Password");
-
-return;
-
-}
-
-const { data, error } =
-await supabase.auth.signInWithPassword({
-
-email:email,
-
-password:password
-
-});
-
-if(error){
-
-alert(error.message);
-
-}else{
-
-alert(
-"Login Successful"
-);
-
-window.location.href =
-"/";
-
-}
-
-}
-
-</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -261,7 +170,7 @@ const supabaseUrl =
 "https://zjenhfapfhuoogxorung.supabase.co";
 
 const supabaseKey =
-"PASTE_YOUR_PUBLISHABLE_KEY";
+"sb_publishable_PsygV812Dm2ORo2JcnhjzA_I_xbjqG4";
 
 const supabase =
 window.supabase.createClient(
@@ -292,7 +201,9 @@ if(
 !password
 ){
 
-alert("Fill all fields");
+alert(
+"Please fill all fields"
+);
 
 return;
 
@@ -323,6 +234,54 @@ alert(
 "Registration Successful"
 );
 
+}
+
+}
+
+async function login(){
+
+const email =
+document.getElementById(
+"email"
+).value;
+
+const password =
+document.getElementById(
+"password"
+).value;
+
+if(
+!email ||
+!password
+){
+
+alert(
+"Enter Email & Password"
+);
+
+return;
+
+}
+
+const { data, error } =
+await supabase.auth.signInWithPassword({
+
+email: email,
+
+password: password
+
+});
+
+if(error){
+
+alert(error.message);
+
+}else{
+
+alert(
+"Login Successful"
+);
+
 window.location.href =
 "/";
 
@@ -331,5 +290,7 @@ window.location.href =
 }
 
 </script>
+
 </body>
+
 </html>
