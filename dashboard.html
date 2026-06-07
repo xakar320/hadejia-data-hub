@@ -8,7 +8,7 @@
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<title>Dashboard</title>
+<title>User Dashboard</title>
 
 <style>
 
@@ -16,19 +16,11 @@ body{
 
 margin:0;
 
-padding:0;
+padding:20px;
 
 font-family:Arial,sans-serif;
 
 background:#f1f1f1;
-
-display:flex;
-
-justify-content:center;
-
-align-items:center;
-
-height:100vh;
 
 }
 
@@ -36,17 +28,17 @@ height:100vh;
 
 background:white;
 
-padding:40px;
+padding:30px;
 
 border-radius:20px;
 
-text-align:center;
+max-width:500px;
+
+margin:auto;
+
+margin-top:50px;
 
 box-shadow:0 5px 20px rgba(0,0,0,0.1);
-
-width:90%;
-
-max-width:400px;
 
 }
 
@@ -58,13 +50,37 @@ font-size:40px;
 
 margin-bottom:20px;
 
+text-align:center;
+
 }
 
 p{
 
 font-size:22px;
 
-margin-bottom:30px;
+margin-bottom:20px;
+
+text-align:center;
+
+}
+
+.balance{
+
+background:green;
+
+color:white;
+
+padding:20px;
+
+border-radius:15px;
+
+font-size:30px;
+
+font-weight:bold;
+
+text-align:center;
+
+margin-top:20px;
 
 }
 
@@ -88,6 +104,8 @@ font-weight:bold;
 
 cursor:pointer;
 
+margin-top:30px;
+
 }
 
 </style>
@@ -99,12 +117,16 @@ cursor:pointer;
 <div class="box">
 
 <h1>
-Welcome
+Dashboard
 </h1>
 
-<p>
-Login Successful
+<p id="welcomeText">
+Loading...
 </p>
+
+<div class="balance">
+₦0
+</div>
 
 <button onclick="logout()">
 Logout
@@ -127,6 +149,44 @@ window.supabase.createClient(
 supabaseUrl,
 supabaseKey
 );
+
+/* CHECK USER */
+
+async function checkUser(){
+
+const {
+data:{session}
+} =
+await client.auth.getSession();
+
+if(!session){
+
+window.location.href =
+"auth.html";
+
+return;
+
+}
+
+/* SHOW USER */
+
+const user =
+session.user;
+
+document.getElementById(
+"welcomeText"
+).innerHTML =
+
+"Welcome, <b>" +
+(user.user_metadata.full_name || "User")
++
+"</b>";
+
+}
+
+checkUser();
+
+/* LOGOUT */
 
 async function logout(){
 
