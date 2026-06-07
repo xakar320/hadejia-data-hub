@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login & Register</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<style>
+body{
+font-family:Arial;
+background:#f2f2f2;
+padding:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:15px;
+max-width:400px;
+margin:auto;
+margin-top:50px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+input{
+width:100%;
+padding:15px;
+margin-top:10px;
+border-radius:10px;
+border:1px solid #ccc;
+font-size:16px;
+}
+
+button{
+width:100%;
+padding:15px;
+margin-top:15px;
+border:none;
+background:green;
+color:white;
+font-size:18px;
+border-radius:10px;
+}
+
+h2{
+text-align:center;
+color:green;
+}
+</style>
+
+</head>
+<body>
+
+<div class="card">
+
+<h2>Hadejia Data Hub</h2>
+
+<input type="text" id="name" placeholder="Full Name">
+
+<input type="email" id="email" placeholder="Email">
+
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="register()">Register</button>
+
+<button onclick="login()">Login</button>
+
+</div>
+
+<script>
+
+const supabaseUrl =
+"https://zjenhfapfhuoogxorung.supabase.co";
+
+const supabaseKey =
+"sb_publishable_PsygV812Dm2ORo2JcnhjzA_I_xbjqG4";
+
+const supabase =
+window.supabase.createClient(
+supabaseUrl,
+supabaseKey
+);
+
+async function register(){
+
+const name =
+document.getElementById("name").value;
+
+const email =
+document.getElementById("email").value;
+
+const password =
+document.getElementById("password").value;
+
+const { data, error } =
+await supabase.auth.signUp({
+
+email:email,
+password:password
+
+});
+
+if(error){
+
+alert(error.message);
+
+}else{
+
+await supabase
+.from("users")
+.insert([{
+
+name:name,
+email:email
+
+}]);
+
+alert("Registration Successful");
+
+}
+
+}
+
+async function login(){
+
+const email =
+document.getElementById("email").value;
+
+const password =
+document.getElementById("password").value;
+
+const { data, error } =
+await supabase.auth.signInWithPassword({
+
+email:email,
+password:password
+
+});
+
+if(error){
+
+alert(error.message);
+
+}else{
+
+alert("Login Successful");
+
+window.location.href="/";
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
