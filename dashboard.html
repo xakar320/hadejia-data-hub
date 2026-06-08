@@ -1,132 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body{
+      font-family: Arial;
+      background:#f2f2f2;
+      padding:20px;
+    }
 
-<title>Dashboard</title>
+    .box{
+      background:white;
+      padding:20px;
+      border-radius:10px;
+      max-width:400px;
+      margin:auto;
+      text-align:center;
+    }
 
-<style>
+    button{
+      padding:10px 20px;
+      border:none;
+      background:green;
+      color:white;
+      border-radius:5px;
+      cursor:pointer;
+    }
 
-body{
-margin:0;
-font-family:Arial;
-background:#f1f1f1;
-}
-
-.box{
-max-width:500px;
-margin:50px auto;
-background:white;
-padding:25px;
-border-radius:20px;
-box-shadow:0 5px 20px rgba(0,0,0,0.1);
-text-align:center;
-}
-
-h1{
-color:green;
-}
-
-.balance{
-font-size:30px;
-background:green;
-color:white;
-padding:15px;
-border-radius:10px;
-margin-top:20px;
-}
-
-button{
-width:100%;
-padding:15px;
-margin-top:20px;
-border:none;
-background:red;
-color:white;
-font-size:20px;
-border-radius:10px;
-cursor:pointer;
-}
-
-</style>
-
+    h2{
+      color:green;
+    }
+  </style>
 </head>
-
 <body>
 
 <div class="box">
 
-<h1 id="welcomeText">Loading...</h1>
+  <h2>Welcome</h2>
 
-<div class="balance">₦0</div>
+  <p id="user-email">Loading...</p>
 
-<button onclick="logout()">Logout</button>
+  <button onclick="logout()">
+    Logout
+  </button>
 
 </div>
 
-<!-- 🔥 JS STARTS HERE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <script>
 
-const supabaseUrl =
-"https://zjenhfapfhuoogxorung.supabase.co";
+const supabaseUrl = "https://zjenhfapfhuoogxorung.supabase.co/rest/v1/";
 
-const supabaseKey =
-"sb_publishable_PsygV812Dm2ORo2JcnhjzA_I_xbjqG4";
+const supabaseKey = "sb_publishable_PsygV812Dm2ORo2JcnhjzA_I_xbjqG4";
 
-const client =
-supabase.createClient(supabaseUrl, supabaseKey);
+const client = supabase.createClient(
+  supabaseUrl,
+  supabaseKey
+);
 
-let currentUser = null;
+async function checkUser() {
 
-/* CHECK USER */
-async function checkUser(){
+  const {
+    data: { user }
+  } = await client.auth.getUser();
 
-const { data:{session} } =
-await client.auth.getSession();
+  // Protect Page
+  if (!user) {
 
-if(!session){
-window.location.href = "auth.html";
-return;
-}
+    window.location.href = "login.html";
 
-currentUser = session.user;
+  } else {
 
-document.getElementById("welcomeText").innerText =
-"Welcome " + (currentUser.user_metadata.full_name || "User");
+    // Show Email
+    document.getElementById(
+      "user-email"
+    ).innerText = user.email;
 
-loadBalance();
+  }
 
-}
-
-/* LOAD BALANCE */
-async function loadBalance(){
-
-const { data } =
-await client
-.from("users")
-.select("balance")
-.eq("email", currentUser.email)
-.single();
-
-if(data){
-document.querySelector(".balance").innerText =
-"₦" + Number(data.balance).toLocaleString();
-}
-
-}
-
-/* LOGOUT */
-async function logout(){
-await client.auth.signOut();
-window.location.href = "auth.html";
 }
 
 checkUser();
+
+
+// Logout Function
+async function logout() {
+
+  await client.auth.signOut();
+
+  window.location.href = "login.html";
+
+}
 
 </script>
 
