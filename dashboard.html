@@ -6,6 +6,7 @@
   <title>Dashboard</title>
 
   <style>
+
     body{
       font-family: Arial;
       background:#f2f2f2;
@@ -19,29 +20,35 @@
       max-width:400px;
       margin:auto;
       text-align:center;
-    }
-
-    button{
-      padding:10px 20px;
-      border:none;
-      background:green;
-      color:white;
-      border-radius:5px;
-      cursor:pointer;
+      margin-top:100px;
+      box-shadow:0 0 10px rgba(0,0,0,0.1);
     }
 
     h2{
       color:green;
     }
+
+    button{
+      padding:10px 20px;
+      border:none;
+      background:red;
+      color:white;
+      border-radius:5px;
+      cursor:pointer;
+      margin-top:20px;
+    }
+
   </style>
 </head>
 <body>
 
 <div class="box">
 
-  <h2>Welcome</h2>
+  <h2>Welcome To Dashboard</h2>
 
-  <p id="user-email">Loading...</p>
+  <p id="email">
+    Loading...
+  </p>
 
   <button onclick="logout()">
     Logout
@@ -49,36 +56,44 @@
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-const supabaseUrl = "https://zjenhfapfhuoogxorung.supabase.co/rest/v1/";
+const supabaseUrl =
+"https://zjenhfapfhuoogxorung.supabase.co";
 
-const supabaseKey = "sb_publishable_PsygV812Dm2ORo2JcnhjzA_I_xbjqG4";
+const supabaseKey =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
 
 const client = supabase.createClient(
   supabaseUrl,
   supabaseKey
 );
 
+
+// CHECK USER LOGIN
 async function checkUser() {
 
   const {
-    data: { user }
+    data: { user },
+    error
   } = await client.auth.getUser();
 
-  // Protect Page
+  // IF USER NOT LOGIN
   if (!user) {
 
-    window.location.href = "login.html";
+    window.location.href =
+    "login.html";
 
-  } else {
+  }
 
-    // Show Email
-    document.getElementById(
-      "user-email"
-    ).innerText = user.email;
+  // IF LOGIN SUCCESS
+  else {
+
+    document.getElementById("email")
+    .innerText =
+    "Logged in as: " + user.email;
 
   }
 
@@ -87,12 +102,13 @@ async function checkUser() {
 checkUser();
 
 
-// Logout Function
+// LOGOUT FUNCTION
 async function logout() {
 
   await client.auth.signOut();
 
-  window.location.href = "login.html";
+  window.location.href =
+  "login.html";
 
 }
 
