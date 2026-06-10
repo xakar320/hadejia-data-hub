@@ -282,36 +282,78 @@ mtn:[
 LOAD BALANCE
 ========================= */
 
-async function loadBalance(){
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-try{
+<script>
 
-const response = await fetch("/api/balance");
+const supabaseUrl =
+"https://zjenhfapfhuoogxorung.supabase.co";
 
-const data = await response.json();
+const supabaseKey =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
 
-if(data.balance !== undefined){
+const client = supabase.createClient(
+supabaseUrl,
+supabaseKey
+);
 
-document.getElementById("walletBalance").innerText =
-"₦" + Number(data.balance).toLocaleString();
 
-}else{
 
-console.log(data);
+// PROTECT PAGE
+async function checkUser(){
 
-document.getElementById("walletBalance").innerText =
-"₦0";
+const {
+data: { session }
+
+} = await client.auth.getSession();
+
+
+
+// IF NOT LOGIN
+if(!session){
+
+window.location.href = "/";
+
+return;
 
 }
 
-}catch(error){
 
-document.getElementById("walletBalance").innerText =
-"Network Error";
+
+// LOAD BALANCE
+loadBalance(session.user.id);
+
+}
+
+
+
+// LOAD BALANCE
+async function loadBalance(userId){
+
+const { data, error } =
+await client
+.from("users")
+.select("balance")
+.eq("id", userId)
+.single();
+
+
+
+if(data){
+
+document.getElementById("balance")
+.innerText =
+"₦" + data.balance;
 
 }
 
 }
+
+
+
+checkUser();
+
+</script>
 
 /* =========================
 CHANGE DATA PLANS
