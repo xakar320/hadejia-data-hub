@@ -329,26 +329,45 @@ loadBalance(session.user.id);
 
 // LOAD BALANCE
 async function loadBalance(userId){
+<script>
 
-const { data, error } =
-await client
+async function loadBalance(userId){
+
+try{
+
+const { data, error } = await client
 .from("users")
 .select("balance")
 .eq("id", userId)
 .single();
 
+if(error){
 
+console.log(error);
 
-if(data){
+document.getElementById("walletBalance")
+.innerText = "₦0";
 
-document.getElementById("balance")
+return;
+
+}
+
+document.getElementById("walletBalance")
 .innerText =
-"₦" + data.balance;
+"₦" + Number(data.balance).toLocaleString();
+
+}catch(err){
+
+console.log(err);
+
+document.getElementById("walletBalance")
+.innerText = "₦0";
 
 }
 
 }
 
+</script>
 
 
 checkUser();
