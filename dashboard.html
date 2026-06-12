@@ -569,13 +569,38 @@ alert(
 // BUY VOICE
 // ======================
 
-async function buyVoice(){
+const airtelVoicePlans = [
+{
+name: "₦100 Voice Bundle (10 Min / 3 Days)",
+plan_id: "26117794",
+code: "TalkMore_100"
+},
 
-const {
-data:{ session }
+{
+name: "₦300 Voice Bundle (30 Min / 7 Days)",
+plan_id: "26117796",
+code: "TalkMore_300"
+},
 
-} = await client.auth.getSession();
+{
+name: "₦500 Voice Bundle (50 Min / 14 Days)",
+plan_id: "26117797",
+code: "TalkMore_500"
+},
 
+{
+name: "₦1000 Voice Bundle (100 Min / 14 Days)",
+plan_id: "26117798",
+code: "TalkMore_1000"
+},
+
+{
+name: "₦1500 Voice Bundle (150 Min / 30 Days)",
+plan_id: "26117799",
+code: "TalkMore_1500"
+}
+
+];
 
 
 // CHECK LOGIN
