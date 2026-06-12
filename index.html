@@ -238,23 +238,10 @@ Logging in...
 
 
 <!-- REGISTER FORM -->
-<!-- REGISTER FORM -->
 
 <div
 id="registerForm"
 class="form">
-
-<input
-type="text"
-id="fullName"
-placeholder="Full Name">
-
-
-<input
-type="text"
-id="phoneNumber"
-placeholder="Phone Number">
-
 
 <input
 type="email"
@@ -285,6 +272,9 @@ Creating account...
 </div>
 
 </div>
+
+</div>
+
 
 
 
@@ -477,17 +467,6 @@ document.getElementById(
 
 
 
-// GET VALUES
-const fullName =
-document.getElementById(
-"fullName"
-).value;
-
-const phoneNumber =
-document.getElementById(
-"phoneNumber"
-).value;
-
 const email =
 document.getElementById(
 "registerEmail"
@@ -500,7 +479,6 @@ document.getElementById(
 
 
 
-// REGISTER USER
 const { data, error } =
 await client.auth.signUp({
 
@@ -528,16 +506,12 @@ return;
 
 
 
-// SAVE USER DATA
+// CREATE USER WALLET
 await client
 .from("users")
 .insert([{
 
 id:data.user.id,
-
-full_name:fullName,
-
-phone:phoneNumber,
 
 email:email,
 
@@ -553,95 +527,11 @@ alert(
 
 
 
-async function register(){
-
-document.getElementById(
-"registerLoading"
-).style.display = "block";
-
-
-
-// GET VALUES
-const fullName =
-document.getElementById(
-"fullName"
-).value;
-
-const phoneNumber =
-document.getElementById(
-"phoneNumber"
-).value;
-
-const email =
-document.getElementById(
-"registerEmail"
-).value;
-
-const password =
-document.getElementById(
-"registerPassword"
-).value;
-
-
-
-// REGISTER USER
-const { data, error } =
-await client.auth.signUp({
-
-email,
-password
-
-});
-
-
-
-document.getElementById(
-"registerLoading"
-).style.display = "none";
-
-
-
-// ERROR
-if(error){
-
-alert(error.message);
-
-return;
-
-}
-
-
-
-// SAVE USER DATA
-await client
-.from("users")
-.insert([{
-
-id:data.user.id,
-
-full_name:fullName,
-
-phone:phoneNumber,
-
-email:email,
-
-balance:0
-
-}]);
-
-
-
-alert(
-"Account Created Successfully"
-);
-
-
-
-// REDIRECT
+// GO TO DASHBOARD
 window.location.href =
 "/dashboard.html";
 
-  }
+}
 
 </script>
 
