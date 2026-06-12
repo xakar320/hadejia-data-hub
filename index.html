@@ -477,6 +477,17 @@ document.getElementById(
 
 
 
+// GET VALUES
+const fullName =
+document.getElementById(
+"fullName"
+).value;
+
+const phoneNumber =
+document.getElementById(
+"phoneNumber"
+).value;
+
 const email =
 document.getElementById(
 "registerEmail"
@@ -489,6 +500,7 @@ document.getElementById(
 
 
 
+// REGISTER USER
 const { data, error } =
 await client.auth.signUp({
 
@@ -514,6 +526,38 @@ return;
 
 }
 
+
+
+// SAVE USER DATA
+await client
+.from("users")
+.insert([{
+
+id:data.user.id,
+
+full_name:fullName,
+
+phone:phoneNumber,
+
+email:email,
+
+balance:0
+
+}]);
+
+
+
+alert(
+"Account Created Successfully"
+);
+
+
+
+// REDIRECT
+window.location.href =
+"/dashboard.html";
+
+}
 
 
 // CREATE USER WALLET
