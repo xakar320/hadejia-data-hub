@@ -1,203 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Hadejia Data Hub Dashboard</title>
-
-<style>
-
-body{
-margin:0;
-padding:0;
-font-family:Arial;
-background:#f1f1f1;
-}
-
-.header{
-background:green;
-color:white;
-padding:30px;
-text-align:center;
-}
-
-.card{
-background:white;
-margin:20px;
-padding:20px;
-border-radius:15px;
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
-}
-
-h1,h2,h3{
-margin:0;
-}
-
-select,input{
-width:100%;
-padding:15px;
-margin-top:10px;
-margin-bottom:15px;
-border-radius:10px;
-border:1px solid #ccc;
-font-size:16px;
-}
-
-button{
-width:100%;
-padding:15px;
-background:green;
-color:white;
-border:none;
-border-radius:10px;
-font-size:18px;
-font-weight:bold;
-}
-
-.logoutBtn{
-background:red;
-margin-top:15px;
-}
-
-</style>
+<title>Dashboard</title>
 </head>
 
 <body>
 
-<div class="header">
+<h1>Dashboard</h1>
 
-<h1>Hadejia Data Hub</h1>
-
-<p>Cheap & Fast VTU Services</p>
-
-</div>
-
-
-
-<div class="card">
-
-<h2>Wallet Balance</h2>
-
+<h2>Wallet Balance:</h2>
 <h1 id="walletBalance">Loading...</h1>
 
-<button class="logoutBtn" onclick="logout()">
-Logout
-</button>
-
-</div>
+<button onclick="logout()">Logout</button>
 
 
 
-
-
-<div class="card">
-
-<h2>Buy Data</h2>
-
-<select id="dataNetwork" onchange="changeDataPlans()">
-
-<option value="mtn">MTN</option>
-
-<option value="airtel">Airtel</option>
-
-<option value="glo">Glo</option>
-
-<option value="9mobile">9mobile</option>
-
-</select>
-
-<select id="dataPlan"></select>
-
-<input type="text"
-id="dataPhone"
-placeholder="Phone Number">
-
-<input type="password"
-id="dataPin"
-placeholder="Transaction PIN">
-
-<button onclick="buyData()">
-Buy Data
-</button>
-
-</div>
-
-
-
-
-
-<div class="card">
-
-<h2>Buy Voice Bundle</h2>
-
-<select id="voiceNetwork" onchange="changeVoicePlans()">
-
-<option value="airtel">Airtel</option>
-
-<option value="mtn">MTN</option>
-
-</select>
-
-<select id="voicePlan"></select>
-
-<input type="text"
-id="voicePhone"
-placeholder="Phone Number">
-
-<input type="password"
-id="voicePin"
-placeholder="Transaction PIN">
-
-<button onclick="buyVoice()">
-Buy Voice Bundle
-</button>
-
-</div>
-
-
-
-
-
-
+<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <script>
 
-// ======================
-// SUPABASE
-// ======================
-
-const supabaseUrl =
-"https://YOUR_PROJECT.supabase.co";
-
-const supabaseKey =
-"YOUR_ANON_KEY";
+const supabaseUrl = "YOUR_SUPABASE_URL";
+const supabaseKey = "YOUR_SUPABASE_ANON_KEY";
 
 const client = supabase.createClient(
 supabaseUrl,
-supabaseKey
+supabaseKey,
+{
+auth: {
+persistSession: true,
+autoRefreshToken: true
+}
+}
 );
 
 
 
-// ======================
-// CHECK LOGIN
-// ======================
-
+// ========== PROTECT PAGE ==========
 async function checkUser(){
 
-const {
-data: { session }
-
-} = await client.auth.getSession();
+const { data: { session } } =
+await client.auth.getSession();
 
 if(!session){
-
 window.location.href = "/";
-
 return;
-
 }
 
 loadBalance(session.user.id);
@@ -206,13 +53,7 @@ loadBalance(session.user.id);
 
 
 
-
-
-
-// ======================
-// LOAD BALANCE
-// ======================
-
+// ========== LOAD BALANCE ==========
 async function loadBalance(userId){
 
 const { data, error } =
@@ -223,210 +64,28 @@ await client
 .single();
 
 if(data){
-
-document.getElementById("walletBalance")
-.innerText =
-"₦" + Number(data.balance)
-.toLocaleString();
-
+document.getElementById("walletBalance").innerText =
+"₦" + data.balance;
 }else{
-
-document.getElementById("walletBalance")
-.innerText = "₦0";
-
+document.getElementById("walletBalance").innerText = "₦0";
 }
 
 }
 
 
 
-
-
-// ======================
-// LOGOUT
-// ======================
-
+// ========== LOGOUT ==========
 async function logout(){
 
 await client.auth.signOut();
-
 window.location.href = "/";
 
 }
 
 
 
-
-
-
-// ======================
-// DATA PLANS
-// ======================
-
-const dataPlans = {
-
-mtn:[
-{ name:"500MB - ₦150", code:"mtn500" },
-{ name:"1GB - ₦300", code:"mtn1gb" }
-],
-
-airtel:[
-{ name:"500MB - ₦200", code:"airtel500" },
-{ name:"1GB - ₦500", code:"airtel1gb" }
-],
-
-glo:[
-{ name:"1GB - ₦300", code:"glo1gb" }
-],
-
-"9mobile":[
-{ name:"1GB - ₦350", code:"9mobile1gb" }
-]
-
-};
-
-
-
-
-
-// ======================
-// VOICE PLANS
-// ======================
-
-const voicePlans = {
-
-airtel:[
-
-{ name:"₦100 Voice Bundle", code:"TalkMore_100" },
-
-{ name:"₦200 Voice Bundle", code:"TalkMore_200" },
-
-{ name:"₦300 Voice Bundle", code:"TalkMore_300" },
-
-{ name:"₦500 Voice Bundle", code:"TalkMore_500" },
-
-{ name:"₦1000 Voice Bundle", code:"TalkMore_1000" },
-
-{ name:"₦1500 Voice Bundle", code:"TalkMore_1500" }
-
-],
-
-mtn:[
-
-{ name:"₦120 Voice Bundle", code:"400_7days" },
-
-{ name:"₦270 Voice Bundle", code:"1000_7days" }
-
-]
-
-};
-
-
-
-
-
-
-// ======================
-// CHANGE DATA PLANS
-// ======================
-
-function changeDataPlans(){
-
-const network =
-document.getElementById("dataNetwork").value;
-
-const planSelect =
-document.getElementById("dataPlan");
-
-planSelect.innerHTML = "";
-
-dataPlans[network].forEach(plan=>{
-
-planSelect.innerHTML += `
-
-<option value="${plan.code}">
-${plan.name}
-</option>
-
-`;
-
-});
-
-}
-
-
-
-
-
-
-// ======================
-// CHANGE VOICE PLANS
-// ======================
-
-function changeVoicePlans(){
-
-const network =
-document.getElementById("voiceNetwork").value;
-
-const planSelect =
-document.getElementById("voicePlan");
-
-planSelect.innerHTML = "";
-
-voicePlans[network].forEach(plan=>{
-
-planSelect.innerHTML += `
-
-<option value="${plan.code}">
-${plan.name}
-</option>
-
-`;
-
-});
-
-}
-
-
-
-
-
-
-
-// ======================
-// BUY DATA
-// ======================
-
-async function buyData(){
-
-alert("Data Purchase Successful");
-
-}
-
-
-
-
-
-// ======================
-// BUY VOICE
-// ======================
-
-async function buyVoice(){
-
-alert("Voice Bundle Purchase Successful");
-
-}
-
-
-
-
-
-// RUN
-changeDataPlans();
-
-changeVoicePlans();
-
-checkUser();
+// RUN ON PAGE LOAD
+window.addEventListener("load", checkUser);
 
 </script>
 
