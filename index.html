@@ -553,19 +553,75 @@ alert(
 
 
 
-// REDIRECT
-window.location.href =
-"/dashboard.html";
+async function register(){
+
+document.getElementById(
+"registerLoading"
+).style.display = "block";
+
+
+
+// GET VALUES
+const fullName =
+document.getElementById(
+"fullName"
+).value;
+
+const phoneNumber =
+document.getElementById(
+"phoneNumber"
+).value;
+
+const email =
+document.getElementById(
+"registerEmail"
+).value;
+
+const password =
+document.getElementById(
+"registerPassword"
+).value;
+
+
+
+// REGISTER USER
+const { data, error } =
+await client.auth.signUp({
+
+email,
+password
+
+});
+
+
+
+document.getElementById(
+"registerLoading"
+).style.display = "none";
+
+
+
+// ERROR
+if(error){
+
+alert(error.message);
+
+return;
 
 }
 
 
-// CREATE USER WALLET
+
+// SAVE USER DATA
 await client
 .from("users")
 .insert([{
 
 id:data.user.id,
+
+full_name:fullName,
+
+phone:phoneNumber,
 
 email:email,
 
@@ -581,11 +637,11 @@ alert(
 
 
 
-// GO TO DASHBOARD
+// REDIRECT
 window.location.href =
 "/dashboard.html";
 
-}
+  }
 
 </script>
 
