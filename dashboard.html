@@ -1,59 +1,500 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Hadejia Data Hub</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+background:#f2f2f2;
+}
+
+
+/* HEADER */
+
+.header{
+background:linear-gradient(
+135deg,
+green,
+darkgreen
+);
+
+padding:30px 20px;
+color:white;
+border-bottom-left-radius:30px;
+border-bottom-right-radius:30px;
+}
+
+.header h1{
+font-size:32px;
+}
+
+.header p{
+margin-top:5px;
+font-size:16px;
+}
+
+
+
+/* CONTAINER */
+
+.container{
+padding:20px;
+}
+
+
+
+/* CARD */
+
+.card{
+background:white;
+padding:20px;
+border-radius:20px;
+margin-bottom:20px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+
+
+/* BALANCE */
+
+.balanceCard{
+background:linear-gradient(
+135deg,
+green,
+limegreen
+);
+
+color:white;
+}
+
+.balanceAmount{
+font-size:45px;
+font-weight:bold;
+margin-top:15px;
+}
+
+
+
+/* INPUTS */
+
+input,
+select{
+width:100%;
+padding:15px;
+border-radius:12px;
+border:1px solid #ccc;
+margin-top:12px;
+font-size:16px;
+outline:none;
+}
+
+
+
+/* BUTTON */
+
+button{
+width:100%;
+padding:15px;
+border:none;
+border-radius:12px;
+background:green;
+color:white;
+font-size:18px;
+font-weight:bold;
+margin-top:15px;
+cursor:pointer;
+}
+
+button:hover{
+opacity:0.9;
+}
+
+
+
+/* LOGOUT */
+
+.logoutBtn{
+background:red;
+}
+
+
+
+/* SECTION TITLE */
+
+.sectionTitle{
+font-size:22px;
+margin-bottom:15px;
+color:green;
+}
+
+
+
+/* GRID */
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+margin-top:15px;
+}
+
+.smallCard{
+background:#fafafa;
+padding:20px;
+border-radius:15px;
+text-align:center;
+box-shadow:0 3px 10px rgba(0,0,0,0.05);
+}
+
+.smallCard h3{
+margin-top:10px;
+color:green;
+}
+
+.smallCard p{
+margin-top:5px;
+color:#555;
+}
+
+
+
+/* RESPONSIVE */
+
+@media(max-width:700px){
+
+.grid{
+grid-template-columns:1fr;
+}
+
+.balanceAmount{
+font-size:35px;
+}
+
+}
+
+</style>
 </head>
 
 <body>
 
-<h1>Dashboard</h1>
+<!-- HEADER -->
 
-<h2>Wallet Balance:</h2>
-<h1 id="walletBalance">Loading...</h1>
+<div class="header">
 
-<button onclick="logout()">Logout</button>
+<h1>Hadejia Data Hub</h1>
+
+<p>Cheap & Fast VTU Services</p>
+
+</div>
+
+
+
+<div class="container">
+
+
+<!-- BALANCE -->
+
+<div class="card balanceCard">
+
+<h2>Wallet Balance</h2>
+
+<div
+class="balanceAmount"
+id="walletBalance">
+
+Loading...
+
+</div>
+
+<button
+class="logoutBtn"
+onclick="logout()">
+
+Logout
+
+</button>
+
+</div>
+
+
+
+<!-- SERVICES -->
+
+<div class="grid">
+
+<div class="smallCard">
+
+<h2>📶</h2>
+
+<h3>Data</h3>
+
+<p>Cheap data bundles</p>
+
+</div>
+
+
+<div class="smallCard">
+
+<h2>📞</h2>
+
+<h3>Voice</h3>
+
+<p>Voice bundles</p>
+
+</div>
+
+
+<div class="smallCard">
+
+<h2>💳</h2>
+
+<h3>Airtime</h3>
+
+<p>Instant recharge</p>
+
+</div>
+
+
+<div class="smallCard">
+
+<h2>⚡</h2>
+
+<h3>Bills</h3>
+
+<p>Pay utility bills</p>
+
+</div>
+
+</div>
+
+
+
+
+<!-- BUY DATA -->
+
+<div class="card">
+
+<h2 class="sectionTitle">
+Buy Data
+</h2>
+
+<select id="network">
+
+<option value="mtn">
+MTN
+</option>
+
+<option value="airtel">
+Airtel
+</option>
+
+<option value="glo">
+GLO
+</option>
+
+<option value="9mobile">
+9mobile
+</option>
+
+</select>
+
+
+
+<select id="dataPlan">
+
+<option>
+Select Data Plan
+</option>
+
+<option>
+500MB - ₦150
+</option>
+
+<option>
+1GB - ₦300
+</option>
+
+<option>
+2GB - ₦600
+</option>
+
+</select>
+
+
+
+<input
+type="text"
+id="phone"
+placeholder="Phone Number">
+
+
+
+<button onclick="buyData()">
+Buy Data
+</button>
+
+</div>
+
+
+
+
+<!-- BUY VOICE -->
+
+<div class="card">
+
+<h2 class="sectionTitle">
+Buy Voice Bundle
+</h2>
+
+<select id="voiceNetwork">
+
+<option value="airtel">
+Airtel
+</option>
+
+<option value="mtn">
+MTN
+</option>
+
+</select>
+
+
+
+<select id="voicePlan">
+
+<option>
+Select Voice Bundle
+</option>
+
+<option>
+₦100 Voice Bundle
+</option>
+
+<option>
+₦200 Voice Bundle
+</option>
+
+<option>
+₦500 Voice Bundle
+</option>
+
+<option>
+₦1000 Voice Bundle
+</option>
+
+</select>
+
+
+
+<input
+type="text"
+id="voicePhone"
+placeholder="Phone Number">
+
+
+
+<button onclick="buyVoice()">
+Buy Voice Bundle
+</button>
+
+</div>
+
+
+
+
+<!-- TRANSACTIONS -->
+
+<div class="card">
+
+<h2 class="sectionTitle">
+Recent Transactions
+</h2>
+
+<p>No transactions yet</p>
+
+</div>
 
 
 
 <!-- SUPABASE -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <script>
 
-const supabaseUrl = "YOUR_SUPABASE_URL";
-const supabaseKey = "YOUR_SUPABASE_ANON_KEY";
 
-const client = supabase.createClient(
+// ======================
+// SUPABASE
+// ======================
+
+const supabaseUrl =
+"https://zjenhfapfhuoogxorung.supabase.co";
+
+const supabaseKey =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
+
+const client =
+supabase.createClient(
 supabaseUrl,
 supabaseKey,
 {
-auth: {
-persistSession: true,
-autoRefreshToken: true
+auth:{
+persistSession:true,
+autoRefreshToken:true
 }
 }
 );
 
 
 
-// ========== PROTECT PAGE ==========
+
+// ======================
+// CHECK USER
+// ======================
+
 async function checkUser(){
 
-const { data: { session } } =
-await client.auth.getSession();
+const {
+data:{ session }
 
+} = await client.auth.getSession();
+
+
+
+// NOT LOGIN
 if(!session){
+
 window.location.href = "/";
+
 return;
+
 }
 
+
+
+// LOAD BALANCE
 loadBalance(session.user.id);
 
 }
 
 
 
-// ========== LOAD BALANCE ==========
+// ======================
+// LOAD BALANCE
+// ======================
+
 async function loadBalance(userId){
 
 const { data, error } =
@@ -63,31 +504,121 @@ await client
 .eq("id", userId)
 .single();
 
+
+
 if(data){
-document.getElementById("walletBalance").innerText =
-"₦" + data.balance;
+
+document.getElementById(
+"walletBalance"
+).innerText =
+"₦" +
+Number(data.balance)
+.toLocaleString();
+
 }else{
-document.getElementById("walletBalance").innerText = "₦0";
-}
+
+document.getElementById(
+"walletBalance"
+).innerText = "₦0";
 
 }
 
+}
 
 
-// ========== LOGOUT ==========
+
+// ======================
+// BUY DATA
+// ======================
+
+async function buyData(){
+
+const {
+data:{ session }
+
+} = await client.auth.getSession();
+
+
+
+// BLOCK IF NOT LOGIN
+if(!session){
+
+alert("Please login first");
+
+window.location.href = "/";
+
+return;
+
+}
+
+
+
+alert(
+"Data Purchase Successful"
+);
+
+}
+
+
+
+// ======================
+// BUY VOICE
+// ======================
+
+async function buyVoice(){
+
+const {
+data:{ session }
+
+} = await client.auth.getSession();
+
+
+
+// BLOCK IF NOT LOGIN
+if(!session){
+
+alert("Please login first");
+
+window.location.href = "/";
+
+return;
+
+}
+
+
+
+alert(
+"Voice Bundle Purchase Successful"
+);
+
+}
+
+
+
+// ======================
+// LOGOUT
+// ======================
+
 async function logout(){
 
 await client.auth.signOut();
+
 window.location.href = "/";
 
 }
 
 
 
-// RUN ON PAGE LOAD
-window.addEventListener("load", checkUser);
+// ======================
+// RUN
+// ======================
+
+window.addEventListener(
+"load",
+checkUser
+);
 
 </script>
 
 </body>
-</html>
+  </html>
