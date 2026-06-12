@@ -1,100 +1,535 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Login Page</title>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Hadejia Data Hub</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+background:linear-gradient(
+135deg,
+green,
+darkgreen
+);
+
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+}
+
+
+
+/* CONTAINER */
+
+.container{
+width:100%;
+max-width:420px;
+background:white;
+padding:30px;
+border-radius:25px;
+box-shadow:0 5px 20px rgba(0,0,0,0.2);
+}
+
+
+
+/* LOGO */
+
+.logo{
+text-align:center;
+margin-bottom:25px;
+}
+
+.logo h1{
+color:green;
+font-size:32px;
+}
+
+.logo p{
+margin-top:5px;
+color:#555;
+}
+
+
+
+/* TABS */
+
+.tabs{
+display:flex;
+margin-bottom:20px;
+border-radius:12px;
+overflow:hidden;
+}
+
+.tabs button{
+flex:1;
+padding:15px;
+border:none;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+background:#eee;
+}
+
+.tabs button.active{
+background:green;
+color:white;
+}
+
+
+
+/* FORM */
+
+.form{
+display:none;
+}
+
+.form.active{
+display:block;
+}
+
+
+
+/* INPUT */
+
+input{
+width:100%;
+padding:15px;
+border-radius:12px;
+border:1px solid #ccc;
+margin-top:15px;
+font-size:16px;
+outline:none;
+}
+
+
+
+/* BUTTON */
+
+.submitBtn{
+width:100%;
+padding:15px;
+border:none;
+border-radius:12px;
+background:green;
+color:white;
+font-size:18px;
+font-weight:bold;
+margin-top:20px;
+cursor:pointer;
+}
+
+.submitBtn:hover{
+opacity:0.9;
+}
+
+
+
+/* LOADING */
+
+.loading{
+display:none;
+text-align:center;
+margin-top:15px;
+color:green;
+font-weight:bold;
+}
+
+</style>
 </head>
 
 <body>
 
-<h2>Login</h2>
 
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
 
-<button onclick="login()">Login</button>
+<div class="container">
 
-<hr>
 
-<h2>Register</h2>
+<!-- LOGO -->
 
-<input id="r_email" placeholder="Email">
-<input id="r_password" type="password" placeholder="Password">
+<div class="logo">
 
-<button onclick="register()">Register</button>
+<h1>Hadejia Data Hub</h1>
+
+<p>Cheap & Fast VTU Services</p>
+
+</div>
+
+
+
+<!-- TABS -->
+
+<div class="tabs">
+
+<button
+id="loginTab"
+class="active"
+onclick="showLogin()">
+
+Login
+
+</button>
+
+
+<button
+id="registerTab"
+onclick="showRegister()">
+
+Register
+
+</button>
+
+</div>
+
+
+
+
+
+<!-- LOGIN FORM -->
+
+<div
+id="loginForm"
+class="form active">
+
+<input
+type="email"
+id="loginEmail"
+placeholder="Email Address">
+
+
+<input
+type="password"
+id="loginPassword"
+placeholder="Password">
+
+
+<button
+class="submitBtn"
+onclick="login()">
+
+Login
+
+</button>
+
+<div
+class="loading"
+id="loginLoading">
+
+Logging in...
+
+</div>
+
+</div>
+
+
+
+
+
+<!-- REGISTER FORM -->
+
+<div
+id="registerForm"
+class="form">
+
+<input
+type="email"
+id="registerEmail"
+placeholder="Email Address">
+
+
+<input
+type="password"
+id="registerPassword"
+placeholder="Password">
+
+
+<button
+class="submitBtn"
+onclick="register()">
+
+Create Account
+
+</button>
+
+<div
+class="loading"
+id="registerLoading">
+
+Creating account...
+
+</div>
+
+</div>
+
+</div>
+
+
 
 
 
 <!-- SUPABASE -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <script>
 
-const supabaseUrl = "YOUR_SUPABASE_URL";
-const supabaseKey = "YOUR_SUPABASE_ANON_KEY";
 
-const client = supabase.createClient(
+// ======================
+// SUPABASE
+// ======================
+
+const supabaseUrl =
+"https://YOUR_PROJECT.supabase.co";
+
+const supabaseKey =
+"YOUR_SUPABASE_ANON_KEY";
+
+const client =
+supabase.createClient(
 supabaseUrl,
 supabaseKey,
 {
-auth: {
-persistSession: true,
-autoRefreshToken: true
+auth:{
+persistSession:true,
+autoRefreshToken:true
 }
 }
 );
 
 
 
-// ================= LOGIN =================
+
+// ======================
+// CHECK SESSION
+// ======================
+
+window.addEventListener(
+"load",
+async()=>{
+
+const {
+data:{ session }
+
+} = await client.auth.getSession();
+
+
+
+// IF LOGIN
+if(session){
+
+window.location.href =
+"/dashboard.html";
+
+}
+
+}
+);
+
+
+
+
+// ======================
+// SHOW LOGIN
+// ======================
+
+function showLogin(){
+
+document.getElementById(
+"loginForm"
+).classList.add("active");
+
+document.getElementById(
+"registerForm"
+).classList.remove("active");
+
+document.getElementById(
+"loginTab"
+).classList.add("active");
+
+document.getElementById(
+"registerTab"
+).classList.remove("active");
+
+}
+
+
+
+// ======================
+// SHOW REGISTER
+// ======================
+
+function showRegister(){
+
+document.getElementById(
+"registerForm"
+).classList.add("active");
+
+document.getElementById(
+"loginForm"
+).classList.remove("active");
+
+document.getElementById(
+"registerTab"
+).classList.add("active");
+
+document.getElementById(
+"loginTab"
+).classList.remove("active");
+
+}
+
+
+
+
+
+// ======================
+// LOGIN
+// ======================
+
 async function login(){
 
-const email = document.getElementById("email").value;
-const password = document.getElementById("password").value;
+document.getElementById(
+"loginLoading"
+).style.display = "block";
+
+
+
+const email =
+document.getElementById(
+"loginEmail"
+).value;
+
+const password =
+document.getElementById(
+"loginPassword"
+).value;
+
+
 
 const { data, error } =
 await client.auth.signInWithPassword({
+
 email,
 password
+
 });
 
+
+
+document.getElementById(
+"loginLoading"
+).style.display = "none";
+
+
+
+// ERROR
 if(error){
+
 alert(error.message);
+
 return;
-}
-
-window.location.href = "/dashboard.html";
 
 }
 
 
 
-// ================= REGISTER =================
+// SUCCESS
+window.location.href =
+"/dashboard.html";
+
+}
+
+
+
+
+
+// ======================
+// REGISTER
+// ======================
+
 async function register(){
 
-const email = document.getElementById("r_email").value;
-const password = document.getElementById("r_password").value;
+document.getElementById(
+"registerLoading"
+).style.display = "block";
+
+
+
+const email =
+document.getElementById(
+"registerEmail"
+).value;
+
+const password =
+document.getElementById(
+"registerPassword"
+).value;
+
+
 
 const { data, error } =
 await client.auth.signUp({
+
 email,
 password
+
 });
 
+
+
+document.getElementById(
+"registerLoading"
+).style.display = "none";
+
+
+
+// ERROR
 if(error){
+
 alert(error.message);
+
 return;
+
 }
 
 
 
-// CREATE WALLET USER
-await client.from("users").insert([{
-id: data.user.id,
-email: email,
-balance: 0
+// CREATE USER WALLET
+await client
+.from("users")
+.insert([{
+
+id:data.user.id,
+
+email:email,
+
+balance:0
+
 }]);
 
-alert("Account created successfully");
+
+
+alert(
+"Account Created Successfully"
+);
+
+
+
+// GO TO DASHBOARD
+window.location.href =
+"/dashboard.html";
 
 }
 
