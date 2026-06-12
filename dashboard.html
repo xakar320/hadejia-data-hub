@@ -574,7 +574,7 @@ data:{ session }
 
 
 
-// BLOCK IF NOT LOGIN
+// CHECK LOGIN
 if(!session){
 
 alert("Please login first");
@@ -587,12 +587,116 @@ return;
 
 
 
+// GET VALUES
+const network =
+document.getElementById(
+"voiceNetwork"
+).value;
+
+const variation_code =
+document.getElementById(
+"voicePlan"
+).value;
+
+const phone =
+document.getElementById(
+"voicePhone"
+).value;
+
+
+
+// VALIDATION
+if(!phone){
+
+alert("Enter phone number");
+
+return;
+
+}
+
+
+
+try{
+
+const response = await fetch(
+
+"https://autosyncng.com/api/data/transfer",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":
+"application/json",
+
+"Authorization":
+"Bearer YOUR_AUTOSYNC_API_KEY"
+
+},
+
+body:JSON.stringify({
+
+request_ref:
+"REF_" + Date.now(),
+
+phone: phone,
+
+product_id: network,
+
+variation_code:
+variation_code,
+
+ported_no:false,
+
+pin:"YOUR_PIN"
+
+})
+
+}
+
+);
+
+
+
+const result =
+await response.json();
+
+console.log(result);
+
+
+
+// SUCCESS
+if(result.status === "ok"){
+
 alert(
-"Voice Bundle Purchase Successful"
+"Voice Bundle Purchased Successfully"
 );
 
 }
 
+
+
+// FAILED
+else{
+
+alert(
+result.message ||
+"Purchase Failed"
+);
+
+}
+
+}catch(error){
+
+console.log(error);
+
+alert("Network Error");
+
+}
+
+}
 
 
 // ======================
