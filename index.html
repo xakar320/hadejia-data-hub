@@ -1,188 +1,36 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Auth</title>
-
-<style>
-
-body{
-font-family:Arial;
-background:#f1f1f1;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-}
-
-.box{
-background:white;
-padding:25px;
-border-radius:15px;
-width:90%;
-max-width:400px;
-}
-
-input{
-width:100%;
-padding:15px;
-margin-top:10px;
-border:1px solid #ccc;
-border-radius:10px;
-}
-
-button{
-width:100%;
-padding:15px;
-margin-top:10px;
-border:none;
-background:green;
-color:white;
-border-radius:10px;
-font-size:18px;
-}
-
-.switch{
-text-align:center;
-margin-top:10px;
-color:blue;
-cursor:pointer;
-}
-
-.hidden{
-display:none;
-}
-
-</style>
-
+<title>Login Page</title>
 </head>
 
 <body>
 
-<div class="box">
-
-<!-- REGISTER -->
-<div id="registerBox">
-
-<h2>Register</h2>
-
-<input type="text" id="reg_name" placeholder="Full Name">
-<input type="email" id="reg_email" placeholder="Email">
-<input type="password" id="reg_password" placeholder="Password">
-
-<button onclick="register()">Register</button>
-
-<div class="switch" onclick="showLogin()">
-Already have account? Login
-</div>
-
-</div>
-
-<!-- LOGIN -->
-<div id="loginBox" class="hidden">
-
 <h2>Login</h2>
 
-<input type="email" id="login_email" placeholder="Email">
-<input type="password" id="login_password" placeholder="Password">
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
 
 <button onclick="login()">Login</button>
 
-<div class="switch" onclick="showRegister()">
-Don't have account? Register
-</div>
+<hr>
 
-</div>
+<h2>Register</h2>
 
-</div>
+<input id="r_email" placeholder="Email">
+<input id="r_password" type="password" placeholder="Password">
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<button onclick="register()">Register</button>
 
-<script>
 
-const supabaseUrl =
-"https://zjenhfapfhuoogxorung.supabase.co";
 
-const supabaseKey =
-"sb_publishable_PsygV812Dm2ORo2JcnhjzA_I_xbjqG4";
-
-const client =
-supabase.createClient(supabaseUrl, supabaseKey);
-
-/* SWITCH UI */
-
-function showLogin(){
-document.getElementById("registerBox").classList.add("hidden");
-document.getElementById("loginBox").classList.remove("hidden");
-}
-
-function showRegister(){
-document.getElementById("loginBox").classList.add("hidden");
-document.getElementById("registerBox").classList.remove("hidden");
-}
-
-/* REGISTER */
-
-async function register(){
-
-const name =
-document.getElementById("reg_name").value;
-
-const email =
-document.getElementById("reg_email").value;
-
-const password =
-document.getElementById("reg_password").value;
-
-const { data, error } =
-await client.auth.signUp({
-email,
-password,
-options:{
-data:{ full_name: name }
-}
-});
-
-if(error){
-alert(error.message);
-}else{
-alert("Registered Successfully");
-showLogin();
-}
-
-}
-
-/* LOGIN */
-
-async function login(){
-
-const email =
-document.getElementById("login_email").value;
-
-const password =
-document.getElementById("login_password").value;
-
-const { data, error } =
-await client.auth.signInWithPassword({
-email,
-password
-});
-
-if(error){
-alert(error.message);
-}else{
-alert("Login Successful");
-window.location.href = "dashboard.html";
-}
-
-}
+<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <script>
 
-const supabaseUrl = "https://zjenhfapfhuoogxorung.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
+const supabaseUrl = "YOUR_SUPABASE_URL";
+const supabaseKey = "YOUR_SUPABASE_ANON_KEY";
 
 const client = supabase.createClient(
 supabaseUrl,
@@ -195,7 +43,61 @@ autoRefreshToken: true
 }
 );
 
-</script>
+
+
+// ================= LOGIN =================
+async function login(){
+
+const email = document.getElementById("email").value;
+const password = document.getElementById("password").value;
+
+const { data, error } =
+await client.auth.signInWithPassword({
+email,
+password
+});
+
+if(error){
+alert(error.message);
+return;
+}
+
+window.location.href = "/dashboard.html";
+
+}
+
+
+
+// ================= REGISTER =================
+async function register(){
+
+const email = document.getElementById("r_email").value;
+const password = document.getElementById("r_password").value;
+
+const { data, error } =
+await client.auth.signUp({
+email,
+password
+});
+
+if(error){
+alert(error.message);
+return;
+}
+
+
+
+// CREATE WALLET USER
+await client.from("users").insert([{
+id: data.user.id,
+email: email,
+balance: 0
+}]);
+
+alert("Account created successfully");
+
+}
+
 </script>
 
 </body>
