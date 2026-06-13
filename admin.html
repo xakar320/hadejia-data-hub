@@ -92,7 +92,7 @@ input, select{
     padding:15px;
     border:none;
     border-radius:10px;
-    background:green;
+    background:linear-gradient(135deg, #ff9900, #ff5500);
     color:white;
     font-size:18px;
     font-weight:bold;
@@ -130,17 +130,23 @@ th{ background:#f9f9f9; color:#555; }
 <div class="admin-grid">
 
     <div class="card">
-        <div class="cardTitle">💰 Fund User Wallet</div>
+        <div class="cardTitle">💰 Manage User Wallet</div>
         
         <label>Select User</label>
         <select id="userSelect">
             <option value="">Loading users...</option>
         </select>
 
+        <label>Action Type</label>
+        <select id="actionType">
+            <option value="add">➕ Add Funds (Sawa Mutum Kudi)</option>
+            <option value="deduct">➖ Deduct Funds (Rage Wa Mutum Kudi)</option>
+        </select>
+
         <label>Amount (₦)</label>
         <input type="number" id="fundAmount" placeholder="Example: 5000">
 
-        <button class="adminBtn" onclick="fundUser()">Grant Funds</button>
+        <button class="adminBtn" onclick="manageWallet()">Execute Transaction</button>
     </div>
 
     <div class="card" style="grid-row: span 2;">
@@ -176,7 +182,7 @@ const client = supabase.createClient(supabaseUrl, supabaseKey);
 let adminUser = null;
 
 /* =========================
-SECURITY CHECK (FIXED TO FORCE YOUR EMAIL)
+SECURITY CHECK
 ========================= */
 async function checkAdminSecurity(){
     const { data: { session } } = await client.auth.getSession();
@@ -186,7 +192,6 @@ async function checkAdminSecurity(){
         return;
     }
 
-    // Mun tursasa amincewa da email dinka kai tsaye don tsallake matsalolin RLS na Supabase
     const masterAdminEmail = "xakar2@gmail.com";
 
     if(session.user.email !== masterAdminEmail){
@@ -200,7 +205,7 @@ async function checkAdminSecurity(){
 }
 
 /* =========================
-LOAD ALL USERS TO TABLE & DROPDOWN
+LOAD ALL USERS
 ========================= */
 async function loadAllUsers(){
     const { data, error } = await client
@@ -236,18 +241,20 @@ async function loadAllUsers(){
 }
 
 /* =========================
-FUND USER WALLET
+MANAGE WALLET (ADD OR DEDUCT)
 ========================= */
-async function fundUser(){
+async function manageWallet(){
     const targetUserId = document.getElementById("userSelect").value;
+    const action = document.getElementById("actionType").value;
     const amountInput = document.getElementById("fundAmount").value;
 
-    if(!targetUserId){ alert("Please select a user to fund."); return; }
+    if(!targetUserId){ alert("Please select a user."); return; }
     if(!amountInput || Number(amountInput) <= 0){ alert("Please enter a valid amount."); return; }
 
-    const amountToAdd = Number(amountInput);
+    const amountValue = Number(amountInput);
 
     try {
+        // 1. Nemo balance din mutum na yanzu
         const { data: user, error: fetchError } = await client
             .from("users")
             .select("balance")
@@ -256,8 +263,25 @@ async function fundUser(){
 
         if(fetchError) throw fetchError;
 
-        const newBalance = Number(user.balance) + amountToAdd;
+        let newBalance = Number(user.balance);
 
+        // 2. Duba ko Karawa za a yi ko Ragewa
+        if(action === "add") {
+            newBalance += amountValue;
+        } else if(action === "deduct") {
+            if(newBalance < amountValue) {
+                const confirmDeduct = confirm("Kuɗin da ke asusun mutumin sun yi kaɗan da abin da kake son ragewa. Shin kana son maida asusunsa zuwa ₦0?");
+                if(confirmDeduct) {
+                    newBalance = 0;
+                } else {
+                    return;
+                }
+            } else {
+                newBalance -= amountValue;
+            }
+        }
+
+        // 3. Sabunta kudin a database
         const { error: updateError } = await client
             .from("users")
             .update({ balance: newBalance })
@@ -265,13 +289,13 @@ async function fundUser(){
 
         if(updateError) throw updateError;
 
-        alert("Wallet successfully funded!");
+        alert("Wallet successfully updated!");
         document.getElementById("fundAmount").value = "";
         loadAllUsers();
 
     } catch (error) {
         console.error(error);
-        alert("Failed to fund user wallet. Check Supabase Policies.");
+        alert("Failed to update user wallet.");
     }
 }
 
