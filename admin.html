@@ -20,7 +20,6 @@ body{
     padding:20px;
 }
 
-/* HEADER */
 .admin-header{
     background:linear-gradient(135deg, #111, #333);
     padding:25px;
@@ -33,7 +32,7 @@ body{
     box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
 
-.admin-header h1{ font-size:28px; }
+.admin-header h1{ font-size:24px; }
 
 .backBtn{
     background:green;
@@ -46,7 +45,6 @@ body{
     text-decoration:none;
 }
 
-/* GRID CONTAINER */
 .admin-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -100,7 +98,6 @@ input, select{
     cursor:pointer;
 }
 
-/* TABLE STYLE */
 table{
     width:100%;
     border-collapse:collapse;
@@ -161,7 +158,7 @@ th{ background:#f9f9f9; color:#555; }
                 </thead>
                 <tbody id="usersTableBody">
                     <tr>
-                        <td colspan="2" style="text-align:center; color:#888;">Loading...</td>
+                        <td colspan="2" style="text-align:center; color:#888;">Loading users list...</td>
                     </tr>
                 </tbody>
             </table>
@@ -171,9 +168,6 @@ th{ background:#f9f9f9; color:#555; }
 </div>
 
 <script>
-/* =========================
-SUPABASE SETUP
-========================= */
 const supabaseUrl = "https://zjenhfapfhuoogxorung.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
 
@@ -181,9 +175,7 @@ const client = supabase.createClient(supabaseUrl, supabaseKey);
 
 let adminUser = null;
 
-/* =========================
-SECURITY CHECK
-========================= */
+// GUDANAR DA TSARO NA EMAIL KAI TSAYE
 async function checkAdminSecurity(){
     const { data: { session } } = await client.auth.getSession();
     
@@ -195,7 +187,7 @@ async function checkAdminSecurity(){
     const masterAdminEmail = "xakar2@gmail.com";
 
     if(session.user.email !== masterAdminEmail){
-        alert("Access Denied! You are not an Admin.");
+        alert("Access Denied!");
         window.location.href = "/dashboard.html";
         return;
     }
@@ -204,9 +196,7 @@ async function checkAdminSecurity(){
     loadAllUsers();
 }
 
-/* =========================
-LOAD ALL USERS
-========================= */
+// DAUKO DUKKAN MASU AMFANI
 async function loadAllUsers(){
     const { data, error } = await client
         .from("users")
@@ -214,7 +204,8 @@ async function loadAllUsers(){
         .order("email", { ascending: true });
 
     if(error) {
-        console.log("Error loading users:", error);
+        console.log("Error fetching users:", error);
+        document.getElementById("usersTableBody").innerHTML = `<tr><td colspan="2" style="color:red; text-align:center;">Error: ${error.message}</td></tr>`;
         return;
     }
 
@@ -225,7 +216,7 @@ async function loadAllUsers(){
     tableBody.innerHTML = "";
 
     if(!data || data.length === 0){
-        tableBody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#888;">No users found. Ensure RLS allows select.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#888;">No users found in database table.</td></tr>`;
         return;
     }
 
@@ -240,9 +231,7 @@ async function loadAllUsers(){
     });
 }
 
-/* =========================
-MANAGE WALLET (ADD OR DEDUCT)
-========================= */
+// AIKIN KARA KO RAGE KUDI
 async function manageWallet(){
     const targetUserId = document.getElementById("userSelect").value;
     const action = document.getElementById("actionType").value;
@@ -254,7 +243,6 @@ async function manageWallet(){
     const amountValue = Number(amountInput);
 
     try {
-        // 1. Nemo balance din mutum na yanzu
         const { data: user, error: fetchError } = await client
             .from("users")
             .select("balance")
@@ -265,12 +253,11 @@ async function manageWallet(){
 
         let newBalance = Number(user.balance);
 
-        // 2. Duba ko Karawa za a yi ko Ragewa
         if(action === "add") {
             newBalance += amountValue;
         } else if(action === "deduct") {
             if(newBalance < amountValue) {
-                const confirmDeduct = confirm("Kuɗin da ke asusun mutumin sun yi kaɗan da abin da kake son ragewa. Shin kana son maida asusunsa zuwa ₦0?");
+                const confirmDeduct = confirm("Kudin mutumin sun yi kadan da abin da kake son ragewa. Kana son maida asusunsa zuwa ₦0?");
                 if(confirmDeduct) {
                     newBalance = 0;
                 } else {
@@ -281,7 +268,6 @@ async function manageWallet(){
             }
         }
 
-        // 3. Sabunta kudin a database
         const { error: updateError } = await client
             .from("users")
             .update({ balance: newBalance })
@@ -289,20 +275,17 @@ async function manageWallet(){
 
         if(updateError) throw updateError;
 
-        alert("Wallet successfully updated!");
+        alert("Wallet updated successfully!");
         document.getElementById("fundAmount").value = "";
         loadAllUsers();
 
     } catch (error) {
         console.error(error);
-        alert("Failed to update user wallet.");
+        alert("Failed to update user wallet. Try running the SQL script again.");
     }
 }
 
-/* =========================
-START UP
-========================= */
-window.addEventListener("load", checkAdminSecurity);
+window.addEventListener("DOMContentLoaded", checkAdminSecurity);
 </script>
 
 </body>
