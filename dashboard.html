@@ -290,7 +290,7 @@ const dataPlans = {
         { name: "SME 500MB - ₦140", price: 140, plan_id: "500MB", variation_code: "MTN_SME_500MB" },
         { name: "SME 1GB - ₦260", price: 260, plan_id: "1GB", variation_code: "MTN_SME_1GB" },
         { name: "SME 2GB - ₦520", price: 520, plan_id: "2GB", variation_code: "MTN_SME_2GB" },
-        { name: "SME 5GB - ₦1,300", price: 130, plan_id: "5GB", variation_code: "MTN_SME_5GB" }
+        { name: "SME 5GB - ₦1,300", price: 1300, plan_id: "5GB", variation_code: "MTN_SME_5GB" }
     ],
     AIRTEL: [
         { name: "CG 1GB - ₦270", price: 270, plan_id: "A1GB", variation_code: "AIRTEL_CG_1GB" },
@@ -314,7 +314,7 @@ function changeDataPlans(){
     });
 }
 
-// Saurari lokacin da aka canza Network din Data
+// Listen for Data Network change
 document.getElementById("dataNetwork").addEventListener("change", changeDataPlans);
 
 /* =========================
@@ -326,16 +326,16 @@ async function buyData(){
     const phone = document.getElementById("dataPhone").value;
     
     if(phone.length < 11){
-        alert("Saka sahihin lambar waya mai lambobi 11");
+        alert("Please enter a valid 11-digit phone number");
         return;
     }
     
     const selectedPlan = dataPlans[network][planIndex];
     const cost = selectedPlan.price;
 
-    // Tabbatar kudi sun isa wallet
+    // Check wallet balance
     if(currentBalance < cost){
-        alert("In Sufficient Funds! Please Fund Your Wallet.");
+        alert("Insufficient funds! Please fund your wallet.");
         return;
     }
 
@@ -360,7 +360,7 @@ async function buyData(){
         const result = await response.json();
 
         if(result.status === "ok" || result.success === true){
-            // Rage kudi a Supabase
+            // Deduct balance in Supabase
             const newBalance = currentBalance - cost;
             const { error: updateError } = await client
                 .from("users")
@@ -368,17 +368,17 @@ async function buyData(){
                 .eq("id", currentUser.id);
 
             if(updateError){
-                alert("An sayi Data amma an samu matsala wajen sabunta Wallet.");
+                alert("Data purchased successfully, but failed to update wallet balance.");
             } else {
-                alert("An sayi Data cikin nasara!");
+                alert("Data purchased successfully!");
                 loadBalance(currentUser.id); // Refresh balance on UI
             }
         } else {
-            alert(result.message || "Sayayya ta gaza daga kamfanin API.");
+            alert(result.message || "Transaction failed from API provider.");
         }
     } catch(error) {
         console.log(error);
-        alert("An samu matsalar Network.");
+        alert("Network Error. Please try again.");
     }
 }
 
@@ -422,7 +422,7 @@ async function buyVoiceBundle(){
     const phone = document.getElementById("voicePhone").value;
 
     if(phone.length < 11){
-        alert("Enter Valid Phone Number");
+        alert("Please enter a valid phone number");
         return;
     }
 
@@ -430,7 +430,7 @@ async function buyVoiceBundle(){
     const cost = selectedPlan.price;
 
     if(currentBalance < cost){
-        alert("Insufficient Balance!");
+        alert("Insufficient funds!");
         return;
     }
 
@@ -455,11 +455,11 @@ async function buyVoiceBundle(){
         const result = await response.json();
 
         if(result.status === "ok" || result.success === true){
-            // Rage kudi a Supabase
+            // Deduct balance in Supabase
             const newBalance = currentBalance - cost;
             await client.from("users").update({ balance: newBalance }).eq("id", currentUser.id);
             
-            alert("Voice Bundle Purchased Successfully");
+            alert("Voice Bundle Purchased Successfully!");
             loadBalance(currentUser.id);
         }else{
             alert(result.message || "Purchase Failed");
