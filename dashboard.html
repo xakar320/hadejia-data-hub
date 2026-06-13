@@ -21,7 +21,7 @@ body{ background:#f3f5f9; padding:15px; }
 .bank-num { font-size: 28px; font-weight: bold; margin: 10px 0; letter-spacing: 1px; }
 .bank-det { font-size: 15px; opacity: 0.95; display: flex; justify-content: space-between; }
 .services{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:15px; margin-bottom:20px; }
-.service{ background:white; padding:20px; border-radius:20px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.08); transition: transform 0.2s; }
+.service{ background:white; padding:20px; border-radius:20px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.08); transition: transform 0.2s; cursor:pointer; }
 .service:active { transform: scale(0.95); }
 .serviceIcon{ font-size:40px; }
 .service h3{ margin-top:10px; color:green; }
@@ -62,9 +62,9 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
 </div>
 
 <div class="services">
-    <div class="service" onclick="switchService('data')" style="cursor:pointer;"><div class="serviceIcon">📶</div><h3>Buy Data</h3></div>
-    <div class="service" onclick="switchService('voice')" style="cursor:pointer;"><div class="serviceIcon">📞</div><h3>Voice Bundle</h3></div>
-    <div class="service"><div class="serviceIcon">💳</div><h3>Airtime</h3></div>
+    <div class="service" onclick="switchService('data')"><div class="serviceIcon">📶</div><h3>Buy Data</h3></div>
+    <div class="service" onclick="switchService('voice')"><div class="serviceIcon">📞</div><h3>Voice Bundle</h3></div>
+    <div class="service" onclick="switchService('airtime')"><div class="serviceIcon">💳</div><h3>Airtime</h3></div>
     <div class="service"><div class="serviceIcon">⚡</div><h3>Bills</h3></div>
 </div>
 
@@ -92,7 +92,7 @@ let currentUser = null;
 let currentBalance = 0;
 let currentServiceType = "data"; 
 
-// AINIHIN TSARIN PLANS ƊINKA DA KA TURO YANZU
+// MASTER DATA PLANS DA AIRTIME LISSANI
 const dataPlans = {
     MTN: [
         // === DATA PLANS ===
@@ -106,12 +106,14 @@ const dataPlans = {
         { name: "₦120 MTN Voice Bundle (7 Days)", price: 120, plan_id: "26117793", variation_code: "400_7days", type: "voice" },
         { name: "₦270 MTN Voice Bundle (7 Days)", price: 270, plan_id: "26117789", variation_code: "1000_7days", type: "voice" },
         { name: "₦1050 MTN Voice Bundle (14 Days)", price: 1050, plan_id: "26117790", variation_code: "4000_14days", type: "voice" },
-        { name: "₦2050 MTN Voice Bundle (14 Days)", price: 2050, plan_id: "26117791", variation_code: "8000_14days", type: "voice" }
+        { name: "₦2050 MTN Voice Bundle (14 Days)", price: 2050, plan_id: "26117791", variation_code: "8000_14days", type: "voice" },
+        // === AIRTIME ===
+        { name: "MTN Airtime VTU", price: 0, plan_id: "vtu", variation_code: "vtu", type: "airtime" }
     ],
     AIRTEL: [ 
         // === DATA PLANS ===
         { name: "Awoof (Social) 1GB 3-Days - ₦370", price: 370, plan_id: "26117382", variation_code: "PlanAWOOF_26", type: "data" },
-        { name: "Awoof 1.5GB 1-Day - ₦400", price: 400, plan_id: "26117381", variation_code: "AWOOF_25", type: "data" }, // price na kiyasta 400 tun da baka saka ba
+        { name: "Awoof 1.5GB 1-Day - ₦400", price: 400, plan_id: "26117381", variation_code: "AWOOF_25", type: "data" },
         { name: "Awoof 2GB 2 Days - ₦700", price: 700, plan_id: "26117386", variation_code: "AWOOF_31", type: "data" },
         { name: "Awoof 3GB 2 Days - ₦850", price: 850, plan_id: "26117395", variation_code: "AWOOF_40", type: "data" },
         { name: "Awoof 10GB Monthly - ₦3200", price: 3200, plan_id: "26117335", variation_code: "AWOOF_6", type: "data" },
@@ -127,7 +129,9 @@ const dataPlans = {
         { name: "₦300 Voice Bundle (30 Mins)", price: 300, plan_id: "26117796", variation_code: "TalkMore_300", type: "voice" },
         { name: "₦500 Voice Bundle (50 Mins)", price: 500, plan_id: "26117797", variation_code: "TalkMore_500", type: "voice" },
         { name: "₦1000 Voice Bundle (100 Mins)", price: 1000, plan_id: "26117798", variation_code: "26117798", type: "voice" },
-        { name: "₦1500 Voice Bundle (150 Mins)", price: 1500, plan_id: "26117799", variation_code: "TalkMore_1500", type: "voice" }
+        { name: "₦1500 Voice Bundle (150 Mins)", price: 1500, plan_id: "26117799", variation_code: "TalkMore_1500", type: "voice" },
+        // === AIRTIME ===
+        { name: "Airtel Airtime VTU", price: 0, plan_id: "vtu", variation_code: "vtu", type: "airtime" }
     ],
     GLO: [ 
         // === DATA PLANS ===
@@ -136,10 +140,13 @@ const dataPlans = {
         { name: "0.5 GB 30 Days - ₦250", price: 250, plan_id: "26117658", variation_code: "glo-0488-gb-30-days", type: "data" },
         { name: "1.55 GB 7 Days - ₦600", price: 600, plan_id: "26117471", variation_code: "5530", type: "data" },
         { name: "1GB 30 Days - ₦500", price: 500, plan_id: "26117659", variation_code: "glo-1000-gb-30-days", type: "data" },
-        { name: "2GB 30 Days - ₦1000", price: 1000, plan_id: "26117660", variation_code: "glo-2000-gb-30-days", type: "data" }
+        { name: "2GB 30 Days - ₦1000", price: 1000, plan_id: "26117660", variation_code: "glo-2000-gb-30-days", type: "data" },
+        // === AIRTIME ===
+        { name: "Glo Airtime VTU", price: 0, plan_id: "vtu", variation_code: "vtu", type: "airtime" }
     ],
     "9MOBILE": [ 
-        { name: "SME 1GB - ₦180", price: 180, plan_id: "9M1GB", variation_code: "9MOBILE_SME_1GB", type: "data" } 
+        { name: "SME 1GB - ₦180", price: 180, plan_id: "9M1GB", variation_code: "9MOBILE_SME_1GB", type: "data" },
+        { name: "9Mobile Airtime VTU", price: 0, plan_id: "vtu", variation_code: "vtu", type: "airtime" }
     ]
 };
 
@@ -227,13 +234,20 @@ function switchService(type) {
     currentServiceType = type;
     const cardTitle = document.getElementById("dynamicCardTitle");
     const submitBtn = document.getElementById("submitOrderBtn");
+    const planSelect = document.getElementById("dataPlan");
     
     if(type === "data") {
         cardTitle.innerHTML = "📶 Buy Data";
         submitBtn.innerHTML = "Buy Data";
-    } else {
+        planSelect.style.display = "block";
+    } else if(type === "voice") {
         cardTitle.innerHTML = "📞 Buy Voice Bundle";
         submitBtn.innerHTML = "Buy Voice Bundle";
+        planSelect.style.display = "block";
+    } else if(type === "airtime") {
+        cardTitle.innerHTML = "💳 Buy Airtime";
+        submitBtn.innerHTML = "Buy Airtime";
+        planSelect.style.display = "none"; // Baya bukatar zabar plan
     }
     changeDataPlans();
 }
@@ -245,6 +259,10 @@ function changeDataPlans(){
     
     const filteredPlans = dataPlans[network].filter(plan => plan.type === currentServiceType);
     
+    if(currentServiceType === "airtime") {
+        return; 
+    }
+
     if(filteredPlans.length === 0) {
         dataPlanSelect.innerHTML = `<option value="">No package available</option>`;
         return;
@@ -263,37 +281,66 @@ async function processOrder(){
     const phone = document.getElementById("dataPhone").value;
     const pin = document.getElementById("transactionPin").value;
     
-    if(!planIndex) { alert("Please select a valid plan"); return; }
     if(phone.length < 11){ alert("Please enter a valid phone number"); return; }
     if(!pin){ alert("Please enter your transaction PIN"); return; }
     
-    const selectedPlan = dataPlans[network][planIndex];
-    const cost = selectedPlan.price;
+    let cost = 0;
+    let selectedPlan = null;
+    let apiUrl = "";
+
+    // Gano wane tsari za a tura da kudin shi
+    if(currentServiceType === "airtime") {
+        let airtimeAmount = prompt("Enter Airtime Amount (₦):");
+        cost = Number(airtimeAmount);
+        if(!cost || cost <= 0) { alert("Invalid amount entered!"); return; }
+        apiUrl = "https://autosyncng.com/api/airtime/transfer";
+    } else {
+        if(!planIndex) { alert("Please select a valid plan"); return; }
+        selectedPlan = dataPlans[network][planIndex];
+        cost = selectedPlan.price;
+        apiUrl = selectedPlan.type === "data" ? "https://autosyncng.com/api/data/transfer" : "https://autosyncng.com/api/voice/transfer";
+    }
+
     if(currentBalance < cost){ alert("Insufficient funds!"); return; }
 
-    const apiUrl = selectedPlan.type === "data" ? "https://autosyncng.com/api/data/transfer" : "https://autosyncng.com/api/voice/transfer";
+    // Hadin payload din tura kudi
+    let requestBody = {
+        request_ref: "REF_ORD_" + Date.now(), 
+        phone: phone, 
+        network: network.toLowerCase(), 
+        ported_no: false, 
+        pin: "2098"
+    };
+
+    if(currentServiceType === "airtime") {
+        requestBody.amount = cost;
+    } else {
+        requestBody.variation_code = selectedPlan.variation_code;
+        requestBody.plan_id = selectedPlan.plan_id;
+    }
 
     try{
         const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": "Bearer 988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515" },
-            body: JSON.stringify({ 
-                request_ref: "REF_ORD_" + Date.now(), 
-                phone: phone, 
-                network: network.toLowerCase(), 
-                variation_code: selectedPlan.variation_code, 
-                plan_id: selectedPlan.plan_id, 
-                ported_no: false, 
-                pin: "2098" 
-            })
+            body: JSON.stringify(requestBody)
         });
         const result = await response.json();
         if(result.status === "ok" || result.success === true){
             const newBalance = currentBalance - cost;
-            const orderTypeLabel = selectedPlan.type === "data" ? "Data" : "Voice Bundle";
+            let orderTypeLabel = "Data";
+            let txDetails = `${network} Data to ${phone}`;
+
+            if(currentServiceType === "voice") {
+                orderTypeLabel = "Voice Bundle";
+                txDetails = `${network} ${selectedPlan.name.split(' - ')[0]} to ${phone}`;
+            } else if(currentServiceType === "airtime") {
+                orderTypeLabel = "Airtime";
+                txDetails = `${network} ₦${cost} Airtime to ${phone}`;
+            }
             
             await client.from("users").update({ balance: newBalance }).eq("id", currentUser.id);
-            await client.from("transactions").insert([{ user_id: currentUser.id, type: orderTypeLabel, details: `${network} ${selectedPlan.name.split(' - ')[0]} to ${phone}`, amount: cost, status: "Success" }]);
+            await client.from("transactions").insert([{ user_id: currentUser.id, type: orderTypeLabel, details: txDetails, amount: cost, status: "Success" }]);
             
             alert(`${orderTypeLabel} purchased successfully!`);
             document.getElementById("transactionPin").value = ""; 
@@ -306,16 +353,4 @@ async function processOrder(){
 async function loadTransactions(userId){
     const { data } = await client.from("transactions").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(10);
     const listDiv = document.getElementById("transactionList"); listDiv.innerHTML = "";
-    if(!data || data.length === 0){ listDiv.innerHTML = `<div class="transactionItem" style="justify-content:center; border:none; color:#888;">No transactions yet</div>`; return; }
-    data.forEach(tx => {
-        const dateFormatted = new Date(tx.created_at).toLocaleString();
-        listDiv.innerHTML += `<div class="transactionItem"><div class="txDetails"><span class="txType">${tx.type}</span><span class="txInfo">${tx.details}</span><span class="txDate">${dateFormatted}</span></div><div class="txAmount">-₦${Number(tx.amount).toLocaleString()}</div></div>`;
-    });
-}
-
-async function logoutUser(){ await client.auth.signOut(); window.location.href = "/"; }
-
-window.addEventListener("load", () => { checkUser(); changeDataPlans(); });
-</script>
-</body>
-</html>
+    if(!dat
