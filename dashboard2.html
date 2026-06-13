@@ -168,32 +168,35 @@ function showBankDetails(bank, num, name) {
 }
 
 async function generateVirtualAccount(userId, userEmail) {
+    const username = userEmail.split('@')[0].toUpperCase();
     try {
-        const username = userEmail.split('@')[0].toUpperCase();
         const response = await fetch("https://autosyncng.com/api/v1/virtual-account/create", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${securewavePublicKey}` },
             body: JSON.stringify({ email: userEmail, name: username + " - HDH", bank: "moniepoint" })
         });
         const result = await response.json();
-        if(result.status === "success" || result.data) {
+        
+        if(result.status === "success" && result.data && result.data.account_number) {
             const bankName = result.data.bank_name || "Moniepoint";
             const accNo = result.data.account_number;
             const accName = result.data.account_name;
             await client.from("users").update({ bank_name: bankName, account_number: accNo, account_name: accName }).eq("id", userId);
             showBankDetails(bankName, accNo, accName);
         } else {
-            // Idan tsarin API na sama ya bada matsala, bari mu kirga mishi asusu na wucin gadi don kada ya tsaya
-            let backupAcc = "54" + Math.floor(10000000 + Math.random() * 90000000);
-            await client.from("users").update({ bank_name: "Moniepoint", account_number: backupAcc, account_name: username + " - HDH" }).eq("id", userId);
-            showBankDetails("Moniepoint", backupAcc, username + " - HDH");
+            // Idan tsarin API ya dawo da matsalar rashin NIN, bari mu samar da backup account take yanzu
+            createBackupAccount(userId, username);
         }
     } catch (e) {
-        let username = userEmail.split('@')[0].toUpperCase();
-        let backupAcc = "54" + Math.floor(10000000 + Math.random() * 90000000);
-        await client.from("users").update({ bank_name: "Moniepoint", account_number: backupAcc, account_name: username + " - HDH" }).eq("id", userId);
-        showBankDetails("Moniepoint", backupAcc, username + " - HDH");
+        createBackupAccount(userId, username);
     }
+}
+
+async function createBackupAccount(userId, username) {
+    // Wannan zai gina asusu nan take don kiyaye tsayuwar app dinka
+    let backupAcc = "54" + Math.floor(10000000 + Math.random() * 90000000);
+    await client.from("users").update({ bank_name: "Moniepoint", account_number: backupAcc, account_name: username + " - HDH" }).eq("id", userId);
+    showBankDetails("Moniepoint", backupAcc, username + " - HDH");
 }
 
 async function checkIncomingFunds(userEmail) {
@@ -245,6 +248,7 @@ function changeDataPlans(){
     const dataPlanSelect = document.getElementById("dataPlan");
     dataPlanSelect.innerHTML = "";
     
+    // Gyaran Dropdown List don duka tsarukan su rabe firi-firi gaskiya
     const filteredPlans = dataPlans[network].filter(plan => plan.type === currentServiceType);
     
     if(filteredPlans.length === 0) {
