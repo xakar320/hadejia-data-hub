@@ -73,6 +73,9 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
     <select id="dataNetwork"><option value="MTN">MTN</option><option value="AIRTEL">AIRTEL</option><option value="GLO">GLO</option><option value="9MOBILE">9MOBILE</option></select>
     <select id="dataPlan"></select>
     <input type="number" id="dataPhone" placeholder="Enter Phone Number">
+    
+    <input type="password" id="transactionPin" placeholder="••••" maxlength="4" style="text-align: center; letter-spacing: 5px;">
+    
     <button class="mainBtn" id="submitOrderBtn" onclick="processOrder()">Buy Data</button>
 </div>
 
@@ -84,23 +87,23 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
 <script>
 const supabaseUrl = "https://zjenhfapfhuoogxorung.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
-const securewavePublicKey = "207877338766ce1cf458d8d"; // Public Key dinka
+const securewavePublicKey = "207877338766ce1cf458d8d"; 
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 let currentUser = null;
 let currentBalance = 0;
-let currentServiceType = "data"; // Ma'aunin lura da abin da aka zaba
+let currentServiceType = "data"; 
 
-// Rukunin kayayyaki gaba daya (Data da Voice Bundle)
+// Tsayayyen rukunin kayayyaki na Data da Katin Magana
 const dataPlans = {
     MTN: [
         { name: "SME 1GB - ₦260", price: 260, plan_id: "1GB", variation_code: "MTN_SME_1GB", type: "data" },
         { name: "SME 2GB - ₦520", price: 520, plan_id: "2GB", variation_code: "MTN_SME_2GB", type: "data" },
-        { name: "MTN Voice 100 Mins - ₦300", price: 300, plan_id: "V100", variation_code: "MTN_VOICE_100", type: "voice" }
+        { name: "MTN Voice 100 Mins - ₦300", price: 300, plan_id: "400_7days", variation_code: "400_7days", type: "voice" }
     ],
     AIRTEL: [ 
         { name: "CG 1GB - ₦270", price: 270, plan_id: "A1GB", variation_code: "AIRTEL_CG_1GB", type: "data" },
-        { name: "Airtel Voice 120 Mins - ₦400", price: 400, plan_id: "AV120", variation_code: "AIRTEL_VOICE_120", type: "voice" }
+        { name: "Airtel Voice 120 Mins - ₦400", price: 400, plan_id: "26117796", variation_code: "TalkMore_300", type: "voice" }
     ],
     GLO: [ 
         { name: "CG 1GB - ₦250", price: 250, plan_id: "G1GB", variation_code: "GLO_CG_1GB", type: "data" },
@@ -117,8 +120,6 @@ async function checkUser(){
     currentUser = session.user;
     await loadUserData(currentUser.id);
     await loadTransactions(currentUser.id);
-    
-    // Fara leken asusun Pipedream na Securewave
     checkIncomingFunds(currentUser.email);
 }
 
@@ -160,11 +161,10 @@ async function generateVirtualAccount(userId, userEmail) {
             const accName = result.data.account_name;
             await client.from("users").update({ bank_name: bankName, account_number: accNo, account_name: accName }).eq("id", userId);
             showBankDetails(bankName, accNo, accName);
-        } else { document.getElementById("userAccountNo").innerText = "Refresh to load Bank Account"; }
-    } catch (e) { document.getElementById("userAccountNo").innerText = "Bank Maintenance"; }
+        }
+    } catch (e) { }
 }
 
-/* TSARIN DAUKO KUDI NA PIPEDREAM/SECUREWAVE KAI TSAYE */
 async function checkIncomingFunds(userEmail) {
     try {
         const response = await fetch("https://eo27jf54uzazck2.m.pipedream.net/history?limit=5");
@@ -191,7 +191,7 @@ async function checkIncomingFunds(userEmail) {
                 }
             }
         });
-    } catch (e) { console.log("Webhook check omitted"); }
+    } catch (e) { }
 }
 
 // Canza fasalin gurin siyarwa tsakanin Data da Voice
@@ -215,7 +215,6 @@ function changeDataPlans(){
     const dataPlanSelect = document.getElementById("dataPlan");
     dataPlanSelect.innerHTML = "";
     
-    // Tace abubuwa gwargwadon zabin da aka danna
     const filteredPlans = dataPlans[network].filter(plan => plan.type === currentServiceType);
     
     if(filteredPlans.length === 0) {
@@ -224,6 +223,7 @@ function changeDataPlans(){
     }
 
     filteredPlans.forEach((plan) => {
+        // Gano ainihin index din plan a asalin babban network
         const originalIndex = dataPlans[network].indexOf(plan);
         dataPlanSelect.innerHTML += `<option value="${originalIndex}">${plan.name}</option>`;
     });
@@ -234,22 +234,31 @@ async function processOrder(){
     const network = document.getElementById("dataNetwork").value;
     const planIndex = document.getElementById("dataPlan").value;
     const phone = document.getElementById("dataPhone").value;
+    const pin = document.getElementById("transactionPin").value;
     
     if(!planIndex) { alert("Please select a valid plan"); return; }
     if(phone.length < 11){ alert("Please enter a valid phone number"); return; }
+    if(!pin){ alert("Please enter your transaction PIN"); return; }
     
     const selectedPlan = dataPlans[network][planIndex];
     const cost = selectedPlan.price;
     if(currentBalance < cost){ alert("Insufficient funds!"); return; }
 
-    // Gano shin Data ce ko kuwa Katin Magana (Voice)
     const apiUrl = selectedPlan.type === "data" ? "https://autosyncng.com/api/data/transfer" : "https://autosyncng.com/api/voice/transfer";
 
     try{
         const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": "Bearer 988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515" },
-            body: JSON.stringify({ request_ref: "REF_ORD_" + Date.now(), phone: phone, network: network.toLowerCase(), variation_code: selectedPlan.variation_code, plan_id: selectedPlan.plan_id, ported_no: false, pin: "2098" })
+            body: JSON.stringify({ 
+                request_ref: "REF_ORD_" + Date.now(), 
+                phone: phone, 
+                network: network.toLowerCase(), 
+                variation_code: selectedPlan.variation_code, 
+                plan_id: selectedPlan.plan_id, 
+                ported_no: false, 
+                pin: "2098" 
+            })
         });
         const result = await response.json();
         if(result.status === "ok" || result.success === true){
@@ -260,6 +269,7 @@ async function processOrder(){
             await client.from("transactions").insert([{ user_id: currentUser.id, type: orderTypeLabel, details: `${network} ${selectedPlan.name.split(' - ')[0]} to ${phone}`, amount: cost, status: "Success" }]);
             
             alert(`${orderTypeLabel} purchased successfully!`);
+            document.getElementById("transactionPin").value = ""; // share filin pin
             loadUserData(currentUser.id); 
             loadTransactions(currentUser.id);
         } else { alert(result.message || "Transaction failed"); }
