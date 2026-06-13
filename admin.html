@@ -176,7 +176,7 @@ const client = supabase.createClient(supabaseUrl, supabaseKey);
 let adminUser = null;
 
 /* =========================
-SECURITY CHECK (IS ADMIN?)
+SECURITY CHECK (FIXED TO FORCE YOUR EMAIL)
 ========================= */
 async function checkAdminSecurity(){
     const { data: { session } } = await client.auth.getSession();
@@ -186,14 +186,10 @@ async function checkAdminSecurity(){
         return;
     }
 
-    // Duba a database ko mutum admin ne
-    const { data, error } = await client
-        .from("users")
-        .select("is_admin")
-        .eq("id", session.user.id)
-        .single();
+    // Mun tursasa amincewa da email dinka kai tsaye don tsallake matsalolin RLS na Supabase
+    const masterAdminEmail = "xakar2@gmail.com";
 
-    if(error || !data || data.is_admin !== true){
+    if(session.user.email !== masterAdminEmail){
         alert("Access Denied! You are not an Admin.");
         window.location.href = "/dashboard.html";
         return;
@@ -212,7 +208,10 @@ async function loadAllUsers(){
         .select("id, email, balance")
         .order("email", { ascending: true });
 
-    if(error) return;
+    if(error) {
+        console.log("Error loading users:", error);
+        return;
+    }
 
     const userSelect = document.getElementById("userSelect");
     const tableBody = document.getElementById("usersTableBody");
@@ -220,11 +219,13 @@ async function loadAllUsers(){
     userSelect.innerHTML = `<option value="">-- Choose a User --</option>`;
     tableBody.innerHTML = "";
 
+    if(!data || data.length === 0){
+        tableBody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#888;">No users found. Ensure RLS allows select.</td></tr>`;
+        return;
+    }
+
     data.forEach(user => {
-        // Cika dropdown menu
         userSelect.innerHTML += `<option value="${user.id}">${user.email}</option>`;
-        
-        // Cika Table din dake nuna mutane
         tableBody.innerHTML += `
             <tr>
                 <td>${user.email}</td>
@@ -247,7 +248,6 @@ async function fundUser(){
     const amountToAdd = Number(amountInput);
 
     try {
-        // 1. Nemo balance din mutum na yanzu tukunna
         const { data: user, error: fetchError } = await client
             .from("users")
             .select("balance")
@@ -256,10 +256,8 @@ async function fundUser(){
 
         if(fetchError) throw fetchError;
 
-        // 2. Lissafa sabon balance
         const newBalance = Number(user.balance) + amountToAdd;
 
-        // 3. Sabunta kudin a database
         const { error: updateError } = await client
             .from("users")
             .update({ balance: newBalance })
@@ -269,11 +267,11 @@ async function fundUser(){
 
         alert("Wallet successfully funded!");
         document.getElementById("fundAmount").value = "";
-        loadAllUsers(); // Reload table and list
+        loadAllUsers();
 
     } catch (error) {
         console.error(error);
-        alert("Failed to fund user wallet.");
+        alert("Failed to fund user wallet. Check Supabase Policies.");
     }
 }
 
