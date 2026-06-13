@@ -23,34 +23,25 @@ background:#f3f5f9;
 padding:15px;
 }
 
-
-
-/* =========================
-HEADER
-========================= */
+/* HEADER */
 
 .header{
-
 background:linear-gradient(
 135deg,
 green,
 limegreen
 );
-
 padding:25px;
 border-radius:25px;
 color:white;
 margin-bottom:20px;
 box-shadow:0 5px 20px rgba(0,0,0,0.1);
-
 }
 
 .headerTop{
-
 display:flex;
 justify-content:space-between;
 align-items:center;
-
 }
 
 .logo{
@@ -59,7 +50,6 @@ font-weight:bold;
 }
 
 .logoutBtn{
-
 background:red;
 border:none;
 padding:10px 15px;
@@ -67,7 +57,7 @@ border-radius:10px;
 color:white;
 font-size:16px;
 font-weight:bold;
-
+cursor:pointer;
 }
 
 .balanceBox{
@@ -76,40 +66,29 @@ margin-top:25px;
 
 .balanceTitle{
 font-size:18px;
-opacity:0.9;
 }
 
 .balance{
-
 font-size:45px;
 font-weight:bold;
-margin-top:8px;
-
+margin-top:10px;
 }
 
-
-
-/* =========================
-SERVICE CARDS
-========================= */
+/* SERVICES */
 
 .services{
-
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:15px;
 margin-bottom:20px;
-
 }
 
 .service{
-
 background:white;
 padding:20px;
 border-radius:20px;
 text-align:center;
 box-shadow:0 5px 15px rgba(0,0,0,0.08);
-
 }
 
 .serviceIcon{
@@ -121,40 +100,27 @@ margin-top:10px;
 color:green;
 }
 
-
-
-/* =========================
-MAIN CARD
-========================= */
+/* CARD */
 
 .card{
-
 background:white;
 padding:20px;
 border-radius:20px;
 margin-bottom:20px;
 box-shadow:0 5px 15px rgba(0,0,0,0.08);
-
 }
 
 .cardTitle{
-
 font-size:24px;
 font-weight:bold;
 color:green;
 margin-bottom:15px;
-
 }
 
-
-
-/* =========================
-INPUTS
-========================= */
+/* INPUT */
 
 select,
 input{
-
 width:100%;
 padding:15px;
 border-radius:12px;
@@ -162,60 +128,41 @@ border:1px solid #ccc;
 margin-top:12px;
 font-size:16px;
 outline:none;
-
 }
 
-
-
-/* =========================
-BUTTONS
-========================= */
+/* BUTTON */
 
 .mainBtn{
-
 width:100%;
 padding:15px;
 border:none;
 border-radius:12px;
-
 background:linear-gradient(
 135deg,
 green,
 limegreen
 );
-
 color:white;
 font-size:20px;
 font-weight:bold;
 margin-top:15px;
 cursor:pointer;
-
 }
 
 .mainBtn:hover{
 opacity:0.9;
 }
 
-
-
-/* =========================
-TRANSACTION
-========================= */
+/* TRANSACTION */
 
 .transactionItem{
-
 padding:15px;
 background:#f9f9f9;
 border-radius:12px;
 margin-top:10px;
-
 }
 
-
-
-/* =========================
-RESPONSIVE
-========================= */
+/* RESPONSIVE */
 
 @media(max-width:700px){
 
@@ -234,22 +181,14 @@ font-size:35px;
 
 <body>
 
-
-
-
-
-<!-- =========================
-HEADER
-========================= -->
+<!-- HEADER -->
 
 <div class="header">
 
 <div class="headerTop">
 
 <div class="logo">
-
 Hadejia Data Hub
-
 </div>
 
 <button
@@ -262,14 +201,10 @@ Logout
 
 </div>
 
-
-
 <div class="balanceBox">
 
 <div class="balanceTitle">
-
 Wallet Balance
-
 </div>
 
 <div
@@ -284,131 +219,61 @@ id="walletBalance">
 
 </div>
 
-
-
-
-
-
-<!-- =========================
-SERVICES
-========================= -->
+<!-- SERVICES -->
 
 <div class="services">
 
 <div class="service">
-
-<div class="serviceIcon">
-📶
-</div>
-
+<div class="serviceIcon">📶</div>
 <h3>Buy Data</h3>
-
 </div>
-
-
 
 <div class="service">
-
-<div class="serviceIcon">
-📞
-</div>
-
+<div class="serviceIcon">📞</div>
 <h3>Voice Bundle</h3>
-
 </div>
-
-
 
 <div class="service">
-
-<div class="serviceIcon">
-💳
-</div>
-
+<div class="serviceIcon">💳</div>
 <h3>Airtime</h3>
-
 </div>
-
-
 
 <div class="service">
-
-<div class="serviceIcon">
-⚡
-</div>
-
+<div class="serviceIcon">⚡</div>
 <h3>Bills</h3>
-
 </div>
 
 </div>
 
-
-
-
-
-
-
-<!-- =========================
-BUY DATA
-========================= -->
+<!-- BUY DATA -->
 
 <div class="card">
 
 <div class="cardTitle">
-
 📶 Buy Data
-
 </div>
-
-
 
 <select id="dataNetwork">
 
-<option>
-MTN
-</option>
-
-<option>
-AIRTEL
-</option>
-
-<option>
-GLO
-</option>
-
-<option>
-9MOBILE
-</option>
+<option>MTN</option>
+<option>AIRTEL</option>
+<option>GLO</option>
+<option>9MOBILE</option>
 
 </select>
-
-
 
 <select id="dataPlan">
 
-<option>
-500MB - ₦150
-</option>
-
-<option>
-1GB - ₦300
-</option>
-
-<option>
-2GB - ₦600
-</option>
+<option>500MB - ₦150</option>
+<option>1GB - ₦300</option>
+<option>2GB - ₦600</option>
 
 </select>
-
-
 
 <input
 type="number"
 id="dataPhone"
 placeholder="Enter Phone Number">
-
-
 
 <button
 class="mainBtn"
@@ -420,62 +285,34 @@ Buy Data
 
 </div>
 
-
-
-
-
-
-
-<!-- =========================
-VOICE BUNDLE
-========================= -->
+<!-- VOICE BUNDLE -->
 
 <div class="card">
 
 <div class="cardTitle">
-
 📞 Buy Voice Bundle
-
 </div>
-
-
 
 <select
 id="voiceNetwork"
 onchange="changeVoicePlans()">
 
 <option value="airtel">
-
 AIRTEL
-
 </option>
 
 <option value="mtn">
-
 MTN
-
 </option>
 
 </select>
 
-
-
-
-
 <select id="voicePlan"></select>
-
-
-
-
 
 <input
 type="number"
 id="voicePhone"
 placeholder="Enter Phone Number">
-
-
-
-
 
 <button
 class="mainBtn"
@@ -487,38 +324,19 @@ Buy Voice Bundle
 
 </div>
 
-
-
-
-
-
-
-<!-- =========================
-TRANSACTIONS
-========================= -->
+<!-- TRANSACTIONS -->
 
 <div class="card">
 
 <div class="cardTitle">
-
 📊 Recent Transactions
-
 </div>
-
-
 
 <div class="transactionItem">
-
 No transactions yet
-
 </div>
 
 </div>
-
-
-
-
-
 
 <script>
 
@@ -530,7 +348,7 @@ const supabaseUrl =
 "https://zjenhfapfhuoogxorung.supabase.co";
 
 const supabaseKey =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
+"YOUR_SUPABASE_ANON_KEY";
 
 const client =
 supabase.createClient(
@@ -544,10 +362,6 @@ autoRefreshToken:true
 }
 );
 
-
-
-
-
 /* =========================
 CHECK LOGIN
 ========================= */
@@ -556,12 +370,8 @@ async function checkUser(){
 
 const {
 data:{ session }
-
 } = await client.auth.getSession();
 
-
-
-// NOT LOGIN
 if(!session){
 
 window.location.href = "/";
@@ -570,14 +380,9 @@ return;
 
 }
 
-
-
-// LOAD BALANCE
 loadBalance(session.user.id);
 
 }
-
-
 
 /* =========================
 LOAD BALANCE
@@ -585,14 +390,12 @@ LOAD BALANCE
 
 async function loadBalance(userId){
 
-const { data, error } =
+const { data } =
 await client
 .from("users")
 .select("balance")
 .eq("id", userId)
 .single();
-
-
 
 if(data){
 
@@ -607,8 +410,6 @@ Number(data.balance)
 
 }
 
-
-
 /* =========================
 LOGOUT
 ========================= */
@@ -620,10 +421,6 @@ await client.auth.signOut();
 window.location.href = "/";
 
 }
-
-
-
-
 
 /* =========================
 VOICE PLANS
@@ -663,43 +460,28 @@ plan_id:"26117799",
 variation_code:"TalkMore_1500"
 }
 
-]
-
-};
-
+],
 
 mtn:[
 
 {
 name:"₦120 Voice Bundle",
-plan_id:"400_7days"
+plan_id:"400_7days",
+variation_code:"400_7days"
 },
 
 {
 name:"₦270 Voice Bundle",
-plan_id:"1000_7days"
-},
-
-{
-name:"₦550 Voice Bundle",
-plan_id:"2000_14days"
-},
-
-{
-name:"₦1050 Voice Bundle",
-plan_id:"4000_14days"
+plan_id:"1000_7days",
+variation_code:"1000_7days"
 }
 
 ]
 
 };
 
-
-
-
-
 /* =========================
-CHANGE VOICE PLAN
+CHANGE VOICE PLANS
 ========================= */
 
 function changeVoicePlans(){
@@ -719,20 +501,14 @@ voicePlan.innerHTML = "";
 voicePlans[network].forEach(plan=>{
 
 voicePlan.innerHTML += `
-
 <option value="${plan.plan_id}">
 ${plan.name}
 </option>
-
 `;
 
 });
 
 }
-
-
-
-
 
 /* =========================
 BUY VOICE
@@ -764,8 +540,6 @@ document.getElementById(
 "voicePhone"
 ).value;
 
-
-
 if(phone.length < 11){
 
 alert(
@@ -775,8 +549,6 @@ alert(
 return;
 
 }
-
-
 
 try{
 
@@ -794,7 +566,7 @@ headers:{
 "application/json",
 
 "Authorization":
-"Bearer 988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515"
+"Bearer YOUR_AUTOSYNC_API_KEY"
 
 },
 
@@ -804,6 +576,7 @@ request_ref:
 "REF_" + Date.now(),
 
 mobile_number: phone,
+
 product_id: network,
 
 variation_code:
@@ -813,32 +586,26 @@ plan_id: plan_id,
 
 ported_no:false,
 
-pin:"2098"
+pin:"YOUR_PIN"
 
 })
 
+}
 
+);
 
 const result =
 await response.json();
 
 console.log(result);
 
-
-
-// SUCCESS
 if(result.status === "ok"){
 
 alert(
 "Voice Bundle Purchased Successfully"
 );
 
-}
-
-
-
-// FAILED
-else{
+}else{
 
 alert(
 result.message ||
@@ -859,10 +626,6 @@ alert(
 
 }
 
-
-
-
-
 /* =========================
 BUY DATA
 ========================= */
@@ -874,10 +637,6 @@ alert(
 );
 
 }
-
-
-
-
 
 /* =========================
 START
@@ -893,4 +652,4 @@ changeVoicePlans();
 </script>
 
 </body>
-  </html>
+</html>
