@@ -635,31 +635,37 @@ airtel:[
 
 {
 name:"₦100 Voice Bundle",
-plan_id:"26117794"
+plan_id:"26117794",
+variation_code:"TalkMore_100"
 },
 
 {
 name:"₦300 Voice Bundle",
-plan_id:"26117796"
+plan_id:"26117796",
+variation_code:"TalkMore_300"
 },
 
 {
 name:"₦500 Voice Bundle",
-plan_id:"26117797"
+plan_id:"26117797",
+variation_code:"TalkMore_500"
 },
 
 {
 name:"₦1000 Voice Bundle",
-plan_id:"26117798"
+plan_id:"26117798",
+variation_code:"TalkMore_1000"
 },
 
 {
 name:"₦1500 Voice Bundle",
-plan_id:"26117799"
+plan_id:"26117799",
+variation_code:"TalkMore_1500"
 }
 
-],
+]
 
+};
 
 
 mtn:[
@@ -739,10 +745,19 @@ document.getElementById(
 "voiceNetwork"
 ).value;
 
-const plan_id =
+const selectedPlan =
+voicePlans[network].find(
+plan => plan.plan_id ==
 document.getElementById(
 "voicePlan"
-).value;
+).value
+);
+
+const plan_id =
+selectedPlan.plan_id;
+
+const variation_code =
+selectedPlan.variation_code;
 
 const phone =
 document.getElementById(
