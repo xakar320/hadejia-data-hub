@@ -52,6 +52,22 @@ body{
     cursor:pointer;
 }
 
+/* ADMIN BUTTON STYLE */
+.adminBtnStyle{
+    background: orange; 
+    border: none; 
+    padding: 10px 18px; 
+    border-radius: 10px; 
+    color: white; 
+    font-size: 15px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    display: none; 
+    margin-top: 15px; 
+    width: fit-content;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
 .balanceBox{
     margin-top:25px;
 }
@@ -190,19 +206,22 @@ select, input{
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
     <div class="headerTop">
         <div class="logo">Hadejia Data Hub</div>
         <button class="logoutBtn" onclick="logoutUser()">Logout</button>
     </div>
+    
+    <button id="adminLinkBtn" class="adminBtnStyle" onclick="window.location.href='/admin.html'">
+        👨‍💼 Open Admin Panel
+    </button>
+
     <div class="balanceBox">
         <div class="balanceTitle">Wallet Balance</div>
         <div class="balance" id="walletBalance">₦0</div>
     </div>
 </div>
 
-<!-- SERVICES -->
 <div class="services">
     <div class="service">
         <div class="serviceIcon">📶</div>
@@ -222,7 +241,6 @@ select, input{
     </div>
 </div>
 
-<!-- BUY DATA -->
 <div class="card">
     <div class="cardTitle">📶 Buy Data</div>
     
@@ -234,15 +252,13 @@ select, input{
     </select>
 
     <select id="dataPlan">
-        <!-- Will populate automatically based on selected network -->
-    </select>
+        </select>
 
     <input type="number" id="dataPhone" placeholder="Enter Phone Number">
 
     <button class="mainBtn" onclick="buyData()">Buy Data</button>
 </div>
 
-<!-- VOICE BUNDLE -->
 <div class="card">
     <div class="cardTitle">📞 Buy Voice Bundle</div>
     
@@ -252,15 +268,13 @@ select, input{
     </select>
 
     <select id="voicePlan">
-        <!-- Will populate automatically based on selected network -->
-    </select>
+        </select>
 
     <input type="number" id="voicePhone" placeholder="Enter Phone Number">
 
     <button class="mainBtn" onclick="buyVoiceBundle()">Buy Voice Bundle</button>
 </div>
 
-<!-- TRANSACTIONS -->
 <div class="card">
     <div class="cardTitle">📊 Recent Transactions</div>
     <div id="transactionList">
@@ -299,18 +313,23 @@ async function checkUser(){
 }
 
 /* =========================
-LOAD BALANCE
+LOAD BALANCE & ADMIN CHECK (FIXED)
 ========================= */
 async function loadBalance(userId){
-    const { data } = await client
+    const { data, error } = await client
         .from("users")
-        .select("balance")
+        .select("balance, is_admin")
         .eq("id", userId)
         .single();
 
     if(data){
         currentBalance = Number(data.balance);
         document.getElementById("walletBalance").innerText = "₦" + currentBalance.toLocaleString();
+        
+        // Tabbatar idan mutum is_admin dinsa true ne, maballin zai fito fili
+        if(data.is_admin === true) {
+            document.getElementById("adminLinkBtn").style.display = "block";
+        }
     }
 }
 
@@ -401,12 +420,12 @@ async function buyData(){
             const newBalance = currentBalance - cost;
             await client.from("users").update({ balance: newBalance }).eq("id", currentUser.id);
             
-            // Ajiye tarihin ciniki a Supabase
+            // Save history
             await saveTransaction(currentUser.id, "Data", `${network} ${selectedPlan.name.split(' - ')[0]} to ${phone}`, cost, "Success");
 
             alert("Data purchased successfully!");
             loadBalance(currentUser.id);
-            loadTransactions(currentUser.id); // Refresh history
+            loadTransactions(currentUser.id);
         } else {
             alert(result.message || "Transaction failed from API provider.");
         }
@@ -488,12 +507,12 @@ async function buyVoiceBundle(){
             const newBalance = currentBalance - cost;
             await client.from("users").update({ balance: newBalance }).eq("id", currentUser.id);
             
-            // Ajiye tarihin ciniki a Supabase
+            // Save history
             await saveTransaction(currentUser.id, "Voice Bundle", `${network.toUpperCase()} ${selectedPlan.name} to ${phone}`, cost, "Success");
 
             alert("Voice Bundle Purchased Successfully!");
             loadBalance(currentUser.id);
-            loadTransactions(currentUser.id); // Refresh history
+            loadTransactions(currentUser.id);
         }else{
             alert(result.message || "Purchase Failed");
         }
@@ -525,7 +544,7 @@ async function loadTransactions(userId){
         .select("*")
         .eq("user_id", userId)
         .order("created_at", { ascending: false })
-        .limit(10); // Loda guda 10 na karshe kawai
+        .limit(10);
 
     const listDiv = document.getElementById("transactionList");
     listDiv.innerHTML = "";
