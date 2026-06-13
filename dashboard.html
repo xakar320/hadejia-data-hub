@@ -21,7 +21,8 @@ body{ background:#f3f5f9; padding:15px; }
 .bank-num { font-size: 28px; font-weight: bold; margin: 10px 0; letter-spacing: 1px; }
 .bank-det { font-size: 15px; opacity: 0.95; display: flex; justify-content: space-between; }
 .services{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:15px; margin-bottom:20px; }
-.service{ background:white; padding:20px; border-radius:20px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.08); }
+.service{ background:white; padding:20px; border-radius:20px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.08); transition: transform 0.2s; }
+.service:active { transform: scale(0.95); }
 .serviceIcon{ font-size:40px; }
 .service h3{ margin-top:10px; color:green; }
 .card{ background:white; padding:20px; border-radius:20px; margin-bottom:20px; box-shadow:0 5px 15px rgba(0,0,0,0.08); }
@@ -61,18 +62,18 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
 </div>
 
 <div class="services">
-    <div class="service"><div class="serviceIcon">📶</div><h3>Buy Data</h3></div>
-    <div class="service"><div class="serviceIcon">📞</div><h3>Voice Bundle</h3></div>
+    <div class="service" onclick="switchService('data')" style="cursor:pointer;"><div class="serviceIcon">📶</div><h3>Buy Data</h3></div>
+    <div class="service" onclick="switchService('voice')" style="cursor:pointer;"><div class="serviceIcon">📞</div><h3>Voice Bundle</h3></div>
     <div class="service"><div class="serviceIcon">💳</div><h3>Airtime</h3></div>
     <div class="service"><div class="serviceIcon">⚡</div><h3>Bills</h3></div>
 </div>
 
 <div class="card">
-    <div class="cardTitle">📶 Buy Data</div>
+    <div class="cardTitle" id="dynamicCardTitle">📶 Buy Data</div>
     <select id="dataNetwork"><option value="MTN">MTN</option><option value="AIRTEL">AIRTEL</option><option value="GLO">GLO</option><option value="9MOBILE">9MOBILE</option></select>
     <select id="dataPlan"></select>
     <input type="number" id="dataPhone" placeholder="Enter Phone Number">
-    <button class="mainBtn" onclick="buyData()">Buy Data</button>
+    <button class="mainBtn" id="submitOrderBtn" onclick="processOrder()">Buy Data</button>
 </div>
 
 <div class="card">
@@ -88,6 +89,27 @@ const securewavePublicKey = "207877338766ce1cf458d8d"; // Public Key dinka
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 let currentUser = null;
 let currentBalance = 0;
+let currentServiceType = "data"; // Ma'aunin lura da abin da aka zaba
+
+// Rukunin kayayyaki gaba daya (Data da Voice Bundle)
+const dataPlans = {
+    MTN: [
+        { name: "SME 1GB - ₦260", price: 260, plan_id: "1GB", variation_code: "MTN_SME_1GB", type: "data" },
+        { name: "SME 2GB - ₦520", price: 520, plan_id: "2GB", variation_code: "MTN_SME_2GB", type: "data" },
+        { name: "MTN Voice 100 Mins - ₦300", price: 300, plan_id: "V100", variation_code: "MTN_VOICE_100", type: "voice" }
+    ],
+    AIRTEL: [ 
+        { name: "CG 1GB - ₦270", price: 270, plan_id: "A1GB", variation_code: "AIRTEL_CG_1GB", type: "data" },
+        { name: "Airtel Voice 120 Mins - ₦400", price: 400, plan_id: "AV120", variation_code: "AIRTEL_VOICE_120", type: "voice" }
+    ],
+    GLO: [ 
+        { name: "CG 1GB - ₦250", price: 250, plan_id: "G1GB", variation_code: "GLO_CG_1GB", type: "data" },
+        { name: "Glo Voice 150 Mins - ₦350", price: 350, plan_id: "GV150", variation_code: "GLO_VOICE_150", type: "voice" }
+    ],
+    "9MOBILE": [ 
+        { name: "SME 1GB - ₦180", price: 180, plan_id: "9M1GB", variation_code: "9MOBILE_SME_1GB", type: "data" } 
+    ]
+};
 
 async function checkUser(){
     const { data: { session } } = await client.auth.getSession();
@@ -96,7 +118,7 @@ async function checkUser(){
     await loadUserData(currentUser.id);
     await loadTransactions(currentUser.id);
     
-    // Kira tsarin duba kudi ta atomatik daga Pipedream
+    // Fara leken asusun Pipedream na Securewave
     checkIncomingFunds(currentUser.email);
 }
 
@@ -142,10 +164,9 @@ async function generateVirtualAccount(userId, userEmail) {
     } catch (e) { document.getElementById("userAccountNo").innerText = "Bank Maintenance"; }
 }
 
-/* TSARIN DAUKO KUDI KAI TSAYE DAGA PIPEDREAM */
+/* TSARIN DAUKO KUDI NA PIPEDREAM/SECUREWAVE KAI TSAYE */
 async function checkIncomingFunds(userEmail) {
     try {
-        // Kiran asusun Pipedream dinka na musamman
         const response = await fetch("https://eo27jf54uzazck2.m.pipedream.net/history?limit=5");
         const logs = await response.json();
         if(!Array.isArray(logs)) return;
@@ -173,48 +194,74 @@ async function checkIncomingFunds(userEmail) {
     } catch (e) { console.log("Webhook check omitted"); }
 }
 
-async function logoutUser(){ await client.auth.signOut(); window.location.href = "/"; }
-
-const dataPlans = {
-    MTN: [
-        { name: "SME 1GB - ₦260", price: 260, plan_id: "1GB", variation_code: "MTN_SME_1GB" },
-        { name: "SME 2GB - ₦520", price: 520, plan_id: "2GB", variation_code: "MTN_SME_2GB" }
-    ],
-    AIRTEL: [ { name: "CG 1GB - ₦270", price: 270, plan_id: "A1GB", variation_code: "AIRTEL_CG_1GB" } ],
-    GLO: [ { name: "CG 1GB - ₦250", price: 250, plan_id: "G1GB", variation_code: "GLO_CG_1GB" } ],
-    "9MOBILE": [ { name: "SME 1GB - ₦180", price: 180, plan_id: "9M1GB", variation_code: "9MOBILE_SME_1GB" } ]
-};
+// Canza fasalin gurin siyarwa tsakanin Data da Voice
+function switchService(type) {
+    currentServiceType = type;
+    const cardTitle = document.getElementById("dynamicCardTitle");
+    const submitBtn = document.getElementById("submitOrderBtn");
+    
+    if(type === "data") {
+        cardTitle.innerHTML = "📶 Buy Data";
+        submitBtn.innerHTML = "Buy Data";
+    } else {
+        cardTitle.innerHTML = "📞 Buy Voice Bundle";
+        submitBtn.innerHTML = "Buy Voice Bundle";
+    }
+    changeDataPlans();
+}
 
 function changeDataPlans(){
     const network = document.getElementById("dataNetwork").value;
     const dataPlanSelect = document.getElementById("dataPlan");
     dataPlanSelect.innerHTML = "";
-    dataPlans[network].forEach((plan, index) => { dataPlanSelect.innerHTML += `<option value="${index}">${plan.name}</option>`; });
+    
+    // Tace abubuwa gwargwadon zabin da aka danna
+    const filteredPlans = dataPlans[network].filter(plan => plan.type === currentServiceType);
+    
+    if(filteredPlans.length === 0) {
+        dataPlanSelect.innerHTML = `<option value="">No package available</option>`;
+        return;
+    }
+
+    filteredPlans.forEach((plan) => {
+        const originalIndex = dataPlans[network].indexOf(plan);
+        dataPlanSelect.innerHTML += `<option value="${originalIndex}">${plan.name}</option>`;
+    });
 }
 document.getElementById("dataNetwork").addEventListener("change", changeDataPlans);
 
-async function buyData(){
+async function processOrder(){
     const network = document.getElementById("dataNetwork").value;
     const planIndex = document.getElementById("dataPlan").value;
     const phone = document.getElementById("dataPhone").value;
+    
+    if(!planIndex) { alert("Please select a valid plan"); return; }
     if(phone.length < 11){ alert("Please enter a valid phone number"); return; }
+    
     const selectedPlan = dataPlans[network][planIndex];
     const cost = selectedPlan.price;
     if(currentBalance < cost){ alert("Insufficient funds!"); return; }
 
+    // Gano shin Data ce ko kuwa Katin Magana (Voice)
+    const apiUrl = selectedPlan.type === "data" ? "https://autosyncng.com/api/data/transfer" : "https://autosyncng.com/api/voice/transfer";
+
     try{
-        const response = await fetch("https://autosyncng.com/api/data/transfer", {
+        const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": "Bearer 988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515" },
-            body: JSON.stringify({ request_ref: "REF_DATA_" + Date.now(), phone: phone, network: network.toLowerCase(), variation_code: selectedPlan.variation_code, plan_id: selectedPlan.plan_id, ported_no: false, pin: "2098" })
+            body: JSON.stringify({ request_ref: "REF_ORD_" + Date.now(), phone: phone, network: network.toLowerCase(), variation_code: selectedPlan.variation_code, plan_id: selectedPlan.plan_id, ported_no: false, pin: "2098" })
         });
         const result = await response.json();
         if(result.status === "ok" || result.success === true){
             const newBalance = currentBalance - cost;
+            const orderTypeLabel = selectedPlan.type === "data" ? "Data" : "Voice Bundle";
+            
             await client.from("users").update({ balance: newBalance }).eq("id", currentUser.id);
-            await client.from("transactions").insert([{ user_id: currentUser.id, type: "Data", details: `${network} ${selectedPlan.name.split(' - ')[0]} to ${phone}`, amount: cost, status: "Success" }]);
-            alert("Data purchased successfully!");
-            loadUserData(currentUser.id); loadTransactions(currentUser.id);
+            await client.from("transactions").insert([{ user_id: currentUser.id, type: orderTypeLabel, details: `${network} ${selectedPlan.name.split(' - ')[0]} to ${phone}`, amount: cost, status: "Success" }]);
+            
+            alert(`${orderTypeLabel} purchased successfully!`);
+            loadUserData(currentUser.id); 
+            loadTransactions(currentUser.id);
         } else { alert(result.message || "Transaction failed"); }
     } catch(e) { alert("Network Error"); }
 }
@@ -228,6 +275,8 @@ async function loadTransactions(userId){
         listDiv.innerHTML += `<div class="transactionItem"><div class="txDetails"><span class="txType">${tx.type}</span><span class="txInfo">${tx.details}</span><span class="txDate">${dateFormatted}</span></div><div class="txAmount">-₦${Number(tx.amount).toLocaleString()}</div></div>`;
     });
 }
+
+async function logoutUser(){ await client.auth.signOut(); window.location.href = "/"; }
 
 window.addEventListener("load", () => { checkUser(); changeDataPlans(); });
 </script>
