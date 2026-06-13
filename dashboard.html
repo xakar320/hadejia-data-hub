@@ -335,7 +335,7 @@ async function buyData(){
 
     // Tabbatar kudi sun isa wallet
     if(currentBalance < cost){
-        alert("Kudaden asusunka ba su isa ba! Da fatan za ka saka kudi.");
+        alert("In Sufficient Funds! Please Fund Your Wallet.");
         return;
     }
 
@@ -430,7 +430,7 @@ async function buyVoiceBundle(){
     const cost = selectedPlan.price;
 
     if(currentBalance < cost){
-        alert("Kudaden asusunka ba su isa ba!");
+        alert("Insufficient Balance!");
         return;
     }
 
