@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hadejia Data Hub - Admin Panel</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#f0f2f5;
+    padding:20px;
+}
+
+/* HEADER */
+.admin-header{
+    background:linear-gradient(135deg, #111, #333);
+    padding:25px;
+    border-radius:20px;
+    color:white;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+.admin-header h1{ font-size:28px; }
+
+.backBtn{
+    background:green;
+    border:none;
+    padding:10px 20px;
+    border-radius:10px;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    text-decoration:none;
+}
+
+/* GRID CONTAINER */
+.admin-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+.card{
+    background:white;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.05);
+}
+
+.cardTitle{
+    font-size:20px;
+    font-weight:bold;
+    color:#222;
+    margin-bottom:15px;
+    border-bottom:2px solid #eee;
+    padding-bottom:10px;
+}
+
+label{
+    font-weight:bold;
+    font-size:14px;
+    color:#555;
+    display:block;
+    margin-top:10px;
+}
+
+input, select{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    margin-top:5px;
+    font-size:16px;
+    outline:none;
+}
+
+.adminBtn{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:10px;
+    background:green;
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+    margin-top:15px;
+    cursor:pointer;
+}
+
+/* TABLE STYLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+
+th, td{
+    padding:12px;
+    text-align:left;
+    border-bottom:1px solid #eee;
+}
+
+th{ background:#f9f9f9; color:#555; }
+
+@media(max-width:800px){
+    .admin-grid{ grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="admin-header">
+    <h1>👨‍💼 Control Room (Admin)</h1>
+    <a href="/dashboard.html" class="backBtn">User Dashboard</a>
+</div>
+
+<div class="admin-grid">
+
+    <div class="card">
+        <div class="cardTitle">💰 Fund User Wallet</div>
+        
+        <label>Select User</label>
+        <select id="userSelect">
+            <option value="">Loading users...</option>
+        </select>
+
+        <label>Amount (₦)</label>
+        <input type="number" id="fundAmount" placeholder="Example: 5000">
+
+        <button class="adminBtn" onclick="fundUser()">Grant Funds</button>
+    </div>
+
+    <div class="card" style="grid-row: span 2;">
+        <div class="cardTitle">👥 Registered Users</div>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <tr>
+                        <td colspan="2" style="text-align:center; color:#888;">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* =========================
+SUPABASE SETUP
+========================= */
+const supabaseUrl = "https://zjenhfapfhuoogxorung.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
+
+const client = supabase.createClient(supabaseUrl, supabaseKey);
+
+let adminUser = null;
+
+/* =========================
+SECURITY CHECK (IS ADMIN?)
+========================= */
+async function checkAdminSecurity(){
+    const { data: { session } } = await client.auth.getSession();
+    
+    if(!session){
+        window.location.href = "/";
+        return;
+    }
+
+    // Duba a database ko mutum admin ne
+    const { data, error } = await client
+        .from("users")
+        .select("is_admin")
+        .eq("id", session.user.id)
+        .single();
+
+    if(error || !data || data.is_admin !== true){
+        alert("Access Denied! You are not an Admin.");
+        window.location.href = "/dashboard.html";
+        return;
+    }
+
+    adminUser = session.user;
+    loadAllUsers();
+}
+
+/* =========================
+LOAD ALL USERS TO TABLE & DROPDOWN
+========================= */
+async function loadAllUsers(){
+    const { data, error } = await client
+        .from("users")
+        .select("id, email, balance")
+        .order("email", { ascending: true });
+
+    if(error) return;
+
+    const userSelect = document.getElementById("userSelect");
+    const tableBody = document.getElementById("usersTableBody");
+
+    userSelect.innerHTML = `<option value="">-- Choose a User --</option>`;
+    tableBody.innerHTML = "";
+
+    data.forEach(user => {
+        // Cika dropdown menu
+        userSelect.innerHTML += `<option value="${user.id}">${user.email}</option>`;
+        
+        // Cika Table din dake nuna mutane
+        tableBody.innerHTML += `
+            <tr>
+                <td>${user.email}</td>
+                <td style="font-weight:bold; color:green;">₦${Number(user.balance).toLocaleString()}</td>
+            </tr>
+        `;
+    });
+}
+
+/* =========================
+FUND USER WALLET
+========================= */
+async function fundUser(){
+    const targetUserId = document.getElementById("userSelect").value;
+    const amountInput = document.getElementById("fundAmount").value;
+
+    if(!targetUserId){ alert("Please select a user to fund."); return; }
+    if(!amountInput || Number(amountInput) <= 0){ alert("Please enter a valid amount."); return; }
+
+    const amountToAdd = Number(amountInput);
+
+    try {
+        // 1. Nemo balance din mutum na yanzu tukunna
+        const { data: user, error: fetchError } = await client
+            .from("users")
+            .select("balance")
+            .eq("id", targetUserId)
+            .single();
+
+        if(fetchError) throw fetchError;
+
+        // 2. Lissafa sabon balance
+        const newBalance = Number(user.balance) + amountToAdd;
+
+        // 3. Sabunta kudin a database
+        const { error: updateError } = await client
+            .from("users")
+            .update({ balance: newBalance })
+            .eq("id", targetUserId);
+
+        if(updateError) throw updateError;
+
+        alert("Wallet successfully funded!");
+        document.getElementById("fundAmount").value = "";
+        loadAllUsers(); // Reload table and list
+
+    } catch (error) {
+        console.error(error);
+        alert("Failed to fund user wallet.");
+    }
+}
+
+/* =========================
+START UP
+========================= */
+window.addEventListener("load", checkAdminSecurity);
+</script>
+
+</body>
+</html>
