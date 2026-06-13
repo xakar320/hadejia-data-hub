@@ -313,9 +313,10 @@ async function checkUser(){
 }
 
 /* =========================
-LOAD BALANCE & ADMIN CHECK (FIXED)
+LOAD BALANCE & FORCE ADMIN STATUS CHECK
 ========================= */
 async function loadBalance(userId){
+    // 1. Dauko Balance na yau da kullum
     const { data, error } = await client
         .from("users")
         .select("balance, is_admin")
@@ -325,13 +326,15 @@ async function loadBalance(userId){
     if(data){
         currentBalance = Number(data.balance);
         document.getElementById("walletBalance").innerText = "₦" + currentBalance.toLocaleString();
-        
-        // Tabbatar idan mutum is_admin dinsa true ne, maballin zai fito fili
-        if(data.is_admin === true) {
-            document.getElementById("adminLinkBtn").style.display = "block";
-        }
+    }
+
+    // 2. Tursasa duba idan email dinka ne na admin kai tsaye a cikin code (Mafi tsaro ga Vercel)
+    const adminEmail = "xakar2@gmail.com"; 
+    if(currentUser && currentUser.email === adminEmail) {
+        document.getElementById("adminLinkBtn").style.display = "block";
     }
 }
+
 
 /* =========================
 LOGOUT
