@@ -73,9 +73,7 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
     <select id="dataNetwork"><option value="MTN">MTN</option><option value="AIRTEL">AIRTEL</option><option value="GLO">GLO</option><option value="9MOBILE">9MOBILE</option></select>
     <select id="dataPlan"></select>
     <input type="number" id="dataPhone" placeholder="Enter Phone Number">
-    
     <input type="password" id="transactionPin" placeholder="••••" maxlength="4" style="text-align: center; letter-spacing: 5px;">
-    
     <button class="mainBtn" id="submitOrderBtn" onclick="processOrder()">Buy Data</button>
 </div>
 
@@ -94,16 +92,23 @@ let currentUser = null;
 let currentBalance = 0;
 let currentServiceType = "data"; 
 
-// Tsayayyen rukunin kayayyaki na Data da Katin Magana
+// GYARARREN TSARIN PLANS (YA TAFI DAIDAI DA BAYANINKA NA AIRTEL)
 const dataPlans = {
     MTN: [
         { name: "SME 1GB - ₦260", price: 260, plan_id: "1GB", variation_code: "MTN_SME_1GB", type: "data" },
         { name: "SME 2GB - ₦520", price: 520, plan_id: "2GB", variation_code: "MTN_SME_2GB", type: "data" },
-        { name: "MTN Voice 100 Mins - ₦300", price: 300, plan_id: "400_7days", variation_code: "400_7days", type: "voice" }
+        { name: "MTN Voice 100 Mins - ₦120", price: 120, plan_id: "400_7days", variation_code: "400_7days", type: "voice" },
+        { name: "MTN Voice 300 Mins - ₦270", price: 270, plan_id: "1000_7days", variation_code: "1000_7days", type: "voice" }
     ],
     AIRTEL: [ 
         { name: "CG 1GB - ₦270", price: 270, plan_id: "A1GB", variation_code: "AIRTEL_CG_1GB", type: "data" },
-        { name: "Airtel Voice 120 Mins - ₦400", price: 400, plan_id: "26117796", variation_code: "TalkMore_300", type: "voice" }
+        // Tsarin Airtel Voice kamar yadda ka turo firi-firi
+        { name: "₦100 Voice Bundle", price: 100, plan_id: "26117794", variation_code: "TalkMore_100", type: "voice" },
+        { name: "₦200 Voice Bundle", price: 200, plan_id: "26117795", variation_code: "TalkMore_200", type: "voice" },
+        { name: "₦300 Voice Bundle", price: 300, plan_id: "26117796", variation_code: "TalkMore_300", type: "voice" },
+        { name: "₦500 Voice Bundle", price: 500, plan_id: "26117797", variation_code: "TalkMore_500", type: "voice" },
+        { name: "₦1000 Voice Bundle", price: 1000, plan_id: "26117798", variation_code: "TalkMore_1000", type: "voice" },
+        { name: "₦1500 Voice Bundle", price: 1500, plan_id: "26117799", variation_code: "TalkMore_1500", type: "voice" }
     ],
     GLO: [ 
         { name: "CG 1GB - ₦250", price: 250, plan_id: "G1GB", variation_code: "GLO_CG_1GB", type: "data" },
@@ -194,7 +199,6 @@ async function checkIncomingFunds(userEmail) {
     } catch (e) { }
 }
 
-// Canza fasalin gurin siyarwa tsakanin Data da Voice
 function switchService(type) {
     currentServiceType = type;
     const cardTitle = document.getElementById("dynamicCardTitle");
@@ -223,7 +227,6 @@ function changeDataPlans(){
     }
 
     filteredPlans.forEach((plan) => {
-        // Gano ainihin index din plan a asalin babban network
         const originalIndex = dataPlans[network].indexOf(plan);
         dataPlanSelect.innerHTML += `<option value="${originalIndex}">${plan.name}</option>`;
     });
@@ -269,7 +272,7 @@ async function processOrder(){
             await client.from("transactions").insert([{ user_id: currentUser.id, type: orderTypeLabel, details: `${network} ${selectedPlan.name.split(' - ')[0]} to ${phone}`, amount: cost, status: "Success" }]);
             
             alert(`${orderTypeLabel} purchased successfully!`);
-            document.getElementById("transactionPin").value = ""; // share filin pin
+            document.getElementById("transactionPin").value = ""; 
             loadUserData(currentUser.id); 
             loadTransactions(currentUser.id);
         } else { alert(result.message || "Transaction failed"); }
