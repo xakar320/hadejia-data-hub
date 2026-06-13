@@ -20,8 +20,8 @@ body{ background:#f3f5f9; padding:15px; }
 .bank-title { font-size: 14px; font-weight: bold; text-transform: uppercase; opacity: 0.9; }
 .bank-num { font-size: 28px; font-weight: bold; margin: 10px 0; letter-spacing: 1px; }
 .bank-det { font-size: 15px; opacity: 0.95; display: flex; justify-content: space-between; }
-.services{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:15px; margin-bottom:20px; }
-.service{ background:white; padding:20px; border-radius:20px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.08); transition: transform 0.2s; }
+.services{ display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px; }
+.service{ background:white; padding:20px; border-radius:20px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.08); transition: transform 0.2s; cursor:pointer; }
 .service:active { transform: scale(0.95); }
 .serviceIcon{ font-size:40px; }
 .service h3{ margin-top:10px; color:green; }
@@ -35,7 +35,6 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
 .txInfo{ font-size:14px; color:#666; margin-top:3px; }
 .txDate{ font-size:11px; color:#999; margin-top:3px; }
 .txAmount{ font-weight:bold; color:red; font-size:16px; }
-@media(max-width:700px){ .services{ grid-template-columns:1fr 1fr; } .balance{ font-size:35px; } }
 </style>
 </head>
 <body>
@@ -62,10 +61,8 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
 </div>
 
 <div class="services">
-    <div class="service" onclick="switchService('data')" style="cursor:pointer;"><div class="serviceIcon">📶</div><h3>Buy Data</h3></div>
-    <div class="service" onclick="switchService('voice')" style="cursor:pointer;"><div class="serviceIcon">📞</div><h3>Voice Bundle</h3></div>
-    <div class="service"><div class="serviceIcon">💳</div><h3>Airtime</h3></div>
-    <div class="service"><div class="serviceIcon">⚡</div><h3>Bills</h3></div>
+    <div class="service" onclick="switchService('data')"><div class="serviceIcon">📶</div><h3>Buy Data</h3></div>
+    <div class="service" onclick="switchService('voice')"><div class="serviceIcon">📞</div><h3>Voice Bundle</h3></div>
 </div>
 
 <div class="card">
@@ -92,11 +89,12 @@ let currentUser = null;
 let currentBalance = 0;
 let currentServiceType = "data"; 
 
-// AINIHIN TSARIN PLANS ƊINKA DA KA TURO YANZU
+// TSARIN PLANS NA GASKIYA (AN CIRE AIRTIME KWAPKWAP)
 const dataPlans = {
     MTN: [
         // === DATA PLANS ===
         { name: "1GB Daily Awoof - ₦300", price: 300, plan_id: "26117253", variation_code: "26117253", type: "data" },
+        { name: "MTN 1GB 7days - ₦450", price: 450, plan_id: "26117607", variation_code: "mtn-tr-1gb-7days", type: "data" },
         { name: "MTN 500MB 30days - ₦350", price: 350, plan_id: "26117598", variation_code: "mtn-tr-500mb", type: "data" },
         { name: "MTN 1GB 30days - ₦570", price: 570, plan_id: "26117599", variation_code: "mtn-tr-1gb", type: "data" },
         { name: "MTN 2GB 30days - ₦1140", price: 1140, plan_id: "26117600", variation_code: "mtn-tr-2gb", type: "data" },
@@ -111,7 +109,7 @@ const dataPlans = {
     AIRTEL: [ 
         // === DATA PLANS ===
         { name: "Awoof (Social) 1GB 3-Days - ₦370", price: 370, plan_id: "26117382", variation_code: "PlanAWOOF_26", type: "data" },
-        { name: "Awoof 1.5GB 1-Day - ₦400", price: 400, plan_id: "26117381", variation_code: "AWOOF_25", type: "data" }, // price na kiyasta 400 tun da baka saka ba
+        { name: "Awoof 1.5GB 1-Day - ₦450", price: 450, plan_id: "26117381", variation_code: "AWOOF_25", type: "data" },
         { name: "Awoof 2GB 2 Days - ₦700", price: 700, plan_id: "26117386", variation_code: "AWOOF_31", type: "data" },
         { name: "Awoof 3GB 2 Days - ₦850", price: 850, plan_id: "26117395", variation_code: "AWOOF_40", type: "data" },
         { name: "Awoof 10GB Monthly - ₦3200", price: 3200, plan_id: "26117335", variation_code: "AWOOF_6", type: "data" },
@@ -124,6 +122,7 @@ const dataPlans = {
         { name: "Weekly Plan 4 GB (7 Days) - ₦1550", price: 1550, plan_id: "26117354", variation_code: "Weekly_Plan_1500", type: "data" },
         // === VOICE PLANS ===
         { name: "₦100 Voice Bundle (10 Mins)", price: 100, plan_id: "26117794", variation_code: "TalkMore_100", type: "voice" },
+        { name: "₦200 Voice Bundle (20 Mins)", price: 200, plan_id: "26117795", variation_code: "TalkMore_200", type: "voice" },
         { name: "₦300 Voice Bundle (30 Mins)", price: 300, plan_id: "26117796", variation_code: "TalkMore_300", type: "voice" },
         { name: "₦500 Voice Bundle (50 Mins)", price: 500, plan_id: "26117797", variation_code: "TalkMore_500", type: "voice" },
         { name: "₦1000 Voice Bundle (100 Mins)", price: 1000, plan_id: "26117798", variation_code: "26117798", type: "voice" },
@@ -139,7 +138,7 @@ const dataPlans = {
         { name: "2GB 30 Days - ₦1000", price: 1000, plan_id: "26117660", variation_code: "glo-2000-gb-30-days", type: "data" }
     ],
     "9MOBILE": [ 
-        { name: "SME 1GB - ₦180", price: 180, plan_id: "9M1GB", variation_code: "9MOBILE_SME_1GB", type: "data" } 
+        { name: "SME 1GB - ₦180", price: 180, plan_id: "9M1GB", variation_code: "9MOBILE_SME_1GB", type: "data" }
     ]
 };
 
