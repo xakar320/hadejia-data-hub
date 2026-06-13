@@ -136,12 +136,44 @@ select, input{
     opacity:0.9;
 }
 
-/* TRANSACTION */
+/* TRANSACTION STYLE */
 .transactionItem{
     padding:15px;
     background:#f9f9f9;
     border-radius:12px;
     margin-top:10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-left: 5px solid green;
+}
+
+.txDetails{
+    display:flex;
+    flex-direction:column;
+}
+
+.txType{
+    font-weight:bold;
+    color:#333;
+}
+
+.txInfo{
+    font-size:14px;
+    color:#666;
+    margin-top:3px;
+}
+
+.txDate{
+    font-size:11px;
+    color:#999;
+    margin-top:3px;
+}
+
+.txAmount{
+    font-weight:bold;
+    color:red;
+    font-size:16px;
 }
 
 /* RESPONSIVE */
@@ -158,6 +190,7 @@ select, input{
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
     <div class="headerTop">
         <div class="logo">Hadejia Data Hub</div>
@@ -169,6 +202,7 @@ select, input{
     </div>
 </div>
 
+<!-- SERVICES -->
 <div class="services">
     <div class="service">
         <div class="serviceIcon">📶</div>
@@ -188,6 +222,7 @@ select, input{
     </div>
 </div>
 
+<!-- BUY DATA -->
 <div class="card">
     <div class="cardTitle">📶 Buy Data</div>
     
@@ -199,13 +234,15 @@ select, input{
     </select>
 
     <select id="dataPlan">
-        </select>
+        <!-- Will populate automatically based on selected network -->
+    </select>
 
     <input type="number" id="dataPhone" placeholder="Enter Phone Number">
 
     <button class="mainBtn" onclick="buyData()">Buy Data</button>
 </div>
 
+<!-- VOICE BUNDLE -->
 <div class="card">
     <div class="cardTitle">📞 Buy Voice Bundle</div>
     
@@ -215,17 +252,19 @@ select, input{
     </select>
 
     <select id="voicePlan">
-        </select>
+        <!-- Will populate automatically based on selected network -->
+    </select>
 
     <input type="number" id="voicePhone" placeholder="Enter Phone Number">
 
     <button class="mainBtn" onclick="buyVoiceBundle()">Buy Voice Bundle</button>
 </div>
 
+<!-- TRANSACTIONS -->
 <div class="card">
     <div class="cardTitle">📊 Recent Transactions</div>
     <div id="transactionList">
-        <div class="transactionItem">No transactions yet</div>
+        <div style="text-align:center; padding:10px; color:#888;">Loading transactions...</div>
     </div>
 </div>
 
@@ -256,13 +295,14 @@ async function checkUser(){
     
     currentUser = session.user;
     loadBalance(currentUser.id);
+    loadTransactions(currentUser.id);
 }
 
 /* =========================
 LOAD BALANCE
 ========================= */
 async function loadBalance(userId){
-    const { data, error } = await client
+    const { data } = await client
         .from("users")
         .select("balance")
         .eq("id", userId)
@@ -314,11 +354,10 @@ function changeDataPlans(){
     });
 }
 
-// Listen for Data Network change
 document.getElementById("dataNetwork").addEventListener("change", changeDataPlans);
 
 /* =========================
-BUY DATA (WITH AUTOMATIC WALLET DEDUCTION)
+BUY DATA
 ========================= */
 async function buyData(){
     const network = document.getElementById("dataNetwork").value;
@@ -333,7 +372,6 @@ async function buyData(){
     const selectedPlan = dataPlans[network][planIndex];
     const cost = selectedPlan.price;
 
-    // Check wallet balance
     if(currentBalance < cost){
         alert("Insufficient funds! Please fund your wallet.");
         return;
@@ -360,19 +398,15 @@ async function buyData(){
         const result = await response.json();
 
         if(result.status === "ok" || result.success === true){
-            // Deduct balance in Supabase
             const newBalance = currentBalance - cost;
-            const { error: updateError } = await client
-                .from("users")
-                .update({ balance: newBalance })
-                .eq("id", currentUser.id);
+            await client.from("users").update({ balance: newBalance }).eq("id", currentUser.id);
+            
+            // Ajiye tarihin ciniki a Supabase
+            await saveTransaction(currentUser.id, "Data", `${network} ${selectedPlan.name.split(' - ')[0]} to ${phone}`, cost, "Success");
 
-            if(updateError){
-                alert("Data purchased successfully, but failed to update wallet balance.");
-            } else {
-                alert("Data purchased successfully!");
-                loadBalance(currentUser.id); // Refresh balance on UI
-            }
+            alert("Data purchased successfully!");
+            loadBalance(currentUser.id);
+            loadTransactions(currentUser.id); // Refresh history
         } else {
             alert(result.message || "Transaction failed from API provider.");
         }
@@ -405,16 +439,12 @@ function changeVoicePlans(){
     voicePlan.innerHTML = "";
 
     voicePlans[network].forEach((plan, index) => {
-        voicePlan.innerHTML += `
-            <option value="${index}">
-                ${plan.name}
-            </option>
-        `;
+        voicePlan.innerHTML += `<option value="${index}">${plan.name}</option>`;
     });
 }
 
 /* =========================
-BUY VOICE BUNDLE (WITH AUTOMATIC WALLET DEDUCTION)
+BUY VOICE BUNDLE
 ========================= */
 async function buyVoiceBundle(){
     const network = document.getElementById("voiceNetwork").value;
@@ -455,12 +485,15 @@ async function buyVoiceBundle(){
         const result = await response.json();
 
         if(result.status === "ok" || result.success === true){
-            // Deduct balance in Supabase
             const newBalance = currentBalance - cost;
             await client.from("users").update({ balance: newBalance }).eq("id", currentUser.id);
             
+            // Ajiye tarihin ciniki a Supabase
+            await saveTransaction(currentUser.id, "Voice Bundle", `${network.toUpperCase()} ${selectedPlan.name} to ${phone}`, cost, "Success");
+
             alert("Voice Bundle Purchased Successfully!");
             loadBalance(currentUser.id);
+            loadTransactions(currentUser.id); // Refresh history
         }else{
             alert(result.message || "Purchase Failed");
         }
@@ -468,6 +501,53 @@ async function buyVoiceBundle(){
         console.log(error);
         alert("Network Error");
     }
+}
+
+/* =========================
+SAVE TRANSACTION TO SUPABASE
+========================= */
+async function saveTransaction(userId, type, details, amount, status){
+    await client.from("transactions").insert([{
+        user_id: userId,
+        type: type,
+        details: details,
+        amount: amount,
+        status: status
+    }]);
+}
+
+/* =========================
+LOAD TRANSACTIONS FROM SUPABASE
+========================= */
+async function loadTransactions(userId){
+    const { data, error } = await client
+        .from("transactions")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(10); // Loda guda 10 na karshe kawai
+
+    const listDiv = document.getElementById("transactionList");
+    listDiv.innerHTML = "";
+
+    if(error || !data || data.length === 0){
+        listDiv.innerHTML = `<div class="transactionItem" style="justify-content:center; border:none; color:#888;">No transactions yet</div>`;
+        return;
+    }
+
+    data.forEach(tx => {
+        const dateFormatted = new Date(tx.created_at).toLocaleString();
+        listDiv.innerHTML += `
+            <div class="transactionItem">
+                <div class="txDetails">
+                    <span class="txType">${tx.type}</span>
+                    <span class="txInfo">${tx.details}</span>
+                    <span class="txDate">${dateFormatted}</span>
+                </div>
+                <div class="txAmount">-₦${Number(tx.amount).toLocaleString()}</div>
+            </div>
+        `;
+    });
 }
 
 /* =========================
