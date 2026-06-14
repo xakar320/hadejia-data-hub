@@ -341,4 +341,7 @@ async function loadTransactions(userId){
 
 async function logoutUser(){ await client.auth.signOut(); window.location.href = "/"; }
 
-window.ad
+window.addEventListener("load", () => { checkUser(); changeDataPlans(); });
+</script>
+</body>
+</html>
