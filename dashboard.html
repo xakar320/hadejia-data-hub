@@ -97,7 +97,7 @@ let currentServiceType = "data";
 
 const dataPlans = {
     MTN: [
-        // Gifting Data (Ba a taba komai ba)
+        // Gifting Data
         { name: "MTN 1GB Daily Awoof - ₦300", price: 300, plan_id: "26117253", variation_code: "26117253", type: "data", d_type: "GIFTING" },
         { name: "MTN 2GB 2 Day - ₦800", price: 800, plan_id: "26117150", variation_code: "mtn-2gb-day", type: "data", d_type: "GIFTING" },
         { name: "MTN 500MB Daily - ₦400", price: 400, plan_id: "26117200", variation_code: "mtn-500mb-daily", type: "data", d_type: "GIFTING" },
@@ -105,7 +105,7 @@ const dataPlans = {
         { name: "MTN 3.2GB 2-Day - ₦1100", price: 1100, plan_id: "26117176", variation_code: "mtn-32gb-awoof", type: "data", d_type: "GIFTING" },
         { name: "MTN XtraTalk 117mins + 580MB - ₦1550", price: 1550, plan_id: "26117208", variation_code: "mtn-xtra-750mb-monthly", type: "data", d_type: "GIFTING" },
         
-        // Transfer Data (Ba a taba komai ba)
+        // Transfer Data
         { name: "MTN 500MB 7days - ₦350", price: 350, plan_id: "26117606", variation_code: "mtn-tr-500mb-7days", type: "data", d_type: "TRANSFER" },
         { name: "MTN 500MB 30days - ₦400", price: 400, plan_id: "26117598", variation_code: "mtn-tr-500mb", type: "data", d_type: "TRANSFER" },
         { name: "MTN 1GB 7days - ₦450", price: 450, plan_id: "26117607", variation_code: "mtn-tr-1gb-7days", type: "data", d_type: "TRANSFER" },
@@ -117,14 +117,13 @@ const dataPlans = {
         { name: "MTN 5GB 7days - ₦2000", price: 2000, plan_id: "26117610", variation_code: "mtn-tr-5gb-7days", type: "data", d_type: "TRANSFER" },
         { name: "MTN 5GB 30days - ₦2850", price: 2850, plan_id: "26117602", variation_code: "mtn-tr-5gb", type: "data", d_type: "TRANSFER" },
 
-        // MTN Voice Bundles (An maido su duka)
+        // MTN Voice Bundles
         { name: "₦120 MTN Voice Bundle (7 Days)", price: 120, plan_id: "26117793", variation_code: "400_7days", type: "voice", d_type: "ALL" },
         { name: "₦270 MTN Voice Bundle (7 Days)", price: 270, plan_id: "26117789", variation_code: "1000_7days", type: "voice", d_type: "ALL" },
         { name: "₦1050 MTN Voice Bundle (14 Days)", price: 1050, plan_id: "26117790", variation_code: "4000_14days", type: "voice", d_type: "ALL" },
         { name: "₦2050 MTN Voice Bundle (14 Days)", price: 2050, plan_id: "26117791", variation_code: "8000_14days", type: "voice", d_type: "ALL" }
     ],
     AIRTEL: [ 
-        // An maido duka asalin tsarin Airtel kamar da can ba tare da canji ba
         { name: "Awoof (Social) 1GB 3-Days - ₦370", price: 370, plan_id: "26117382", variation_code: "PlanAWOOF_26", type: "data", d_type: "ALL" },
         { name: "Awoof 1.5GB 1-Day - ₦450", price: 450, plan_id: "26117381", variation_code: "AWOOF_25", type: "data", d_type: "ALL" },
         { name: "Awoof 2GB 2 Days - ₦700", price: 700, plan_id: "26117386", variation_code: "AWOOF_31", type: "data", d_type: "ALL" },
@@ -138,7 +137,7 @@ const dataPlans = {
         { name: "Weekly Plan 1.0 GB (7 Days) - ₦800", price: 800, plan_id: "26117352", variation_code: "Weekly_Plan_800", type: "data", d_type: "ALL" },
         { name: "Weekly Plan 4 GB (7 Days) - ₦1550", price: 1550, plan_id: "26117354", variation_code: "Weekly_Plan_1500", type: "data", d_type: "ALL" },
         
-        // Airtel Voice Bundles (An maido su duka)
+        // Airtel Voice Bundles
         { name: "₦100 Voice Bundle (10 Mins)", price: 100, plan_id: "26117794", variation_code: "TalkMore_100", type: "voice", d_type: "ALL" },
         { name: "₦200 Voice Bundle (20 Mins)", price: 200, plan_id: "26117795", variation_code: "TalkMore_200", type: "voice", d_type: "ALL" },
         { name: "₦300 Voice Bundle (30 Mins)", price: 300, plan_id: "26117796", variation_code: "TalkMore_300", type: "voice", d_type: "ALL" },
@@ -237,15 +236,11 @@ async function checkIncomingFunds(userEmail) {
             if (customerEmail === userEmail && (status === "success" || payload.event === "charge.success")) {
                 const { data: alreadyProcessed } = await client.from("transactions").select("id").eq("details", `Ref: ${transactionRef}`).maybeSingle();
                 if (!alreadyProcessed) {
-                    
                     const gatewayCharge = 50;
                     if(amountPaid <= gatewayCharge) { return; } 
-                    
                     const finalCreditAmount = amountPaid - gatewayCharge; 
                     const updatedBalance = currentBalance + finalCreditAmount;
-                    
                     await client.from("users").update({ balance: updatedBalance }).eq("id", currentUser.id);
-                    
                     await client.from("transactions").insert([{ 
                         user_id: currentUser.id, 
                         type: "Wallet Funding", 
@@ -253,7 +248,6 @@ async function checkIncomingFunds(userEmail) {
                         amount: finalCreditAmount, 
                         status: "Success" 
                     }]);
-                    
                     loadUserData(currentUser.id);
                     loadTransactions(currentUser.id);
                     alert(`An sami shigar kuɗi ₦${amountPaid.toLocaleString()}! An cire chajin gateway ₦${gatewayCharge}, an saka ₦${finalCreditAmount.toLocaleString()} a walet ɗinka.`);
@@ -284,14 +278,18 @@ function changeDataPlans(){
     const dataPlanSelect = document.getElementById("dataPlan");
     dataPlanSelect.innerHTML = "";
     
-    // Nuna zabin Transfer/Gifting kawai idan MTN ne kuma DATA ce aka zaba
+    // Nuna zaben Transfer/Gifting kawai idan MTN ne kuma rukunin DATA aka zaba
     if (network === "MTN" && currentServiceType === "data") {
         typeSelect.style.display = "block";
     } else {
         typeSelect.style.display = "none";
     }
     
-    const selectedDataType = typeSelect.value || "TRANSFER";
+    // Gyara mai mahimmanci: Idan ba MTN bane ko kuma Voice ce, kar a duba darajar dropdown din don gudun error
+    let selectedDataType = "TRANSFER"; 
+    if (network === "MTN" && currentServiceType === "data") {
+        selectedDataType = typeSelect.value;
+    }
     
     if(!dataPlans[network]) return;
 
@@ -331,4 +329,5 @@ async function processOrder(){
     if(phone.length < 11){ alert("Please enter a valid phone number"); return; }
     if(!pin){ alert("Please enter your transaction PIN"); return; }
     
-    const selectedPlan = dataPlans[
+    const selectedPlan = dataPlans[network][planIndex];
+    const cost = selectedPlan.pric
