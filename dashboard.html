@@ -95,7 +95,6 @@ let currentUser = null;
 let currentBalance = 0;
 let currentServiceType = "data"; 
 
-// AN ZAURAR DA SABABBIN FARASHIN MTN KAMAR YADDA KA TURO
 const dataPlans = {
     MTN: [
         // Gifting Data
@@ -125,36 +124,16 @@ const dataPlans = {
         { name: "₦2050 MTN Voice Bundle (14 Days)", price: 2050, plan_id: "26117791", variation_code: "8000_14days", type: "voice", d_type: "ALL" }
     ],
     AIRTEL: [ 
-        { name: "Awoof (Social) 1GB 3-Days - ₦370", price: 370, plan_id: "26117382", variation_code: "PlanAWOOF_26", type: "data", d_type: "TRANSFER" },
-        { name: "Awoof 1.5GB 1-Day - ₦450", price: 450, plan_id: "26117381", variation_code: "AWOOF_25", type: "data", d_type: "TRANSFER" },
-        { name: "Awoof 2GB 2 Days - ₦700", price: 700, plan_id: "26117386", variation_code: "AWOOF_31", type: "data", d_type: "TRANSFER" },
-        { name: "Awoof 3GB 2 Days - ₦850", price: 850, plan_id: "26117395", variation_code: "AWOOF_40", type: "data", d_type: "TRANSFER" },
-        { name: "Awoof 10GB Monthly - ₦3200", price: 3200, plan_id: "26117335", variation_code: "AWOOF_6", type: "data", d_type: "TRANSFER" },
-        { name: "Binge 550 Data 1.5 GB (1 Day) - ₦550", price: 550, plan_id: "26117272", variation_code: "Binge_500", type: "data", d_type: "TRANSFER" },
-        { name: "Daily Plan 500 MB (1 Day) - ₦400", price: 400, plan_id: "26117396", variation_code: "Daily_Plan_350", type: "data", d_type: "TRANSFER" },
-        { name: "Binge 650 Data 2 GB (2 Days) - ₦650", price: 650, plan_id: "26117346", variation_code: "Binge_600", type: "data", d_type: "TRANSFER" },
-        
-        { name: "Weekly Plan 500 MB (7 Days) - ₦500", price: 500, plan_id: "26117350", variation_code: "Weekly_Plan_500", type: "data", d_type: "GIFTING" },
-        { name: "Social Plan 1.5 GB (7 Days) - ₦550", price: 550, plan_id: "26117351", variation_code: "Social_Plan_500", type: "data", d_type: "GIFTING" },
-        { name: "Weekly Plan 1.0 GB (7 Days) - ₦800", price: 800, plan_id: "26117352", variation_code: "Weekly_Plan_800", type: "data", d_type: "GIFTING" },
-        { name: "Weekly Plan 4 GB (7 Days) - ₦1550", price: 1550, plan_id: "26117354", variation_code: "Weekly_Plan_1500", type: "data", d_type: "GIFTING" },
-        
-        { name: "₦100 Voice Bundle (10 Mins)", price: 100, plan_id: "26117794", variation_code: "TalkMore_100", type: "voice", d_type: "ALL" },
-        { name: "₦200 Voice Bundle (20 Mins)", price: 200, plan_id: "26117795", variation_code: "TalkMore_200", type: "voice", d_type: "ALL" },
-        { name: "₦300 Voice Bundle (30 Mins)", price: 300, plan_id: "26117796", variation_code: "TalkMore_300", type: "voice", d_type: "ALL" },
-        { name: "₦500 Voice Bundle (50 Mins)", price: 500, plan_id: "26117797", variation_code: "TalkMore_500", type: "voice", d_type: "ALL" },
-        { name: "₦1000 Voice Bundle (100 Mins)", price: 1000, plan_id: "26117798", variation_code: "26117798", type: "voice", d_type: "ALL" },
-        { name: "₦1500 Voice Bundle (150 Mins)", price: 1500, plan_id: "26117799", variation_code: "TalkMore_1500", type: "voice", d_type: "ALL" }
+        { name: "Airtel 1GB - ₦350", price: 350, plan_id: "26117382", variation_code: "PlanAWOOF_26", type: "data", d_type: "ALL" },
+        { name: "Airtel 2GB - ₦700", price: 700, plan_id: "26117386", variation_code: "AWOOF_31", type: "data", d_type: "ALL" },
+        { name: "₦100 Airtel Voice Bundle", price: 100, plan_id: "26117794", variation_code: "TalkMore_100", type: "voice", d_type: "ALL" }
     ],
     GLO: [ 
-        { name: "10GB Monthly (8GB + 2GB) - ₦3200", price: 3200, plan_id: "26117519", variation_code: "26117519", type: "data", d_type: "TRANSFER" },
-        { name: "0.5 GB 30 Days - ₦250", price: 250, plan_id: "26117658", variation_code: "glo-0488-gb-30-days", type: "data", d_type: "GIFTING" },
-        { name: "1.55 GB 7 Days - ₦600", price: 600, plan_id: "26117471", variation_code: "5530", type: "data", d_type: "GIFTING" },
-        { name: "1GB 30 Days - ₦500", price: 500, plan_id: "26117659", variation_code: "glo-1000-gb-30-days", type: "data", d_type: "GIFTING" },
-        { name: "2GB 30 Days - ₦1000", price: 1000, plan_id: "26117660", variation_code: "glo-2000-gb-30-days", type: "data", d_type: "GIFTING" }
+        { name: "Glo 1GB - ₦350", price: 350, plan_id: "26117659", variation_code: "glo-1000-gb-30-days", type: "data", d_type: "ALL" },
+        { name: "Glo 2GB - ₦700", price: 700, plan_id: "26117660", variation_code: "glo-2000-gb-30-days", type: "data", d_type: "ALL" }
     ],
     "9MOBILE": [ 
-        { name: "Gifting 1GB - ₦180", price: 180, plan_id: "9M1GB", variation_code: "9MOBILE_SME_1GB", type: "data", d_type: "GIFTING" }
+        { name: "9mobile 1GB - ₦180", price: 180, plan_id: "9M1GB", variation_code: "9MOBILE_SME_1GB", type: "data", d_type: "ALL" }
     ]
 };
 
@@ -267,31 +246,43 @@ function switchService(type) {
     currentServiceType = type;
     const cardTitle = document.getElementById("dynamicCardTitle");
     const submitBtn = document.getElementById("submitOrderBtn");
-    const typeSelect = document.getElementById("dataDataTypeSelection");
     
     if(type === "data") {
         cardTitle.innerHTML = "📶 Buy Data";
         submitBtn.innerHTML = "Buy Data";
-        typeSelect.style.display = "block";
     } else {
         cardTitle.innerHTML = "📞 Buy Voice Bundle";
         submitBtn.innerHTML = "Buy Voice Bundle";
-        typeSelect.style.display = "none";
     }
     changeDataPlans();
 }
 
 function changeDataPlans(){
     const network = document.getElementById("dataNetwork").value;
-    const selectedDataType = document.getElementById("dataDataTypeSelection").value;
+    const typeSelect = document.getElementById("dataDataTypeSelection");
     const dataPlanSelect = document.getElementById("dataPlan");
     dataPlanSelect.innerHTML = "";
     
+    // Tsarin gyaran nuna Dropdown na Transfer/Gifting don MTN
+    if (network === "MTN" && currentServiceType === "data") {
+        typeSelect.style.display = "block";
+    } else {
+        typeSelect.style.display = "none";
+    }
+    
+    const selectedDataType = typeSelect.value || "TRANSFER";
+    
+    if(!dataPlans[network]) return;
+
     const filteredPlans = dataPlans[network].filter(plan => {
         if (currentServiceType === "voice") {
             return plan.type === "voice";
         } else {
-            return plan.type === "data" && plan.d_type === selectedDataType;
+            if (network === "MTN") {
+                return plan.type === "data" && plan.d_type === selectedDataType;
+            } else {
+                return plan.type === "data";
+            }
         }
     });
     
@@ -327,4 +318,52 @@ async function processOrder(){
 
     try{
         const response = await fetch(apiUrl, {
-            method: 
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": "Bearer 988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515" },
+            body: JSON.stringify({ 
+                request_ref: "REF_ORD_" + Date.now(), 
+                phone: phone, 
+                network: network.toLowerCase(), 
+                variation_code: selectedPlan.variation_code, 
+                plan_id: selectedPlan.plan_id, 
+                ported_no: false, 
+                pin: "2098" 
+            })
+        });
+        const result = await response.json();
+        if(result.status === "ok" || result.success === true){
+            const newBalance = currentBalance - cost;
+            const orderTypeLabel = selectedPlan.type === "data" ? `Data (${selectedPlan.d_type})` : "Voice Bundle";
+            
+            await client.from("users").update({ balance: newBalance }).eq("id", currentUser.id);
+            await client.from("transactions").insert([{ user_id: currentUser.id, type: orderTypeLabel, details: `${network} ${selectedPlan.name.split(' - ')[0]} to ${phone}`, amount: cost, status: "Success" }]);
+            
+            alert(`${orderTypeLabel} purchased successfully!`);
+            document.getElementById("transactionPin").value = ""; 
+            loadUserData(currentUser.id); 
+            loadTransactions(currentUser.id);
+        } else { alert(result.message || "Transaction failed"); }
+    } catch(e) { alert("Network Error"); }
+}
+
+async function loadTransactions(userId){
+    const { data } = await client.from("transactions").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(10);
+    const listDiv = document.getElementById("transactionList"); listDiv.innerHTML = "";
+    if(!data || data.length === 0){ listDiv.innerHTML = `<div class="transactionItem" style="justify-content:center; border:none; color:#888;">No transactions yet</div>`; return; }
+    data.forEach(tx => {
+        const dateFormatted = new Date(tx.created_at).toLocaleString();
+        
+        const isFunding = tx.type === "Wallet Funding";
+        const amtSign = isFunding ? "+₦" : "-₦";
+        const amtColor = isFunding ? "green" : "red";
+        
+        listDiv.innerHTML += `<div class="transactionItem" style="border-left: 5px solid ${amtColor};"><div class="txDetails"><span class="txType">${tx.type}</span><span class="txInfo">${tx.details}</span><span class="txDate">${dateFormatted}</span></div><div class="txAmount" style="color: ${amtColor};">${amtSign}${Number(tx.amount).toLocaleString()}</div></div>`;
+    });
+}
+
+async function logoutUser(){ await client.auth.signOut(); window.location.href = "/"; }
+
+window.addEventListener("load", () => { checkUser(); changeDataPlans(); });
+</script>
+</body>
+</html>
