@@ -16,10 +16,11 @@ body{ background:#f3f5f9; padding:15px; }
 .balanceBox{ margin-top:25px; }
 .balanceTitle{ font-size:18px; }
 .balance{ font-size:45px; font-weight:bold; margin-top:10px; }
-.bank-card{ background: linear-gradient(135deg, #e69500, #b37400); color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+.bank-card{ background: linear-gradient(135deg, #e69500, #b37400); color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: relative; }
 .bank-title { font-size: 14px; font-weight: bold; text-transform: uppercase; opacity: 0.9; }
 .bank-num { font-size: 28px; font-weight: bold; margin: 10px 0; letter-spacing: 1px; }
 .bank-det { font-size: 15px; opacity: 0.95; display: flex; justify-content: space-between; }
+.verify-trigger-btn { display: none; background: white; color: #b37400; border: none; padding: 8px 12px; font-weight: bold; border-radius: 8px; margin-top: 10px; cursor: pointer; width: 100%; text-align: center; box-shadow: 0 3px 6px rgba(0,0,0,0.1); }
 .services{ display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px; }
 .service{ background:white; padding:20px; border-radius:20px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.08); transition: transform 0.2s; cursor:pointer; }
 .service:active { transform: scale(0.95); }
@@ -35,9 +36,27 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
 .txInfo{ font-size:14px; color:#666; margin-top:3px; }
 .txDate{ font-size:11px; color:#999; margin-top:3px; }
 .txAmount{ font-weight:bold; color:red; font-size:16px; }
+
+/* KYC Modal PopUp Style */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+.modal-content { background: white; padding: 25px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+.modal-content h3 { color: #b37400; margin-bottom: 10px; font-size: 22px; }
+.modal-content p { font-size: 14px; color: #555; margin-bottom: 15px; line-height: 1.4; }
+.modal-content input { text-align: center; font-weight: bold; letter-spacing: 2px; }
+.close-modal { float: right; font-size: 20px; font-weight: bold; cursor: pointer; color: #aaa; margin-top: -15px; }
 </style>
 </head>
 <body>
+
+<div class="modal-overlay" id="kycModal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeKycModal()">&times;</span>
+        <h3>🔐 Identity Verification</h3>
+        <p>CBN regulations require a valid NIN or BVN to generate your automatic Moniepoint wallet funding account.</p>
+        <input type="number" id="kycNumberInput" placeholder="Enter 11-digit NIN or BVN" oninput="if(this.value.length > 11) this.value = this.value.slice(0, 11);">
+        <button class="mainBtn" style="background: linear-gradient(135deg, #e69500, #b37400);" onclick="submitKycAndGenerateAccount()">Verify & Generate Account</button>
+    </div>
+</div>
 
 <div class="header">
     <div class="headerTop">
@@ -58,6 +77,7 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
         <span id="userBankName">Bank: Loading...</span>
         <span id="userAccountName">Account Name: Loading...</span>
     </div>
+    <button id="verifyTriggerBtn" class="verify-trigger-btn" onclick="openKycModal()">⚠️ Tap to Verify NIN/BVN</button>
 </div>
 
 <div class="services">
@@ -68,6 +88,7 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
 <div class="card">
     <div class="cardTitle" id="dynamicCardTitle">📶 Buy Data</div>
     <select id="dataNetwork"><option value="MTN">MTN</option><option value="AIRTEL">AIRTEL</option><option value="GLO">GLO</option><option value="9MOBILE">9MOBILE</option></select>
+    <select id="dataDataTypeSelection" style="display: block;"><option value="SME">SME</option><option value="CG">Corporate Gifting</option><option value="GIFTING">Gifting</option></select>
     <select id="dataPlan"></select>
     <input type="number" id="dataPhone" placeholder="Enter Phone Number">
     <input type="password" id="transactionPin" placeholder="••••" maxlength="4" style="text-align: center; letter-spacing: 5px;">
@@ -91,48 +112,27 @@ let currentServiceType = "data";
 
 const dataPlans = {
     MTN: [
-        { name: "1GB Daily Awoof - ₦300", price: 300, plan_id: "26117253", variation_code: "26117253", type: "data" },
-        { name: "MTN 1GB 7days - ₦450", price: 450, plan_id: "26117607", variation_code: "mtn-tr-1gb-7days", type: "data" },
-        { name: "MTN 500MB 30days - ₦350", price: 350, plan_id: "26117598", variation_code: "mtn-tr-500mb", type: "data" },
-        { name: "MTN 1GB 30days - ₦570", price: 570, plan_id: "26117599", variation_code: "mtn-tr-1gb", type: "data" },
-        { name: "MTN 2GB 30days - ₦1140", price: 1140, plan_id: "26117600", variation_code: "mtn-tr-2gb", type: "data" },
-        { name: "MTN 3GB 30days - ₦1710", price: 1710, plan_id: "26117601", variation_code: "mtn-tr-3gb", type: "data" },
-        { name: "MTN 5GB 30days - ₦2850", price: 2850, plan_id: "26117602", variation_code: "mtn-tr-5gb", type: "data" },
-        { name: "₦120 MTN Voice Bundle (7 Days)", price: 120, plan_id: "26117793", variation_code: "400_7days", type: "voice" },
-        { name: "₦270 MTN Voice Bundle (7 Days)", price: 270, plan_id: "26117789", variation_code: "1000_7days", type: "voice" },
-        { name: "₦1050 MTN Voice Bundle (14 Days)", price: 1050, plan_id: "26117790", variation_code: "4000_14days", type: "voice" },
-        { name: "₦2050 MTN Voice Bundle (14 Days)", price: 2050, plan_id: "26117791", variation_code: "8000_14days", type: "voice" }
+        { name: "MTN SME 1GB - ₦260", price: 260, plan_id: "26117599", variation_code: "mtn-sme-1gb", type: "data", d_type: "SME" },
+        { name: "MTN SME 2GB - ₦520", price: 520, plan_id: "26117600", variation_code: "mtn-sme-2gb", type: "data", d_type: "SME" },
+        { name: "MTN SME 5GB - ₦1300", price: 1300, plan_id: "26117602", variation_code: "mtn-sme-5gb", type: "data", d_type: "SME" },
+        { name: "MTN CG 1GB - ₦280", price: 280, plan_id: "26117253", variation_code: "mtn-cg-1gb", type: "data", d_type: "CG" },
+        { name: "MTN CG 2GB - ₦560", price: 560, plan_id: "26117607", variation_code: "mtn-cg-2gb", type: "data", d_type: "CG" },
+        { name: "MTN Gifting 500MB - ₦350", price: 350, plan_id: "26117598", variation_code: "mtn-gifting-500mb", type: "data", d_type: "GIFTING" },
+        { name: "₦120 MTN Voice Bundle (7 Days)", price: 120, plan_id: "26117793", variation_code: "400_7days", type: "voice", d_type: "ALL" }
     ],
     AIRTEL: [ 
-        { name: "Awoof (Social) 1GB 3-Days - ₦370", price: 370, plan_id: "26117382", variation_code: "PlanAWOOF_26", type: "data" },
-        { name: "Awoof 1.5GB 1-Day - ₦450", price: 450, plan_id: "26117381", variation_code: "AWOOF_25", type: "data" },
-        { name: "Awoof 2GB 2 Days - ₦700", price: 700, plan_id: "26117386", variation_code: "AWOOF_31", type: "data" },
-        { name: "Awoof 3GB 2 Days - ₦850", price: 850, plan_id: "26117395", variation_code: "AWOOF_40", type: "data" },
-        { name: "Awoof 10GB Monthly - ₦3200", price: 3200, plan_id: "26117335", variation_code: "AWOOF_6", type: "data" },
-        { name: "Binge 550 Data 1.5 GB (1 Day) - ₦550", price: 550, plan_id: "26117272", variation_code: "Binge_500", type: "data" },
-        { name: "Daily Plan 500 MB (1 Day) - ₦400", price: 400, plan_id: "26117396", variation_code: "Daily_Plan_350", type: "data" },
-        { name: "Binge 650 Data 2 GB (2 Days) - ₦650", price: 650, plan_id: "26117346", variation_code: "Binge_600", type: "data" },
-        { name: "Weekly Plan 500 MB (7 Days) - ₦500", price: 500, plan_id: "26117350", variation_code: "Weekly_Plan_500", type: "data" },
-        { name: "Social Plan 1.5 GB (7 Days) - ₦550", price: 550, plan_id: "26117351", variation_code: "Social_Plan_500", type: "data" },
-        { name: "Weekly Plan 1.0 GB (7 Days) - ₦800", price: 800, plan_id: "26117352", variation_code: "Weekly_Plan_800", type: "data" },
-        { name: "Weekly Plan 4 GB (7 Days) - ₦1550", price: 1550, plan_id: "26117354", variation_code: "Weekly_Plan_1500", type: "data" },
-        { name: "₦100 Voice Bundle (10 Mins)", price: 100, plan_id: "26117794", variation_code: "TalkMore_100", type: "voice" },
-        { name: "₦200 Voice Bundle (20 Mins)", price: 200, plan_id: "26117795", variation_code: "TalkMore_200", type: "voice" },
-        { name: "₦300 Voice Bundle (30 Mins)", price: 300, plan_id: "26117796", variation_code: "TalkMore_300", type: "voice" },
-        { name: "₦500 Voice Bundle (50 Mins)", price: 500, plan_id: "26117797", variation_code: "TalkMore_500", type: "voice" },
-        { name: "₦1000 Voice Bundle (100 Mins)", price: 1000, plan_id: "26117798", variation_code: "26117798", type: "voice" },
-        { name: "₦1500 Voice Bundle (150 Mins)", price: 1500, plan_id: "26117799", variation_code: "TalkMore_1500", type: "voice" }
+        { name: "Airtel CG 1GB - ₦270", price: 270, plan_id: "26117382", variation_code: "airtel-cg-1gb", type: "data", d_type: "CG" },
+        { name: "Airtel CG 2GB - ₦540", price: 540, plan_id: "26117381", variation_code: "airtel-cg-2gb", type: "data", d_type: "CG" },
+        { name: "Airtel Gifting 1.5GB - ₦500", price: 500, plan_id: "26117350", variation_code: "airtel-gift-1.5gb", type: "data", d_type: "GIFTING" },
+        { name: "₦100 Voice Bundle (10 Mins)", price: 100, plan_id: "26117794", variation_code: "TalkMore_100", type: "voice", d_type: "ALL" }
     ],
     GLO: [ 
-        { name: "10GB Monthly (8GB + 2GB) - ₦3200", price: 3200, plan_id: "26117519", variation_code: "26117519", type: "data" },
-        { name: "1GB 30 days - ₦400", price: 400, plan_id: "26117567", variation_code: "N200_1GB_30DAYS", type: "data" },
-        { name: "0.5 GB 30 Days - ₦250", price: 250, plan_id: "26117658", variation_code: "glo-0488-gb-30-days", type: "data" },
-        { name: "1.55 GB 7 Days - ₦600", price: 600, plan_id: "26117471", variation_code: "5530", type: "data" },
-        { name: "1GB 30 Days - ₦500", price: 500, plan_id: "26117659", variation_code: "glo-1000-gb-30-days", type: "data" },
-        { name: "2GB 30 Days - ₦1000", price: 1000, plan_id: "26117660", variation_code: "glo-2000-gb-30-days", type: "data" }
+        { name: "Glo CG 1GB - ₦250", price: 250, plan_id: "26117567", variation_code: "glo-cg-1gb", type: "data", d_type: "CG" },
+        { name: "Glo Gifting 1.05GB - ₦450", price: 450, plan_id: "26117471", variation_code: "glo-gift-1gb", type: "data", d_type: "GIFTING" }
     ],
     "9MOBILE": [ 
-        { name: "SME 1GB - ₦180", price: 180, plan_id: "9M1GB", variation_code: "9MOBILE_SME_1GB", type: "data" }
+        { name: "9Mobile SME 1GB - ₦180", price: 180, plan_id: "9M1GB", variation_code: "9MOBILE_SME_1GB", type: "data", d_type: "SME" },
+        { name: "9Mobile CG 1GB - ₦230", price: 230, plan_id: "9M1GBCG", variation_code: "9MOBILE_CG_1GB", type: "data", d_type: "CG" }
     ]
 };
 
@@ -153,10 +153,15 @@ async function loadUserData(userId){
         if(data.is_admin === true || currentUser.email === "xakar2@gmail.com") {
             document.getElementById("adminLinkBtn").style.display = "block";
         }
-        if(data.account_number && data.account_number !== "Generating...") {
+        
+        if(data.account_number && data.account_number !== "Generating..." && data.account_number.length > 5) {
             showBankDetails(data.bank_name, data.account_number, data.account_name);
+            document.getElementById("verifyTriggerBtn").style.display = "none";
         } else {
-            generateVirtualAccount(userId, currentUser.email);
+            document.getElementById("userAccountNo").innerText = "NIN/BVN Required";
+            document.getElementById("userBankName").innerText = "Bank: Moniepoint";
+            document.getElementById("userAccountName").innerText = "Status: Unverified";
+            document.getElementById("verifyTriggerBtn").style.display = "block";
         }
     }
 }
@@ -167,13 +172,21 @@ function showBankDetails(bank, num, name) {
     document.getElementById("userAccountName").innerText = "Name: " + name;
 }
 
-async function generateVirtualAccount(userId, userEmail) {
-    const username = userEmail.split('@')[0].toUpperCase();
+function openKycModal() { document.getElementById("kycModal").style.display = "flex"; }
+function closeKycModal() { document.getElementById("kycModal").style.display = "none"; }
+
+async function submitKycAndGenerateAccount() {
+    const kycNumber = document.getElementById("kycNumberInput").value;
+    if(kycNumber.length < 11) { alert("Please enter a valid 11-digit NIN or BVN number!"); return; }
+    
+    const username = currentUser.email.split('@')[0].toUpperCase();
+    document.getElementById("userAccountNo").innerText = "Connecting API...";
+
     try {
         const response = await fetch("https://autosyncng.com/api/v1/virtual-account/create", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${securewavePublicKey}` },
-            body: JSON.stringify({ email: userEmail, name: username + " - HDH", bank: "moniepoint" })
+            body: JSON.stringify({ email: currentUser.email, name: username + " - HDH", bank: "moniepoint", kyc_number: kycNumber })
         });
         const result = await response.json();
         
@@ -181,22 +194,20 @@ async function generateVirtualAccount(userId, userEmail) {
             const bankName = result.data.bank_name || "Moniepoint";
             const accNo = result.data.account_number;
             const accName = result.data.account_name;
-            await client.from("users").update({ bank_name: bankName, account_number: accNo, account_name: accName }).eq("id", userId);
+            
+            await client.from("users").update({ bank_name: bankName, account_number: accNo, account_name: accName }).eq("id", currentUser.id);
             showBankDetails(bankName, accNo, accName);
+            document.getElementById("verifyTriggerBtn").style.display = "none";
+            closeKycModal();
+            alert("Virtual Account Created Successfully!");
         } else {
-            // Idan tsarin API ya dawo da matsalar rashin NIN, bari mu samar da backup account take yanzu
-            createBackupAccount(userId, username);
+            alert("API Error: " + (result.message || "Failed to generate account."));
+            document.getElementById("userAccountNo").innerText = "NIN/BVN Required";
         }
     } catch (e) {
-        createBackupAccount(userId, username);
+        alert("Network connectivity issue.");
+        document.getElementById("userAccountNo").innerText = "NIN/BVN Required";
     }
-}
-
-async function createBackupAccount(userId, username) {
-    // Wannan zai gina asusu nan take don kiyaye tsayuwar app dinka
-    let backupAcc = "54" + Math.floor(10000000 + Math.random() * 90000000);
-    await client.from("users").update({ bank_name: "Moniepoint", account_number: backupAcc, account_name: username + " - HDH" }).eq("id", userId);
-    showBankDetails("Moniepoint", backupAcc, username + " - HDH");
 }
 
 async function checkIncomingFunds(userEmail) {
@@ -216,12 +227,29 @@ async function checkIncomingFunds(userEmail) {
             if (customerEmail === userEmail && (status === "success" || payload.event === "charge.success")) {
                 const { data: alreadyProcessed } = await client.from("transactions").select("id").eq("details", `Ref: ${transactionRef}`).maybeSingle();
                 if (!alreadyProcessed) {
-                    const updatedBalance = currentBalance + amountPaid;
+                    
+                    // --- GYARAN CHAJIN ₦50 GATEWAY ---
+                    const gatewayCharge = 50;
+                    if(amountPaid <= gatewayCharge) { return; } // Idan kudin bai taka kara ya karya ba
+                    
+                    const finalCreditAmount = amountPaid - gatewayCharge; // Cire 50 naira
+                    const updatedBalance = currentBalance + finalCreditAmount;
+                    
+                    // Sabunta balance a Supabase
                     await client.from("users").update({ balance: updatedBalance }).eq("id", currentUser.id);
-                    await client.from("transactions").insert([{ user_id: currentUser.id, type: "Wallet Funding", details: `Ref: ${transactionRef}`, amount: amountPaid, status: "Success" }]);
+                    
+                    // Saka a tarihin transaction cewa an cire 50 naira chaji
+                    await client.from("transactions").insert([{ 
+                        user_id: currentUser.id, 
+                        type: "Wallet Funding", 
+                        details: `Ref: ${transactionRef} (Chajin Gateway: ₦${gatewayCharge})`, 
+                        amount: finalCreditAmount, 
+                        status: "Success" 
+                    }]);
+                    
                     loadUserData(currentUser.id);
                     loadTransactions(currentUser.id);
-                    alert(`₦${amountPaid.toLocaleString()} ya shigo asusunka lafiya lau!`);
+                    alert(`An sami shigar kuɗi ₦${amountPaid.toLocaleString()}! An cire chajin gateway ₦${gatewayCharge}, an saka ₦${finalCreditAmount.toLocaleString()} a walet ɗinka.`);
                 }
             }
         });
@@ -232,27 +260,36 @@ function switchService(type) {
     currentServiceType = type;
     const cardTitle = document.getElementById("dynamicCardTitle");
     const submitBtn = document.getElementById("submitOrderBtn");
+    const typeSelect = document.getElementById("dataDataTypeSelection");
     
     if(type === "data") {
         cardTitle.innerHTML = "📶 Buy Data";
         submitBtn.innerHTML = "Buy Data";
+        typeSelect.style.display = "block";
     } else {
         cardTitle.innerHTML = "📞 Buy Voice Bundle";
         submitBtn.innerHTML = "Buy Voice Bundle";
+        typeSelect.style.display = "none";
     }
     changeDataPlans();
 }
 
 function changeDataPlans(){
     const network = document.getElementById("dataNetwork").value;
+    const selectedDataType = document.getElementById("dataDataTypeSelection").value;
     const dataPlanSelect = document.getElementById("dataPlan");
     dataPlanSelect.innerHTML = "";
     
-    // Gyaran Dropdown List don duka tsarukan su rabe firi-firi gaskiya
-    const filteredPlans = dataPlans[network].filter(plan => plan.type === currentServiceType);
+    const filteredPlans = dataPlans[network].filter(plan => {
+        if (currentServiceType === "voice") {
+            return plan.type === "voice";
+        } else {
+            return plan.type === "data" && plan.d_type === selectedDataType;
+        }
+    });
     
     if(filteredPlans.length === 0) {
-        dataPlanSelect.innerHTML = `<option value="">No package available</option>`;
+        dataPlanSelect.innerHTML = `<option value="">Babu package a wannan tsarin</option>`;
         return;
     }
 
@@ -261,7 +298,9 @@ function changeDataPlans(){
         dataPlanSelect.innerHTML += `<option value="${originalIndex}">${plan.name}</option>`;
     });
 }
+
 document.getElementById("dataNetwork").addEventListener("change", changeDataPlans);
+document.getElementById("dataDataTypeSelection").addEventListener("change", changeDataPlans);
 
 async function processOrder(){
     const network = document.getElementById("dataNetwork").value;
@@ -296,7 +335,7 @@ async function processOrder(){
         const result = await response.json();
         if(result.status === "ok" || result.success === true){
             const newBalance = currentBalance - cost;
-            const orderTypeLabel = selectedPlan.type === "data" ? "Data" : "Voice Bundle";
+            const orderTypeLabel = selectedPlan.type === "data" ? `Data (${selectedPlan.d_type})` : "Voice Bundle";
             
             await client.from("users").update({ balance: newBalance }).eq("id", currentUser.id);
             await client.from("transactions").insert([{ user_id: currentUser.id, type: orderTypeLabel, details: `${network} ${selectedPlan.name.split(' - ')[0]} to ${phone}`, amount: cost, status: "Success" }]);
@@ -310,18 +349,4 @@ async function processOrder(){
 }
 
 async function loadTransactions(userId){
-    const { data } = await client.from("transactions").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(10);
-    const listDiv = document.getElementById("transactionList"); listDiv.innerHTML = "";
-    if(!data || data.length === 0){ listDiv.innerHTML = `<div class="transactionItem" style="justify-content:center; border:none; color:#888;">No transactions yet</div>`; return; }
-    data.forEach(tx => {
-        const dateFormatted = new Date(tx.created_at).toLocaleString();
-        listDiv.innerHTML += `<div class="transactionItem"><div class="txDetails"><span class="txType">${tx.type}</span><span class="txInfo">${tx.details}</span><span class="txDate">${dateFormatted}</span></div><div class="txAmount">-₦${Number(tx.amount).toLocaleString()}</div></div>`;
-    });
-}
-
-async function logoutUser(){ await client.auth.signOut(); window.location.href = "/"; }
-
-window.addEventListener("load", () => { checkUser(); changeDataPlans(); });
-</script>
-</body>
-</html>
+    const { data } = await client.from("transactions").select("*").eq("user_id", userId
