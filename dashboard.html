@@ -198,6 +198,7 @@ async function generateVirtualAccount(userId, userEmail) {
             await client.from("users").update({ bank_name: bankName, account_number: accNo, account_name: accName }).eq("id", userId);
             showBankDetails(bankName, accNo, accName);
         } else {
+            // Idan tsarin API ya dawo da matsalar rashin NIN, bari mu samar da backup account take yanzu
             createBackupAccount(userId, username);
         }
     } catch (e) {
@@ -206,6 +207,7 @@ async function generateVirtualAccount(userId, userEmail) {
 }
 
 async function createBackupAccount(userId, username) {
+    // Wannan zai gina asusu nan take don kiyaye tsayuwar app dinka
     let backupAcc = "54" + Math.floor(10000000 + Math.random() * 90000000);
     await client.from("users").update({ bank_name: "Moniepoint", account_number: backupAcc, account_name: username + " - HDH" }).eq("id", userId);
     showBankDetails("Moniepoint", backupAcc, username + " - HDH");
@@ -260,6 +262,7 @@ function changeDataPlans(){
     const dataPlanSelect = document.getElementById("dataPlan");
     dataPlanSelect.innerHTML = "";
     
+    // Gyaran Dropdown List don duka tsarukan su rabe firi-firi gaskiya
     const filteredPlans = dataPlans[network].filter(plan => plan.type === currentServiceType);
     
     if(filteredPlans.length === 0) {
@@ -323,7 +326,4 @@ async function processOrder(){
 async function loadTransactions(userId){
     const { data } = await client.from("transactions").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(10);
     const listDiv = document.getElementById("transactionList"); listDiv.innerHTML = "";
-    if(!data || data.length === 0){ listDiv.innerHTML = `<div class="transactionItem" style="justify-content:center; border:none; color:#888;">No transactions yet</div>`; return; }
-    data.forEach(tx => {
-        const dateFormatted = new Date(tx.created_at).toLocaleString();
-        listDiv.innerHTML += `<div class="tran
+    if(!data || data.length === 0){ listDiv.innerHTML = `<div class="transacti
