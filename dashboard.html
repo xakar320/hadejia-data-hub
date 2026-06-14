@@ -149,6 +149,7 @@ const dataPlans = {
 };
 
 
+
 async function checkUser(){
     const { data: { session } } = await client.auth.getSession();
     if(!session){ window.location.href = "/"; return; }
