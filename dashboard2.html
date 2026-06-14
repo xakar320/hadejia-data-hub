@@ -35,9 +35,25 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
 .txInfo{ font-size:14px; color:#666; margin-top:3px; }
 .txDate{ font-size:11px; color:#999; margin-top:3px; }
 .txAmount{ font-weight:bold; color:red; font-size:16px; }
+
+/* KYC Modal PopUp Style */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+.modal-content { background: white; padding: 25px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+.modal-content h3 { color: #b37400; margin-bottom: 10px; font-size: 22px; }
+.modal-content p { font-size: 14px; color: #555; margin-bottom: 15px; line-height: 1.4; }
+.modal-content input { text-align: center; font-weight: bold; letter-spacing: 2px; }
 </style>
 </head>
 <body>
+
+<div class="modal-overlay" id="kycModal">
+    <div class="modal-content">
+        <h3>🔐 Identity Verification</h3>
+        <p>CBN regulations require a valid NIN or BVN to generate your automatic Moniepoint wallet funding account.</p>
+        <input type="number" id="kycNumberInput" placeholder="Enter 11-digit NIN or BVN" oninput="if(this.value.length > 11) this.value = this.value.slice(0, 11);">
+        <button class="mainBtn" style="background: linear-gradient(135deg, #e69500, #b37400);" onclick="submitKycAndGenerateAccount()">Verify & Generate Account</button>
+    </div>
+</div>
 
 <div class="header">
     <div class="headerTop">
@@ -155,8 +171,10 @@ async function loadUserData(userId){
         }
         if(data.account_number && data.account_number !== "Generating...") {
             showBankDetails(data.bank_name, data.account_number, data.account_name);
+            document.getElementById("kycModal").style.display = "none";
         } else {
-            generateVirtualAccount(userId, currentUser.email);
+            // Idan babu asusun banki, mu nuna akwatin neman NIN/BVN
+            document.getElementById("kycModal").style.display = "flex";
         }
     }
 }
@@ -167,13 +185,26 @@ function showBankDetails(bank, num, name) {
     document.getElementById("userAccountName").innerText = "Name: " + name;
 }
 
-async function generateVirtualAccount(userId, userEmail) {
-    const username = userEmail.split('@')[0].toUpperCase();
+async function submitKycAndGenerateAccount() {
+    const kycNumber = document.getElementById("kycNumberInput").value;
+    if(kycNumber.length < 11) {
+        alert("Please enter a valid 11-digit NIN or BVN number!");
+        return;
+    }
+    
+    const username = currentUser.email.split('@')[0].toUpperCase();
+    document.getElementById("userAccountNo").innerText = "Connecting API...";
+
     try {
         const response = await fetch("https://autosyncng.com/api/v1/virtual-account/create", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${securewavePublicKey}` },
-            body: JSON.stringify({ email: userEmail, name: username + " - HDH", bank: "moniepoint" })
+            body: JSON.stringify({ 
+                email: currentUser.email, 
+                name: username + " - HDH", 
+                bank: "moniepoint",
+                kyc_number: kycNumber // Muna tura lambar yanzu domin CBN ya amince nan take
+            })
         });
         const result = await response.json();
         
@@ -181,22 +212,19 @@ async function generateVirtualAccount(userId, userEmail) {
             const bankName = result.data.bank_name || "Moniepoint";
             const accNo = result.data.account_number;
             const accName = result.data.account_name;
-            await client.from("users").update({ bank_name: bankName, account_number: accNo, account_name: accName }).eq("id", userId);
+            
+            await client.from("users").update({ bank_name: bankName, account_number: accNo, account_name: accName }).eq("id", currentUser.id);
             showBankDetails(bankName, accNo, accName);
+            document.getElementById("kycModal").style.display = "none";
+            alert("Virtual Account Created Successfully!");
         } else {
-            // Idan tsarin API ya dawo da matsalar rashin NIN, bari mu samar da backup account take yanzu
-            createBackupAccount(userId, username);
+            alert("API Error: " + (result.message || "Failed to generate account. Please verify your NIN/BVN details."));
+            document.getElementById("userAccountNo").innerText = "Generating...";
         }
     } catch (e) {
-        createBackupAccount(userId, username);
+        alert("Network connectivity issue. Please try again later.");
+        document.getElementById("userAccountNo").innerText = "Generating...";
     }
-}
-
-async function createBackupAccount(userId, username) {
-    // Wannan zai gina asusu nan take don kiyaye tsayuwar app dinka
-    let backupAcc = "54" + Math.floor(10000000 + Math.random() * 90000000);
-    await client.from("users").update({ bank_name: "Moniepoint", account_number: backupAcc, account_name: username + " - HDH" }).eq("id", userId);
-    showBankDetails("Moniepoint", backupAcc, username + " - HDH");
 }
 
 async function checkIncomingFunds(userEmail) {
@@ -248,7 +276,6 @@ function changeDataPlans(){
     const dataPlanSelect = document.getElementById("dataPlan");
     dataPlanSelect.innerHTML = "";
     
-    // Gyaran Dropdown List don duka tsarukan su rabe firi-firi gaskiya
     const filteredPlans = dataPlans[network].filter(plan => plan.type === currentServiceType);
     
     if(filteredPlans.length === 0) {
@@ -308,20 +335,3 @@ async function processOrder(){
         } else { alert(result.message || "Transaction failed"); }
     } catch(e) { alert("Network Error"); }
 }
-
-async function loadTransactions(userId){
-    const { data } = await client.from("transactions").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(10);
-    const listDiv = document.getElementById("transactionList"); listDiv.innerHTML = "";
-    if(!data || data.length === 0){ listDiv.innerHTML = `<div class="transactionItem" style="justify-content:center; border:none; color:#888;">No transactions yet</div>`; return; }
-    data.forEach(tx => {
-        const dateFormatted = new Date(tx.created_at).toLocaleString();
-        listDiv.innerHTML += `<div class="transactionItem"><div class="txDetails"><span class="txType">${tx.type}</span><span class="txInfo">${tx.details}</span><span class="txDate">${dateFormatted}</span></div><div class="txAmount">-₦${Number(tx.amount).toLocaleString()}</div></div>`;
-    });
-}
-
-async function logoutUser(){ await client.auth.signOut(); window.location.href = "/"; }
-
-window.addEventListener("load", () => { checkUser(); changeDataPlans(); });
-</script>
-</body>
-</html>
