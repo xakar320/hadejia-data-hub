@@ -16,10 +16,11 @@ body{ background:#f3f5f9; padding:15px; }
 .balanceBox{ margin-top:25px; }
 .balanceTitle{ font-size:18px; }
 .balance{ font-size:45px; font-weight:bold; margin-top:10px; }
-.bank-card{ background: linear-gradient(135deg, #e69500, #b37400); color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+.bank-card{ background: linear-gradient(135deg, #e69500, #b37400); color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: relative; }
 .bank-title { font-size: 14px; font-weight: bold; text-transform: uppercase; opacity: 0.9; }
 .bank-num { font-size: 28px; font-weight: bold; margin: 10px 0; letter-spacing: 1px; }
 .bank-det { font-size: 15px; opacity: 0.95; display: flex; justify-content: space-between; }
+.verify-trigger-btn { display: none; background: white; color: #b37400; border: none; padding: 8px 12px; font-weight: bold; border-radius: 8px; margin-top: 10px; cursor: pointer; width: 100%; text-align: center; box-shadow: 0 3px 6px rgba(0,0,0,0.1); }
 .services{ display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px; }
 .service{ background:white; padding:20px; border-radius:20px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.08); transition: transform 0.2s; cursor:pointer; }
 .service:active { transform: scale(0.95); }
@@ -42,12 +43,14 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
 .modal-content h3 { color: #b37400; margin-bottom: 10px; font-size: 22px; }
 .modal-content p { font-size: 14px; color: #555; margin-bottom: 15px; line-height: 1.4; }
 .modal-content input { text-align: center; font-weight: bold; letter-spacing: 2px; }
+.close-modal { float: right; font-size: 20px; font-weight: bold; cursor: pointer; color: #aaa; margin-top: -15px; }
 </style>
 </head>
 <body>
 
 <div class="modal-overlay" id="kycModal">
     <div class="modal-content">
+        <span class="close-modal" onclick="closeKycModal()">&times;</span>
         <h3>🔐 Identity Verification</h3>
         <p>CBN regulations require a valid NIN or BVN to generate your automatic Moniepoint wallet funding account.</p>
         <input type="number" id="kycNumberInput" placeholder="Enter 11-digit NIN or BVN" oninput="if(this.value.length > 11) this.value = this.value.slice(0, 11);">
@@ -74,6 +77,7 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
         <span id="userBankName">Bank: Loading...</span>
         <span id="userAccountName">Account Name: Loading...</span>
     </div>
+    <button id="verifyTriggerBtn" class="verify-trigger-btn" onclick="openKycModal()">⚠️ Tap to Verify NIN/BVN</button>
 </div>
 
 <div class="services">
@@ -169,12 +173,17 @@ async function loadUserData(userId){
         if(data.is_admin === true || currentUser.email === "xakar2@gmail.com") {
             document.getElementById("adminLinkBtn").style.display = "block";
         }
-        if(data.account_number && data.account_number !== "Generating...") {
+        
+        // Gyara firi-firi: Idan account_number bashi da kyau ko yana nuna "Generating...", nuna maballin verify da karfi
+        if(data.account_number && data.account_number !== "Generating..." && data.account_number.length > 5) {
             showBankDetails(data.bank_name, data.account_number, data.account_name);
-            document.getElementById("kycModal").style.display = "none";
+            document.getElementById("verifyTriggerBtn").style.display = "none";
         } else {
-            // Idan babu asusun banki, mu nuna akwatin neman NIN/BVN
-            document.getElementById("kycModal").style.display = "flex";
+            document.getElementById("userAccountNo").innerText = "NIN/BVN Required";
+            document.getElementById("userBankName").innerText = "Bank: Moniepoint";
+            document.getElementById("userAccountName").innerText = "Status: Unverified";
+            document.getElementById("verifyTriggerBtn").style.display = "block";
+            openKycModal(); // Bude popup din kai tsaye don ya gani
         }
     }
 }
@@ -183,6 +192,14 @@ function showBankDetails(bank, num, name) {
     document.getElementById("userAccountNo").innerText = num;
     document.getElementById("userBankName").innerText = "Bank: " + bank.toUpperCase();
     document.getElementById("userAccountName").innerText = "Name: " + name;
+}
+
+function openKycModal() {
+    document.getElementById("kycModal").style.display = "flex";
+}
+
+function closeKycModal() {
+    document.getElementById("kycModal").style.display = "none";
 }
 
 async function submitKycAndGenerateAccount() {
@@ -203,7 +220,7 @@ async function submitKycAndGenerateAccount() {
                 email: currentUser.email, 
                 name: username + " - HDH", 
                 bank: "moniepoint",
-                kyc_number: kycNumber // Muna tura lambar yanzu domin CBN ya amince nan take
+                kyc_number: kycNumber 
             })
         });
         const result = await response.json();
@@ -215,15 +232,16 @@ async function submitKycAndGenerateAccount() {
             
             await client.from("users").update({ bank_name: bankName, account_number: accNo, account_name: accName }).eq("id", currentUser.id);
             showBankDetails(bankName, accNo, accName);
-            document.getElementById("kycModal").style.display = "none";
+            document.getElementById("verifyTriggerBtn").style.display = "none";
+            closeKycModal();
             alert("Virtual Account Created Successfully!");
         } else {
-            alert("API Error: " + (result.message || "Failed to generate account. Please verify your NIN/BVN details."));
-            document.getElementById("userAccountNo").innerText = "Generating...";
+            alert("API Error: " + (result.message || "Failed to generate account. Make sure your NIN/BVN matches your email name."));
+            document.getElementById("userAccountNo").innerText = "NIN/BVN Required";
         }
     } catch (e) {
-        alert("Network connectivity issue. Please try again later.");
-        document.getElementById("userAccountNo").innerText = "Generating...";
+        alert("Network connectivity issue. Please try again.");
+        document.getElementById("userAccountNo").innerText = "NIN/BVN Required";
     }
 }
 
@@ -311,27 +329,4 @@ async function processOrder(){
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": "Bearer 988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515" },
             body: JSON.stringify({ 
-                request_ref: "REF_ORD_" + Date.now(), 
-                phone: phone, 
-                network: network.toLowerCase(), 
-                variation_code: selectedPlan.variation_code, 
-                plan_id: selectedPlan.plan_id, 
-                ported_no: false, 
-                pin: "2098" 
-            })
-        });
-        const result = await response.json();
-        if(result.status === "ok" || result.success === true){
-            const newBalance = currentBalance - cost;
-            const orderTypeLabel = selectedPlan.type === "data" ? "Data" : "Voice Bundle";
-            
-            await client.from("users").update({ balance: newBalance }).eq("id", currentUser.id);
-            await client.from("transactions").insert([{ user_id: currentUser.id, type: orderTypeLabel, details: `${network} ${selectedPlan.name.split(' - ')[0]} to ${phone}`, amount: cost, status: "Success" }]);
-            
-            alert(`${orderTypeLabel} purchased successfully!`);
-            document.getElementById("transactionPin").value = ""; 
-            loadUserData(currentUser.id); 
-            loadTransactions(currentUser.id);
-        } else { alert(result.message || "Transaction failed"); }
-    } catch(e) { alert("Network Error"); }
-}
+                request_ref: "REF_ORD_" + Date.now
