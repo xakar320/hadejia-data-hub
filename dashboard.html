@@ -87,11 +87,11 @@ const securewavePublicKey = "988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515";
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 let currentUser = null;
 let currentBalance = 0;
-let currentServiceType = "data"; 
+let currentServiceType = "data"; // Zai iya zama 'data' ko 'voice'
 
+// === RUKUNIN BAYANAN DATA PLANS ===
 const dataPlans = {
     MTN: [
-        // === MTN DATA PLANS ===
         { name: "1GB Daily Awoof (Air) - ₦300", price: 300, plan_id: "26117253", variation_code: "26117253" },
         { name: "MTN 1GB 7days - ₦450", price: 450, plan_id: "26117607", variation_code: "mtn-tr-1gb-7days" },
         { name: "MTN 500MB 30days - ₦350", price: 350, plan_id: "26117598", variation_code: "mtn-tr-500mb" },
@@ -107,13 +107,7 @@ const dataPlans = {
         { name: "MTN 2GB 7days - ₦800", price: 800, plan_id: "26117608", variation_code: "mtn-tr-2gb-7days" },
         { name: "MTN 3GB 7days - ₦1200", price: 1200, plan_id: "26117609", variation_code: "mtn-tr-3gb-7days" },
         { name: "MTN 5GB 7days - ₦2000", price: 2000, plan_id: "26117610", variation_code: "mtn-tr-5gb-7days" },
-        { name: "XtraTalk Monthly - ₦1550", price: 1550, plan_id: "26117208", variation_code: "mtn-xtra-750mb-monthly" },
-        
-        // === MTN VOICE BUNDLES ===
-        { name: "₦120 MTN Voice Bundle (7 Days)", price: 120, plan_id: "26117793", variation_code: "400_7days" },
-        { name: "₦270 MTN Voice Bundle (7 Days)", price: 270, plan_id: "26117789", variation_code: "1000_7days" },
-        { name: "₦1050 MTN Voice Bundle (14 Days)", price: 1050, plan_id: "26117790", variation_code: "4000_14days" },
-        { name: "₦2050 MTN Voice Bundle (14 Days)", price: 2050, plan_id: "26117791", variation_code: "8000_14days" }
+        { name: "XtraTalk Monthly - ₦1550", price: 1550, plan_id: "26117208", variation_code: "mtn-xtra-750mb-monthly" }
     ],
     AIRTEL: [ 
         { name: "Awoof (Social) 1GB 3-Days - ₦370", price: 370, plan_id: "26117382", variation_code: "PlanAWOOF_26" },
@@ -127,13 +121,7 @@ const dataPlans = {
         { name: "Weekly Plan 500 MB (7 Days) - ₦500", price: 500, plan_id: "26117350", variation_code: "Weekly_Plan_500" },
         { name: "Social Plan 1.5 GB (7 Days) - ₦550", price: 550, plan_id: "26117351", variation_code: "Social_Plan_500" },
         { name: "Weekly Plan 1.0 GB (7 Days) - ₦800", price: 800, plan_id: "26117352", variation_code: "Weekly_Plan_800" },
-        { name: "Weekly Plan 4 GB (7 Days) - ₦1550", price: 1550, plan_id: "26117354", variation_code: "Weekly_Plan_1500" },
-        { name: "₦100 Voice Bundle (10 Mins)", price: 100, plan_id: "26117794", variation_code: "TalkMore_100" },
-        { name: "₦200 Voice Bundle (20 Mins)", price: 200, plan_id: "26117795", variation_code: "TalkMore_200" },
-        { name: "₦300 Voice Bundle (30 Mins)", price: 300, plan_id: "26117796", variation_code: "TalkMore_300" },
-        { name: "₦500 Voice Bundle (50 Mins)", price: 500, plan_id: "26117797", variation_code: "TalkMore_500" },
-        { name: "₦1000 Voice Bundle (100 Mins)", price: 1000, plan_id: "26117798", variation_code: "26117798" },
-        { name: "₦1500 Voice Bundle (150 Mins)", price: 1500, plan_id: "26117799", variation_code: "TalkMore_1500" }
+        { name: "Weekly Plan 4 GB (7 Days) - ₦1550", price: 1550, plan_id: "26117354", variation_code: "Weekly_Plan_1500" }
     ],
     GLO: [ 
         { name: "10GB Monthly (8GB + 2GB) - ₦3200", price: 3200, plan_id: "26117519", variation_code: "26117519" },
@@ -148,7 +136,25 @@ const dataPlans = {
     ]
 };
 
-
+// === RUKUNIN BAYANAN VOICE PLANS ===
+const voicePlans = {
+    MTN: [
+        { name: "₦120 MTN Voice Bundle (7 Days)", price: 120, plan_id: "26117793", variation_code: "400_7days" },
+        { name: "₦270 MTN Voice Bundle (7 Days)", price: 270, plan_id: "26117789", variation_code: "1000_7days" },
+        { name: "₦1050 MTN Voice Bundle (14 Days)", price: 1050, plan_id: "26117790", variation_code: "4000_14days" },
+        { name: "₦2050 MTN Voice Bundle (14 Days)", price: 2050, plan_id: "26117791", variation_code: "8000_14days" }
+    ],
+    AIRTEL: [
+        { name: "₦100 Voice Bundle (10 Mins)", price: 100, plan_id: "26117794", variation_code: "TalkMore_100" },
+        { name: "₦200 Voice Bundle (20 Mins)", price: 200, plan_id: "26117795", variation_code: "TalkMore_200" },
+        { name: "₦300 Voice Bundle (30 Mins)", price: 300, plan_id: "26117796", variation_code: "TalkMore_300" },
+        { name: "₦500 Voice Bundle (50 Mins)", price: 500, plan_id: "26117797", variation_code: "TalkMore_500" },
+        { name: "₦1000 Voice Bundle (100 Mins)", price: 1000, plan_id: "26117798", variation_code: "26117798" },
+        { name: "₦1500 Voice Bundle (150 Mins)", price: 1500, plan_id: "26117799", variation_code: "TalkMore_1500" }
+    ],
+    GLO: [],
+    "9MOBILE": []
+};
 
 async function checkUser(){
     const { data: { session } } = await client.auth.getSession();
@@ -260,16 +266,16 @@ function changeDataPlans(){
     const dataPlanSelect = document.getElementById("dataPlan");
     dataPlanSelect.innerHTML = "";
     
-    const filteredPlans = dataPlans[network].filter(plan => plan.type === currentServiceType);
+    // Anan tsohon tsarinka zai duba wani irin sabis ne aka danna
+    const activePlans = (currentServiceType === "data") ? dataPlans[network] : voicePlans[network];
     
-    if(filteredPlans.length === 0) {
+    if(!activePlans || activePlans.length === 0) {
         dataPlanSelect.innerHTML = `<option value="">No package available</option>`;
         return;
     }
 
-    filteredPlans.forEach((plan) => {
-        const originalIndex = dataPlans[network].indexOf(plan);
-        dataPlanSelect.innerHTML += `<option value="${originalIndex}">${plan.name}</option>`;
+    activePlans.forEach((plan, index) => {
+        dataPlanSelect.innerHTML += `<option value="${index}">${plan.name}</option>`;
     });
 }
 document.getElementById("dataNetwork").addEventListener("change", changeDataPlans);
@@ -280,15 +286,18 @@ async function processOrder(){
     const phone = document.getElementById("dataPhone").value;
     const pin = document.getElementById("transactionPin").value;
     
-    if(!planIndex) { alert("Please select a valid plan"); return; }
+    if(planIndex === "" || planIndex === null) { alert("Please select a valid plan"); return; }
     if(phone.length < 11){ alert("Please enter a valid phone number"); return; }
     if(!pin){ alert("Please enter your transaction PIN"); return; }
     
-    const selectedPlan = dataPlans[network][planIndex];
+    // Nemo tsarin daidai daga rukunin da ke raye
+    const selectedPlan = (currentServiceType === "data") ? dataPlans[network][planIndex] : voicePlans[network][planIndex];
+    if(!selectedPlan) { alert("Plan selection error!"); return; }
+    
     const cost = selectedPlan.price;
     if(currentBalance < cost){ alert("Insufficient funds!"); return; }
 
-    const apiUrl = selectedPlan.type === "data" ? "https://autosyncng.com/api/data/transfer" : "https://autosyncng.com/api/voice/transfer";
+    const apiUrl = (currentServiceType === "data") ? "https://autosyncng.com/api/data/transfer" : "https://autosyncng.com/api/voice/transfer";
 
     try{
         const response = await fetch(apiUrl, {
@@ -307,7 +316,7 @@ async function processOrder(){
         const result = await response.json();
         if(result.status === "ok" || result.success === true){
             const newBalance = currentBalance - cost;
-            const orderTypeLabel = selectedPlan.type === "data" ? "Data" : "Voice Bundle";
+            const orderTypeLabel = (currentServiceType === "data") ? "Data" : "Voice Bundle";
             
             await client.from("users").update({ balance: newBalance }).eq("id", currentUser.id);
             await client.from("transactions").insert([{ user_id: currentUser.id, type: orderTypeLabel, details: `${network} ${selectedPlan.name.split(' - ')[0]} to ${phone}`, amount: cost, status: "Success" }]);
@@ -326,4 +335,10 @@ async function loadTransactions(userId){
     if(!data || data.length === 0){ listDiv.innerHTML = `<div class="transactionItem" style="justify-content:center; border:none; color:#888;">No transactions yet</div>`; return; }
     data.forEach(tx => {
         const dateFormatted = new Date(tx.created_at).toLocaleString();
-        listDiv.innerHTML += `<div class="tran
+        listDiv.innerHTML += `<div class="transactionItem"><div class="txDetails"><span class="txType">${tx.type}</span><span class="txInfo">${tx.details}</span><span class="txDate">${dateFormatted}</span></div><div class="txAmount">-₦${Number(tx.amount).toLocaleString()}</div></div>`;
+    });
+}
+
+async function logoutUser(){ await client.auth.signOut(); window.location.href = "/"; }
+
+window.ad
