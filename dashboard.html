@@ -91,15 +91,15 @@ let currentServiceType = "data";
 
 const dataPlans = {
     MTN: [
-        // MTN GIFTING DATA (Daidai yadda ka bayar)
-        { name: "MTN 1GB Daily Awoof - ₦300", price: 300, plan_id: "26117253", variation_code: "26117253", type: "data" },
-        { name: "MTN 2GB 2 Day - ₦800", price: 800, plan_id: "26117150", variation_code: "mtn-2gb-day", type: "data" },
-        { name: "MTN 500MB Daily - ₦400", price: 400, plan_id: "26117200", variation_code: "mtn-500mb-daily", type: "data" },
-        { name: "MTN 2.5GB Daily - ₦800", price: 800, plan_id: "26117156", variation_code: "mtn-25gb-awoof", type: "data" },
-        { name: "MTN 3.2GB 2-Day - ₦1100", price: 1100, plan_id: "26117176", variation_code: "mtn-32gb-awoof", type: "data" },
-        { name: "MTN XtraTalk 117mins + 580MB - ₦1550", price: 1550, plan_id: "26117208", variation_code: "mtn-xtra-750mb-monthly", type: "data" },
+        // === MTN GIFTING DATA ===
+        { name: "1GB Daily Awoof (Air) - ₦300", price: 300, plan_id: "26117253", variation_code: "26117253", type: "data" },
+        { name: "2GB 2 Day - ₦800", price: 800, plan_id: "26117150", variation_code: "mtn-2gb-day", type: "data" },
+        { name: "500MB Daily - ₦400", price: 400, plan_id: "26117200", variation_code: "mtn-500mb-daily", type: "data" },
+        { name: "2.5GB Daily - ₦800", price: 800, plan_id: "26117156", variation_code: "mtn-25gb-awoof", type: "data" },
+        { name: "3.2GB 2-Day - ₦1100", price: 1100, plan_id: "26117176", variation_code: "mtn-32gb-awoof", type: "data" },
+        { name: "XtraTalk 117mins + 580MB + 10 SMS Monthly - ₦1550", price: 1550, plan_id: "26117208", variation_code: "mtn-xtra-750mb-monthly", type: "data" },
         
-        // MTN TRANSFER DATA (Daidai yadda ka bayar)
+        // === MTN TRANSFER DATA ===
         { name: "MTN 1GB 7days - ₦450", price: 450, plan_id: "26117607", variation_code: "mtn-tr-1gb-7days", type: "data" },
         { name: "MTN 500MB 7days - ₦350", price: 350, plan_id: "26117606", variation_code: "mtn-tr-500mb-7days", type: "data" },
         { name: "MTN 500MB 30days - ₦400", price: 400, plan_id: "26117598", variation_code: "mtn-tr-500mb", type: "data" },
@@ -111,14 +111,13 @@ const dataPlans = {
         { name: "MTN 3GB 30days - ₦1710", price: 1710, plan_id: "26117601", variation_code: "mtn-tr-3gb", type: "data" },
         { name: "MTN 5GB 30days - ₦2850", price: 2850, plan_id: "26117602", variation_code: "mtn-tr-5gb", type: "data" },
         
-        // MTN Voice Bundles (An dawo da duka zaɓukan)
+        // === MTN VOICE BUNDLES ===
         { name: "₦120 MTN Voice Bundle (7 Days)", price: 120, plan_id: "26117793", variation_code: "400_7days", type: "voice" },
         { name: "₦270 MTN Voice Bundle (7 Days)", price: 270, plan_id: "26117789", variation_code: "1000_7days", type: "voice" },
         { name: "₦1050 MTN Voice Bundle (14 Days)", price: 1050, plan_id: "26117790", variation_code: "4000_14days", type: "voice" },
         { name: "₦2050 MTN Voice Bundle (14 Days)", price: 2050, plan_id: "26117791", variation_code: "8000_14days", type: "voice" }
     ],
     AIRTEL: [ 
-        // Asalin tsarin data na Airtel na tsohon kodinka lafiyayye
         { name: "Awoof (Social) 1GB 3-Days - ₦370", price: 370, plan_id: "26117382", variation_code: "PlanAWOOF_26", type: "data" },
         { name: "Awoof 1.5GB 1-Day - ₦450", price: 450, plan_id: "26117381", variation_code: "AWOOF_25", type: "data" },
         { name: "Awoof 2GB 2 Days - ₦700", price: 700, plan_id: "26117386", variation_code: "AWOOF_31", type: "data" },
@@ -131,8 +130,6 @@ const dataPlans = {
         { name: "Social Plan 1.5 GB (7 Days) - ₦550", price: 550, plan_id: "26117351", variation_code: "Social_Plan_500", type: "data" },
         { name: "Weekly Plan 1.0 GB (7 Days) - ₦800", price: 800, plan_id: "26117352", variation_code: "Weekly_Plan_800", type: "data" },
         { name: "Weekly Plan 4 GB (7 Days) - ₦1550", price: 1550, plan_id: "26117354", variation_code: "Weekly_Plan_1500", type: "data" },
-        
-        // Airtel Voice Bundles (An dawo da duka zaɓukan lafiya)
         { name: "₦100 Voice Bundle (10 Mins)", price: 100, plan_id: "26117794", variation_code: "TalkMore_100", type: "voice" },
         { name: "₦200 Voice Bundle (20 Mins)", price: 200, plan_id: "26117795", variation_code: "TalkMore_200", type: "voice" },
         { name: "₦300 Voice Bundle (30 Mins)", price: 300, plan_id: "26117796", variation_code: "TalkMore_300", type: "voice" },
@@ -326,4 +323,7 @@ async function processOrder(){
 async function loadTransactions(userId){
     const { data } = await client.from("transactions").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(10);
     const listDiv = document.getElementById("transactionList"); listDiv.innerHTML = "";
-    if(!data || data.length === 0){ listDiv.innerHTML = `<div class="transactionItem" style="justify-content:center; border:none; c
+    if(!data || data.length === 0){ listDiv.innerHTML = `<div class="transactionItem" style="justify-content:center; border:none; color:#888;">No transactions yet</div>`; return; }
+    data.forEach(tx => {
+        const dateFormatted = new Date(tx.created_at).toLocaleString();
+        listDiv.innerHTML += `<div class="tran
