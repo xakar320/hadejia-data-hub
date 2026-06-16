@@ -177,7 +177,7 @@ async function loadUserData(userId){
         if(data.is_admin === true || currentUser.email === "xakar2@gmail.com") {
             document.getElementById("adminLinkBtn").style.display = "block";
         }
-        if(data.account_number && data.account_number !== "Generating...") {
+        if(data.account_number) {
             showBankDetails(data.bank_name, data.account_number, data.account_name);
         } else {
             generateVirtualAccount(userId, currentUser.email);
