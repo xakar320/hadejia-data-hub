@@ -193,36 +193,109 @@ function showBankDetails(bank, num, name) {
 
 // KIRAN KAI TSAYE ZUWA SECUREWAVE DON VIRTUAL ACCOUNT
 async function generateVirtualAccount(userId, userEmail) {
-    const username = userEmail.split('@')[0].toUpperCase();
-    try {
-        const response = await fetch("https://api.securewaveng.com/v1/virtual-accounts", {
-            method: "POST",
-            headers: { 
-                "Content-Type": "application/json", 
-                "Authorization": `Bearer ${securewaveSecretKey}` 
-            },
-            body: JSON.stringify({ 
-                email: userEmail, 
-                first_name: username, 
-                last_name: "HDH", 
-                phone: "08000000000",
-                bank: "moniepoint"
-            })
-        });
-        const result = await response.json();
-        
-        if((result.status === "success" || result.status === true) && result.data && result.data.account_number) {
-            const bankName = result.data.bank_name || "Moniepoint";
-            const accNo = result.data.account_number;
-            const accName = result.data.account_name;
-            await client.from("users").update({ bank_name: bankName, account_number: accNo, account_name: accName }).eq("id", userId);
-            showBankDetails(bankName, accNo, accName);
-        } else {
-            createBackupAccount(userId, username);
-        }
-    } catch (e) {
-        createBackupAccount(userId, username);
-    }
+
+const username =
+userEmail.split("@")[0].toUpperCase();
+
+try {
+
+const response = await fetch(
+"https://api.securewaveng.com/api/v1/virtual-account",
+{
+method: "POST",
+
+headers: {
+"Content-Type": "application/json",
+"Authorization": securewaveSecretKey
+},
+
+body: JSON.stringify({
+
+email: userEmail,
+
+first_name: username,
+
+last_name: "HDH",
+
+phone: "08000000000"
+
+})
+
+}
+);
+
+const result = await response.json();
+
+console.log(result);
+
+
+
+// SUCCESS
+if (
+result.status === true ||
+result.success === true
+) {
+
+const accountData =
+result.data;
+
+const bankName =
+accountData.bank_name ||
+"Moniepoint";
+
+const accountNumber =
+accountData.account_number;
+
+const accountName =
+accountData.account_name;
+
+
+
+// SAVE TO SUPABASE
+await client
+.from("users")
+.update({
+
+bank_name: bankName,
+
+account_number: accountNumber,
+
+account_name: accountName
+
+})
+.eq("id", userId);
+
+
+
+// SHOW
+showBankDetails(
+bankName,
+accountNumber,
+accountName
+);
+
+} else {
+
+console.log(result);
+
+createBackupAccount(
+userId,
+username
+);
+
+}
+
+} catch (error) {
+
+console.log(error);
+
+createBackupAccount(
+userId,
+username
+);
+
+}
+
 }
 
 async function createBackupAccount(userId, username) {
