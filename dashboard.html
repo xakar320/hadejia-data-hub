@@ -16,10 +16,11 @@ body{ background:#f3f5f9; padding:15px; }
 .balanceBox{ margin-top:25px; }
 .balanceTitle{ font-size:18px; }
 .balance{ font-size:45px; font-weight:bold; margin-top:10px; }
-.bank-card{ background: linear-gradient(135deg, #e69500, #b37400); color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-.bank-title { font-size: 14px; font-weight: bold; text-transform: uppercase; opacity: 0.9; }
-.bank-num { font-size: 28px; font-weight: bold; margin: 10px 0; letter-spacing: 1px; }
-.bank-det { font-size: 15px; opacity: 0.95; display: flex; justify-content: space-between; }
+.bank-card{ background: linear-gradient(135deg, #111, #333); color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: none; }
+.bank-title { font-size: 14px; font-weight: bold; text-transform: uppercase; opacity: 0.9; color: #ffc107; }
+.bank-num { font-size: 28px; font-weight: bold; margin: 10px 0; letter-spacing: 1px; color: #fff; }
+.bank-det { font-size: 15px; opacity: 0.95; display: flex; flex-direction: column; gap: 5px; }
+.countdown { color: #ff6b6b; font-weight: bold; margin-top: 5px; }
 .services{ display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px; }
 .service{ background:white; padding:20px; border-radius:20px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.08); transition: transform 0.2s; cursor:pointer; }
 .service:active { transform: scale(0.95); }
@@ -29,12 +30,13 @@ body{ background:#f3f5f9; padding:15px; }
 .cardTitle{ font-size:24px; font-weight:bold; color:green; margin-bottom:15px; }
 select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #ccc; margin-top:12px; font-size:16px; outline:none; }
 .mainBtn{ width:100%; padding:15px; border:none; border-radius:12px; background:linear-gradient(135deg, green, limegreen); color:white; font-size:20px; font-weight:bold; margin-top:15px; cursor:pointer; }
+.fundBtn { background: linear-gradient(135deg, #e69500, #b37400); }
 .transactionItem{ padding:15px; background:#f9f9f9; border-radius:12px; margin-top:10px; display:flex; justify-content:space-between; align-items:center; border-left: 5px solid green; }
 .txDetails{ display:flex; flex-direction:column; }
 .txType{ font-weight:bold; color:#333; }
 .txInfo{ font-size:14px; color:#666; margin-top:3px; }
 .txDate{ font-size:11px; color:#999; margin-top:3px; }
-.txAmount{ font-weight:bold; color:red; font-size:16px; }
+.txAmount{ font-weight:bold; font-size:16px; }
 </style>
 </head>
 <body>
@@ -51,13 +53,22 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
     </div>
 </div>
 
-<div class="bank-card" id="bankCardSection" style="display: block;">
-    <div class="bank-title">🏧 Automatic Wallet Funding</div>
-    <div class="bank-num" id="userAccountNo">Generating...</div>
+<!-- Sashen Nuna Asusun Dynamic Bayan An Nemo -->
+<div class="bank-card" id="dynamicBankCard">
+    <div class="bank-title">⚠️ TEMPORARY DEPOSIT ACCOUNT</div>
+    <div class="bank-num" id="dynAccountNo">0000000000</div>
     <div class="bank-det">
-        <span id="userBankName">Bank: Loading...</span>
-        <span id="userAccountName">Account Name: Loading...</span>
+        <span id="dynBankName">Bank: Safehaven</span>
+        <span id="dynAccountName">Name: Securewaveng Checkout</span>
+        <span id="dynAmountToPay" style="font-weight: bold; color: #ffc107;">Amount to Transfer: ₦0</span>
+        <span class="countdown" id="dynExpiry">Expires in: 15:00</span>
     </div>
+</div>
+
+<div class="card" id="fundingInputSection">
+    <div class="cardTitle">💰 Fund Wallet</div>
+    <input type="number" id="fundAmount" placeholder="Enter Amount to Deposit (₦)">
+    <button class="mainBtn fundBtn" id="generateAccountBtn" onclick="requestDynamicAccount()">Generate Payment Account</button>
 </div>
 
 <div class="services">
@@ -85,12 +96,14 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const autosyncApiKey = "988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515";
 const securewaveSecretKey = "170740381166ce1cf45926c";
+const securewavePublicKey = "YOUR_PUBLIC_KEY"; // Saka public key idan kana da shi, idan babu zai yi amfani da secret key din
 const securewaveBusinessId = "9028328c2c71c30ca995df28728710";
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 let currentUser = null;
 let currentBalance = 0;
 let currentServiceType = "data";
+let timerInterval = null;
 
 const dataPlans = {
     MTN: [
@@ -119,42 +132,99 @@ async function checkUser(){
     currentUser = session.user;
     await loadUserData(currentUser.id);
     await loadTransactions(currentUser.id);
-    checkIncomingFunds(currentUser.email);
+    setInterval(() => checkIncomingFunds(currentUser.email), 10000); // Duba kuɗi kowane daƙiƙa 10
 }
 
 async function loadUserData(userId){
-    const { data } = await client.from("users").select("balance, is_admin, bank_name, account_number, account_name, phone").eq("id", userId).single();
+    const { data } = await client.from("users").select("balance, is_admin, phone, account_name").eq("id", userId).single();
     if(data){
         currentBalance = Number(data.balance);
         document.getElementById("walletBalance").innerText = "₦" + currentBalance.toLocaleString();
         if(data.is_admin === true || currentUser.email === "xakar2@gmail.com") {
             document.getElementById("adminLinkBtn").style.display = "block";
         }
-        
-        // Tura shi kai tsaye ya nuna ainihin asusunka na Kolomoni MFB
-        showBankDetails(data.bank_name || "Kolomoni MFB", data.account_number || "0993320835", data.account_name || "SECUREWAVENG/Yau Usman");
-        
-        // Idan babu shi adane a database, a saka shi
-        if(!data.account_number) {
-            createBackupAccount(userId);
-        }
+        currentUser.phone = data.phone;
+        currentUser.fullName = data.account_name;
     }
 }
 
-function showBankDetails(bank, num, name) {
-    document.getElementById("userAccountNo").innerText = num;
-    document.getElementById("userBankName").innerText = "Bank: " + bank.toUpperCase();
-    document.getElementById("userAccountName").innerText = "Name: " + name;
+async function requestDynamicAccount() {
+    const amount = document.getElementById("fundAmount").value;
+    if(!amount || amount <= 0) { alert("Please enter a valid amount!"); return; }
+    
+    const btn = document.getElementById("generateAccountBtn");
+    btn.innerText = "Generating Account...";
+    btn.disabled = true;
+
+    const nameParts = currentUser.fullName ? currentUser.fullName.split(" ") : ["User", "Customer"];
+    const firstName = nameParts[0] || "User";
+    const lastName = nameParts[1] || "Customer";
+    const userPhone = currentUser.phone || "08012345678";
+
+    try {
+        const response = await fetch("https://securewaveng.com/api/v1/dynamic_accounts/generate", {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json", 
+                "Authorization": `Bearer ${securewaveSecretKey}`,
+                "x-api-key": securewavePublicKey !== "YOUR_PUBLIC_KEY" ? securewavePublicKey : securewaveSecretKey
+            },
+            body: JSON.stringify({ 
+                email: currentUser.email,
+                first_name: firstName,
+                last_name: lastName,
+                phone_number: userPhone,
+                bank_code: [3], 
+                business_id: securewaveBusinessId,
+                account_type: "dynamic",
+                amount: Number(amount)
+            })
+        });
+        
+        const result = await response.json();
+        btn.innerText = "Generate Payment Account";
+        btn.disabled = false;
+
+        if((result.status === true || result.status === "success") && result.data && result.data[0]) {
+            const acc = result.data[0];
+            document.getElementById("dynAccountNo").innerText = acc.account_number;
+            document.getElementById("dynBankName").innerText = "Bank: " + acc.account_bank;
+            document.getElementById("dynAccountName").innerText = "Name: " + acc.account_name;
+            document.getElementById("dynAmountToPay").innerText = "Amount to Transfer: ₦" + Number(acc.amount_to_pay).toLocaleString();
+            
+            document.getElementById("dynamicBankCard").style.display = "block";
+            startCountdown(acc.expires || 900);
+            alert("An samar da asusun banki! Tura daidai adadin kudin dake kai kafin lokaci ya cika.");
+        } else {
+            alert(result.message || "Failed to generate dynamic account. Try again.");
+        }
+    } catch(e) {
+        btn.innerText = "Generate Payment Account";
+        btn.disabled = false;
+        alert("Network Error occurred while communicating with Securewave.");
+    }
 }
 
-async function createBackupAccount(userId) {
-    // Saita asusunka na gaske a matsayin madadin asusu tabbatacce
-    const bankName = "Kolomoni MFB";
-    const accNo = "0993320835";
-    const accName = "SECUREWAVENG/Yau Usman";
-    
-    await client.from("users").update({ bank_name: bankName, account_number: accNo, account_name: accName }).eq("id", userId);
-    showBankDetails(bankName, accNo, accName);
+function startCountdown(seconds) {
+    if(timerInterval) clearInterval(timerInterval);
+    let timeRemaining = seconds;
+    const display = document.getElementById("dynExpiry");
+
+    timerInterval = setInterval(() => {
+        let minutes = Math.floor(timeRemaining / 60);
+        let secs = timeRemaining % 60;
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        secs = secs < 10 ? "0" + secs : secs;
+        
+        display.innerText = `Expires in: ${minutes}:${secs}`;
+        timeRemaining--;
+
+        if (timeRemaining < 0) {
+            clearInterval(timerInterval);
+            display.innerText = "Expired! Generate a new account.";
+            document.getElementById("dynamicBankCard").style.display = "none";
+        }
+    }, 1000);
 }
 
 async function checkIncomingFunds(userEmail) {
@@ -167,17 +237,21 @@ async function checkIncomingFunds(userEmail) {
             const payload = log.body;
             if(!payload) return;
             
-            const customerEmail = payload.customer?.email || payload.email;
+            const customerEmail = payload.customer?.email || payload.email || payload.account_email;
             const amountPaid = Number(payload.amount);
             const status = payload.notification_status || payload.status;
-            const transactionRef = payload.provider_reference || payload.transaction_id || "REF_" + Date.now();
+            const transactionRef = payload.provider_reference || payload.transaction_id || payload.account_reference || "REF_" + Date.now();
 
-            if (customerEmail === userEmail && (status === "payment_success" || status === "success")) {
+            if (customerEmail === userEmail && (status === "payment_success" || status === "success" || status === 1)) {
                 const { data: alreadyProcessed } = await client.from("transactions").select("id").eq("details", `Ref: ${transactionRef}`).maybeSingle();
                 if (!alreadyProcessed) {
                     const updatedBalance = currentBalance + amountPaid;
                     await client.from("users").update({ balance: updatedBalance }).eq("id", currentUser.id);
                     await client.from("transactions").insert([{ user_id: currentUser.id, type: "Wallet Funding", details: `Ref: ${transactionRef}`, amount: amountPaid, status: "Success" }]);
+                    
+                    document.getElementById("dynamicBankCard").style.display = "none";
+                    if(timerInterval) clearInterval(timerInterval);
+                    
                     loadUserData(currentUser.id);
                     loadTransactions(currentUser.id);
                     alert(`₦${amountPaid.toLocaleString()} ya shigo asusunka lafiya!`);
@@ -243,7 +317,9 @@ async function loadTransactions(userId){
     if(!data || data.length === 0){ listDiv.innerHTML = `<div class="transactionItem" style="justify-content:center; border:none; color:#888;">No transactions yet</div>`; return; }
     data.forEach(tx => {
         const dateFormatted = new Date(tx.created_at).toLocaleString();
-        listDiv.innerHTML += `<div class="transactionItem"><div class="txDetails"><span class="txType">${tx.type}</span><span class="txInfo">${tx.details}</span><span class="txDate">${dateFormatted}</span></div><div class="txAmount">-₦${Number(tx.amount).toLocaleString()}</div></div>`;
+        const color = tx.type === "Wallet Funding" ? "green" : "red";
+        const sign = tx.type === "Wallet Funding" ? "+" : "-";
+        listDiv.innerHTML += `<div class="transactionItem" style="border-left: 5px solid ${color}"><div class="txDetails"><span class="txType">${tx.type}</span><span class="txInfo">${tx.details}</span><span class="txDate">${dateFormatted}</span></div><div class="txAmount" style="color:${color}">${sign}₦${Number(tx.amount).toLocaleString()}</div></div>`;
     });
 }
 
