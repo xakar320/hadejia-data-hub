@@ -36,6 +36,7 @@ input:focus{ border-color:green; }
         <button id="registerTab" onclick="switchTab('register')">Register</button>
     </div>
 
+    <!-- LOGIN FORM -->
     <div id="loginForm" class="form-box active">
         <input type="email" id="loginEmail" placeholder="Enter Email Address">
         <input type="password" id="loginPassword" placeholder="Enter Password">
@@ -43,7 +44,9 @@ input:focus{ border-color:green; }
         <div id="loginLoading" class="loading">Processing Login...</div>
     </div>
 
+    <!-- REGISTER FORM -->
     <div id="registerForm" class="form-box">
+        <input type="text" id="registerName" placeholder="Enter Full Name (e.g. Aliyu Musa)">
         <input type="email" id="registerEmail" placeholder="Enter Email Address">
         <input type="number" id="registerPhone" placeholder="Enter Phone Number (e.g. 08123456789)">
         <input type="password" id="registerPassword" placeholder="Create Password">
@@ -85,10 +88,16 @@ async function login(){
 
 async function register(){
     document.getElementById("registerLoading").style.display = "block";
+    const fullName = document.getElementById("registerName").value;
     const email = document.getElementById("registerEmail").value;
     const phoneInput = document.getElementById("registerPhone").value;
     const password = document.getElementById("registerPassword").value;
 
+    if(!fullName || fullName.trim().length < 3) {
+        alert("Please enter a valid full name");
+        document.getElementById("registerLoading").style.display = "none";
+        return;
+    }
     if(!phoneInput || phoneInput.length < 11) {
         alert("Please enter a valid 11-digit phone number");
         document.getElementById("registerLoading").style.display = "none";
@@ -104,11 +113,13 @@ async function register(){
     }
 
     if(data && data.user) {
-        const { error: dbError } = await client.from("users").insert([{
+        // Muna amfani da upsert maimakon insert don magance matsalar duplicate pkey
+        const { error: dbError } = await client.from("users").upsert([{
             id: data.user.id,
             email: email,
             balance: 0,
-            phone: phoneInput.toString().trim()
+            phone: phoneInput.toString().trim(),
+            account_name: fullName.trim()
         }]);
 
         document.getElementById("registerLoading").style.display = "none";
