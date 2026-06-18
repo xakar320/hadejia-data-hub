@@ -150,7 +150,7 @@ async function loadUserData(userId){
 
 async function requestDynamicAccount() {
     const amount = document.getElementById("fundAmount").value;
-    if(!amount || amount <= 0) { alert("Please enter a valid amount!"); return; }
+    if(!amount || amount <= 100) { alert("Please enter an amount greater than ₦100!"); return; }
     
     const btn = document.getElementById("generateAccountBtn");
     btn.innerText = "Generating Account...";
@@ -161,10 +161,15 @@ async function requestDynamicAccount() {
     const lastName = nameParts[1] || "Customer";
     const userPhone = currentUser.phone || "08012345678";
 
+    // Muna amfani da CORS Proxy don magance toshewar burwzar na waya
+    const targetUrl = "https://securewaveng.com/api/v1/dynamic_accounts/generate";
+    const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(targetUrl);
+
     try {
-        const response = await fetch("https://securewaveng.com/api/v1/dynamic_accounts/generate", {
+        const response = await fetch(proxyUrl, {
             method: "POST",
             headers: { 
+                "Accept": "application/json",
                 "Content-Type": "application/json", 
                 "Authorization": `Bearer ${securewaveSecretKey}`,
                 "x-api-key": securewavePublicKey !== "YOUR_PUBLIC_KEY" ? securewavePublicKey : securewaveSecretKey
@@ -187,23 +192,29 @@ async function requestDynamicAccount() {
 
         if((result.status === true || result.status === "success") && result.data && result.data[0]) {
             const acc = result.data[0];
+            const finalCredit = Number(acc.amount_to_pay) - 50;
+
             document.getElementById("dynAccountNo").innerText = acc.account_number;
             document.getElementById("dynBankName").innerText = "Bank: " + acc.account_bank;
             document.getElementById("dynAccountName").innerText = "Name: " + acc.account_name;
             document.getElementById("dynAmountToPay").innerText = "Amount to Transfer: ₦" + Number(acc.amount_to_pay).toLocaleString();
             
+            document.getElementById("dynAmountToPay").innerHTML += `<br><span style="font-size:13px; color:#ff6b6b;">(₦50 fee applies. ₦${finalCredit.toLocaleString()} will be credited to your wallet)</span>`;
+            
             document.getElementById("dynamicBankCard").style.display = "block";
             startCountdown(acc.expires || 900);
-            alert("An samar da asusun banki! Tura daidai adadin kudin dake kai kafin lokaci ya cika.");
+            alert("An samar da asusun banki lafiya!");
         } else {
             alert(result.message || "Failed to generate dynamic account. Try again.");
         }
     } catch(e) {
         btn.innerText = "Generate Payment Account";
         btn.disabled = false;
-        alert("Network Error occurred while communicating with Securewave.");
+        console.error("Securewave Error:", e);
+        alert("CORS or Network Error. Proxy redirection failed.");
     }
 }
+
 
 function startCountdown(seconds) {
     if(timerInterval) clearInterval(timerInterval);
