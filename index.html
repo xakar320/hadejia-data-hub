@@ -2,547 +2,126 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hadejia Data Hub</title>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial;
-}
-
-body{
-background:linear-gradient(
-135deg,
-green,
-darkgreen
-);
-
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:20px;
-}
-
-
-
-/* CONTAINER */
-
-.container{
-width:100%;
-max-width:420px;
-background:white;
-padding:30px;
-border-radius:25px;
-box-shadow:0 5px 20px rgba(0,0,0,0.2);
-}
-
-
-
-/* LOGO */
-
-.logo{
-text-align:center;
-margin-bottom:25px;
-}
-
-.logo h1{
-color:green;
-font-size:32px;
-}
-
-.logo p{
-margin-top:5px;
-color:#555;
-}
-
-
-
-/* TABS */
-
-.tabs{
-display:flex;
-margin-bottom:20px;
-border-radius:12px;
-overflow:hidden;
-}
-
-.tabs button{
-flex:1;
-padding:15px;
-border:none;
-font-size:16px;
-font-weight:bold;
-cursor:pointer;
-background:#eee;
-}
-
-.tabs button.active{
-background:green;
-color:white;
-}
-
-
-
-/* FORM */
-
-.form{
-display:none;
-}
-
-.form.active{
-display:block;
-}
-
-
-
-/* INPUT */
-
-input{
-width:100%;
-padding:15px;
-border-radius:12px;
-border:1px solid #ccc;
-margin-top:15px;
-font-size:16px;
-outline:none;
-}
-
-
-
-/* BUTTON */
-
-.submitBtn{
-width:100%;
-padding:15px;
-border:none;
-border-radius:12px;
-background:green;
-color:white;
-font-size:18px;
-font-weight:bold;
-margin-top:20px;
-cursor:pointer;
-}
-
-.submitBtn:hover{
-opacity:0.9;
-}
-
-
-
-/* LOADING */
-
-.loading{
-display:none;
-text-align:center;
-margin-top:15px;
-color:green;
-font-weight:bold;
-}
-
+*{ margin:0; padding:0; box-sizing:border-box; font-family:Arial; }
+body{ background:linear-gradient(135deg, green, darkgreen); height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+.container{ width:100%; max-width:420px; background:white; padding:30px; border-radius:25px; box-shadow:0 5px 20px rgba(0,0,0,0.2); }
+.logo{ text-align:center; margin-bottom:25px; }
+.logo h1{ color:green; font-size:32px; }
+.logo p{ margin-top:5px; color:#555; }
+.tabs{ display:flex; margin-bottom:20px; border-radius:12px; overflow:hidden; }
+.tabs button{ flex:1; padding:15px; border:none; font-size:16px; font-weight:bold; cursor:pointer; background:#eee; color:#555; }
+.tabs button.active{ background:green; color:white; }
+.form-box{ display:none; }
+.form-box.active{ display:block; }
+input{ width:100%; padding:15px; margin-top:12px; border:1px solid #ccc; border-radius:12px; font-size:16px; outline:none; }
+input:focus{ border-color:green; }
+.submitBtn{ width:100%; padding:15px; border:none; border-radius:12px; background:linear-gradient(135deg, green, limegreen); color:white; font-size:18px; font-weight:bold; margin-top:20px; cursor:pointer; }
+.loading{ text-align:center; display:none; margin-top:10px; color:green; font-weight:bold; }
 </style>
 </head>
-
 <body>
 
-
-
 <div class="container">
+    <div class="logo">
+        <h1>Hadejia Data Hub</h1>
+        <p>Reliable Data & Telecom Services</p>
+    </div>
 
+    <div class="tabs">
+        <button id="loginTab" class="active" onclick="switchTab('login')">Login</button>
+        <button id="registerTab" onclick="switchTab('register')">Register</button>
+    </div>
 
-<!-- LOGO -->
+    <div id="loginForm" class="form-box active">
+        <input type="email" id="loginEmail" placeholder="Enter Email Address">
+        <input type="password" id="loginPassword" placeholder="Enter Password">
+        <button class="submitBtn" onclick="login()">Login</button>
+        <div id="loginLoading" class="loading">Processing Login...</div>
+    </div>
 
-<div class="logo">
-
-<h1>Hadejia Data Hub</h1>
-
-<p>Cheap & Fast VTU Services</p>
-
+    <div id="registerForm" class="form-box">
+        <input type="email" id="registerEmail" placeholder="Enter Email Address">
+        <input type="number" id="registerPhone" placeholder="Enter Phone Number (e.g. 08123456789)">
+        <input type="password" id="registerPassword" placeholder="Create Password">
+        <button class="submitBtn" onclick="register()">Create Account</button>
+        <div id="registerLoading" class="loading">Creating Account...</div>
+    </div>
 </div>
-
-
-
-<!-- TABS -->
-
-<div class="tabs">
-
-<button
-id="loginTab"
-class="active"
-onclick="showLogin()">
-
-Login
-
-</button>
-
-
-<button
-id="registerTab"
-onclick="showRegister()">
-
-Register
-
-</button>
-
-</div>
-
-
-
-
-
-<!-- LOGIN FORM -->
-
-<div
-id="loginForm"
-class="form active">
-
-<input
-type="email"
-id="loginEmail"
-placeholder="Email Address">
-
-
-<input
-type="password"
-id="loginPassword"
-placeholder="Password">
-
-
-<button
-class="submitBtn"
-onclick="login()">
-
-Login
-
-</button>
-
-<div
-class="loading"
-id="loginLoading">
-
-Logging in...
-
-</div>
-
-</div>
-
-
-
-
-
-<!-- REGISTER FORM -->
-
-<div
-id="registerForm"
-class="form">
-
-<input
-type="text"
-id="fullName"
-placeholder="Full Name">
-
-
-<input
-type="text"
-id="phoneNumber"
-placeholder="Phone Number">
-
-
-<input
-type="email"
-id="registerEmail"
-placeholder="Email Address">
-
-
-<input
-type="password"
-id="registerPassword"
-placeholder="Password">
-
-
-<button
-class="submitBtn"
-onclick="register()">
-
-Create Account
-
-</button>
-
-<div
-class="loading"
-id="registerLoading">
-
-Creating account...
-
-</div>
-
-</div>
-
-
-
-
-<!-- SUPABASE -->
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <script>
+const supabaseUrl = "https://zjenhfapfhuoogxorung.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
+const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-
-// ======================
-// SUPABASE
-// ======================
-
-const supabaseUrl =
-"https://zjenhfapfhuoogxorung.supabase.co";
-
-const supabaseKey =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
-
-const client =
-supabase.createClient(
-supabaseUrl,
-supabaseKey,
-{
-auth:{
-persistSession:true,
-autoRefreshToken:true
+function switchTab(tab){
+    if(tab === 'login'){
+        document.getElementById("loginTab").classList.add("active");
+        document.getElementById("registerTab").classList.remove("active");
+        document.getElementById("loginForm").classList.add("active");
+        document.getElementById("registerForm").classList.remove("active");
+    } else {
+        document.getElementById("registerTab").classList.add("active");
+        document.getElementById("loginTab").classList.remove("active");
+        document.getElementById("registerForm").classList.add("active");
+        document.getElementById("loginForm").classList.remove("active");
+    }
 }
-}
-);
-
-
-
-
-// ======================
-// CHECK SESSION
-// ======================
-
-window.addEventListener(
-"load",
-async()=>{
-
-const {
-data:{ session }
-
-} = await client.auth.getSession();
-
-
-
-// IF LOGIN
-if(session){
-
-window.location.href =
-"/dashboard.html";
-
-}
-
-}
-);
-
-
-
-
-// ======================
-// SHOW LOGIN
-// ======================
-
-function showLogin(){
-
-document.getElementById(
-"loginForm"
-).classList.add("active");
-
-document.getElementById(
-"registerForm"
-).classList.remove("active");
-
-document.getElementById(
-"loginTab"
-).classList.add("active");
-
-document.getElementById(
-"registerTab"
-).classList.remove("active");
-
-}
-
-
-
-// ======================
-// SHOW REGISTER
-// ======================
-
-function showRegister(){
-
-document.getElementById(
-"registerForm"
-).classList.add("active");
-
-document.getElementById(
-"loginForm"
-).classList.remove("active");
-
-document.getElementById(
-"registerTab"
-).classList.add("active");
-
-document.getElementById(
-"loginTab"
-).classList.remove("active");
-
-}
-
-
-
-
-
-// ======================
-// LOGIN
-// ======================
 
 async function login(){
+    document.getElementById("loginLoading").style.display = "block";
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
 
-document.getElementById(
-"loginLoading"
-).style.display = "block";
+    const { data, error } = await client.auth.signInWithPassword({ email, password });
+    document.getElementById("loginLoading").style.display = "none";
 
-
-
-const email =
-document.getElementById(
-"loginEmail"
-).value;
-
-const password =
-document.getElementById(
-"loginPassword"
-).value;
-
-
-
-const { data, error } =
-await client.auth.signInWithPassword({
-
-email,
-password
-
-});
-
-
-
-document.getElementById(
-"loginLoading"
-).style.display = "none";
-
-
-
-// ERROR
-if(error){
-
-alert(error.message);
-
-return;
-
+    if(error){ alert(error.message); return; }
+    window.location.href = "/dashboard.html";
 }
-
-
-
-// SUCCESS
-window.location.href =
-"/dashboard.html";
-
-}
-
-
-
-
-
-// ======================
-// REGISTER
-// ======================
 
 async function register(){
+    document.getElementById("registerLoading").style.display = "block";
+    const email = document.getElementById("registerEmail").value;
+    const phoneInput = document.getElementById("registerPhone").value;
+    const password = document.getElementById("registerPassword").value;
 
-document.getElementById(
-"registerLoading"
-).style.display = "block";
+    if(!phoneInput || phoneInput.length < 11) {
+        alert("Please enter a valid 11-digit phone number");
+        document.getElementById("registerLoading").style.display = "none";
+        return;
+    }
 
+    const { data, error } = await client.auth.signUp({ email, password });
 
+    if(error){
+        alert(error.message);
+        document.getElementById("registerLoading").style.display = "none";
+        return;
+    }
 
-const email =
-document.getElementById(
-"registerEmail"
-).value;
+    if(data && data.user) {
+        const { error: dbError } = await client.from("users").insert([{
+            id: data.user.id,
+            email: email,
+            balance: 0,
+            phone: phoneInput.toString().trim()
+        }]);
 
-const password =
-document.getElementById(
-"registerPassword"
-).value;
+        document.getElementById("registerLoading").style.display = "none";
 
+        if(dbError) {
+            alert("Database Error: " + dbError.message);
+            return;
+        }
 
-
-const { data, error } =
-await client.auth.signUp({
-
-email,
-password
-
-});
-
-
-
-document.getElementById(
-"registerLoading"
-).style.display = "none";
-
-
-
-// ERROR
-if(error){
-
-alert(error.message);
-
-return;
-
+        alert("Account created successfully! Please login.");
+        switchTab('login');
+    }
 }
-
-
-
-// CREATE USER WALLET
-await client
-.from("users")
-.insert([{
-
-id:data.user.id,
-
-email:email,
-
-balance:0
-
-}]);
-
-
-
-alert(
-"Account Created Successfully"
-);
-
-
-
-// GO TO DASHBOARD
-window.location.href =
-"/dashboard.html";
-
-}
-
 </script>
-
 </body>
 </html>
