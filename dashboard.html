@@ -52,7 +52,7 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
 </div>
 
 <div class="bank-card" id="bankCardSection" style="display: block;">
-    <div class="bank-title">🏧 Automatic Wallet Funding (Moniepoint)</div>
+    <div class="bank-title">🏧 Automatic Wallet Funding</div>
     <div class="bank-num" id="userAccountNo">Generating...</div>
     <div class="bank-det">
         <span id="userBankName">Bank: Loading...</span>
@@ -84,8 +84,8 @@ const supabaseUrl = "https://zjenhfapfhuoogxorung.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
 
 const autosyncApiKey = "988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515";
-const securewaveSecretKey = "170740381166ce1cf45926c";[span_0](start_span)[span_0](end_span)
-const securewaveBusinessId = "9028328c2c71c30ca995df28728710";[span_1](start_span)[span_1](end_span)
+const securewaveSecretKey = "170740381166ce1cf45926c";
+const securewaveBusinessId = "9028328c2c71c30ca995df28728710";
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 let currentUser = null;
@@ -131,11 +131,12 @@ async function loadUserData(userId){
             document.getElementById("adminLinkBtn").style.display = "block";
         }
         
-        // Idan akwai tsohuwar lambar bogi (54...) ko babu komai, bari mu tilasta kiran Securewave
-        if(data.account_number && data.account_number !== "Generating..." && !data.account_number.startsWith("54")) {
-            showBankDetails(data.bank_name, data.account_number, data.account_name);
-        } else {
-            generateVirtualAccount(userId, currentUser.email, data.phone, data.account_name);
+        // Tura shi kai tsaye ya nuna ainihin asusunka na Kolomoni MFB
+        showBankDetails(data.bank_name || "Kolomoni MFB", data.account_number || "0993320835", data.account_name || "SECUREWAVENG/Yau Usman");
+        
+        // Idan babu shi adane a database, a saka shi
+        if(!data.account_number) {
+            createBackupAccount(userId);
         }
     }
 }
@@ -146,57 +147,19 @@ function showBankDetails(bank, num, name) {
     document.getElementById("userAccountName").innerText = "Name: " + name;
 }
 
-async function generateVirtualAccount(userId, userEmail, userPhone, userFullName) {
-    // Raba suna zuwa First da Last Name don Securewave API
-    const nameParts = userFullName ? userFullName.split(" ") : ["Hadejia", "User"];
-    const firstName = nameParts[0] || "Hadejia";
-    const lastName = nameParts[1] || "DataHub";
-    const cleanPhone = userPhone ? userPhone.toString().trim() : "08000000000";
-
-    try {
-        // Gyararren kiran API na Securewave da yake tura ainihin bayanan da suka dace
-        const response = await fetch("https://securewaveng.com/api/v1/virtual-accounts", {
-            method: "POST",
-            headers: { 
-                "Content-Type": "application/json", 
-                "Authorization": `Bearer ${securewaveSecretKey}` 
-            },
-            body: JSON.stringify({ 
-                business_id: securewaveBusinessId,
-                email: userEmail, 
-                first_name: firstName, 
-                last_name: lastName, 
-                phone: cleanPhone,
-                bank: "moniepoint"
-            })
-        });
-        const result = await response.json();
-        
-        if((result.status === "success" || result.status === true) && result.data && result.data.account_number) {
-            const bankName = result.data.bank_name || "Moniepoint";
-            const accNo = result.data.account_number;
-            const accName = result.data.account_name;
-            
-            // Adana ainihin asusun banki na gaske a Supabase
-            await client.from("users").update({ bank_name: bankName, account_number: accNo, account_name: accName }).eq("id", userId);
-            showBankDetails(bankName, accNo, accName);
-        } else {
-            createBackupAccount(userId, userFullName || "Hadejia User");
-        }
-    } catch (e) {
-        createBackupAccount(userId, userFullName || "Hadejia User");
-    }
-}
-
-async function createBackupAccount(userId, username) {
-    let backupAcc = "54" + Math.floor(10000000 + Math.random() * 90000000);
-    await client.from("users").update({ bank_name: "Moniepoint", account_number: backupAcc, account_name: username }).eq("id", userId);
-    showBankDetails("Moniepoint", backupAcc, username);
+async function createBackupAccount(userId) {
+    // Saita asusunka na gaske a matsayin madadin asusu tabbatacce
+    const bankName = "Kolomoni MFB";
+    const accNo = "0993320835";
+    const accName = "SECUREWAVENG/Yau Usman";
+    
+    await client.from("users").update({ bank_name: bankName, account_number: accNo, account_name: accName }).eq("id", userId);
+    showBankDetails(bankName, accNo, accName);
 }
 
 async function checkIncomingFunds(userEmail) {
     try {
-        const response = await fetch("https://eo27jf54uzazck2.m.pipedream.net/history?limit=5");[span_2](start_span)[span_2](end_span)
+        const response = await fetch("https://eo27jf54uzazck2.m.pipedream.net/history?limit=5");
         const logs = await response.json();
         if(!Array.isArray(logs)) return;
 
