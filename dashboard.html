@@ -172,7 +172,7 @@ async function requestDynamicAccount() {
                 "Accept": "application/json",
                 "Content-Type": "application/json", 
                 "Authorization": `Bearer ${securewaveSecretKey}`,
-                "x-api-key": securewavePublicKey !== "YOUR_PUBLIC_KEY" ? securewavePublicKey : securewaveSecretKey
+                "x-api-key": securewavePublicKey !== "207877338766ce1cf458d8d" ? securewavePublicKey : securewaveSecretKey
             },
             body: JSON.stringify({ 
                 email: currentUser.email,
