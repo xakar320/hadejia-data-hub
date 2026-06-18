@@ -310,17 +310,23 @@ async function generateVirtualAccount(userId, userEmail){
 
         console.log("SECUREWAVE:", result);
 
-        if(result.data){
+        if(
+result.status === true &&
+result.data &&
+result.data.length > 0
+){
 
-            const accountNumber =
-            result.data.account_number;
+const accountData =
+result.data[0];
 
-            const accountName =
-            result.data.account_name;
+const accountNumber =
+accountData.account_number;
 
-            const bankName =
-            result.data.bank_name || "Moniepoint";
+const accountName =
+accountData.account_name;
 
+const bankName =
+accountData.account_bank;
             await client
             .from("users")
             .update({
