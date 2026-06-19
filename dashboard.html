@@ -149,7 +149,6 @@ async function loadUserData(userId){
 }
 
 async function requestDynamicAccount() {
-async function requestDynamicAccount() {
     const amount = document.getElementById("fundAmount").value;
     if(!amount || amount <= 100) { alert("Please enter an amount greater than ₦100!"); return; }
     
@@ -157,18 +156,28 @@ async function requestDynamicAccount() {
     btn.innerText = "Generating Account...";
     btn.disabled = true;
 
+    // Tabbatar muna da bayanan mai amfani lafiya
+    if (!currentUser) {
+        alert("User session not loaded yet. Please refresh the page.");
+        btn.innerText = "Generate Payment Account";
+        btn.disabled = false;
+        return;
+    }
+
     const nameParts = currentUser.fullName ? currentUser.fullName.split(" ") : ["User", "Customer"];
     const firstName = nameParts[0] || "User";
     const lastName = nameParts[1] || "Customer";
     const userPhone = currentUser.phone || "08012345678";
 
-    // Muna tura buƙatar zuwa Pipedream don ya tsallake CORS gaba ɗaya
+    // Hanyar Pipedream dinmu kai tsaye
     const pipedreamUrl = "https://eo27jf54uzazck2.m.pipedream.net/generate-account";
 
     try {
         const response = await fetch(pipedreamUrl, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                "Content-Type": "application/json" 
+            },
             body: JSON.stringify({ 
                 action: "generate_dynamic",
                 email: currentUser.email,
@@ -203,9 +212,11 @@ async function requestDynamicAccount() {
     } catch(e) {
         btn.innerText = "Generate Payment Account";
         btn.disabled = false;
+        console.error("Fetch error:", e);
         alert("Server communication error. Check Pipedream workflow setup.");
     }
 }
+
 
 
 
