@@ -225,7 +225,7 @@ function startCountdown(seconds) {
 
 async function checkIncomingFunds(userEmail) {
     try {
-        const response = await fetch("https://eo27jf54uzazck2.m.pipedream.net/history?limit=5");
+        const response = await fetch("https://eo27jf54uzazck2.m.pipedream.net");
         const logs = await response.json();
         if(!Array.isArray(logs)) return;
 
