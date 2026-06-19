@@ -149,6 +149,7 @@ async function loadUserData(userId){
 }
 
 async function requestDynamicAccount() {
+async function requestDynamicAccount() {
     const amount = document.getElementById("fundAmount").value;
     if(!amount || amount <= 100) { alert("Please enter an amount greater than ₦100!"); return; }
     
@@ -161,27 +162,19 @@ async function requestDynamicAccount() {
     const lastName = nameParts[1] || "Customer";
     const userPhone = currentUser.phone || "08012345678";
 
-    // Muna amfani da CORS Proxy don magance toshewar burwzar na waya
-    const targetUrl = "https://securewaveng.com/api/v1/dynamic_accounts/generate";
-    const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(targetUrl);
+    // Muna tura buƙatar zuwa Pipedream don ya tsallake CORS gaba ɗaya
+    const pipedreamUrl = "https://eo27jf54uzazck2.m.pipedream.net/generate-account";
 
     try {
-        const response = await fetch(proxyUrl, {
+        const response = await fetch(pipedreamUrl, {
             method: "POST",
-            headers: { 
-                "Accept": "application/json",
-                "Content-Type": "application/json", 
-                "Authorization": `Bearer ${securewaveSecretKey}`,
-                "x-api-key": securewavePublicKey !== "207877338766ce1cf458d8d" ? securewavePublicKey : securewaveSecretKey
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
+                action: "generate_dynamic",
                 email: currentUser.email,
                 first_name: firstName,
                 last_name: lastName,
                 phone_number: userPhone,
-                bank_code: [3], 
-                business_id: securewaveBusinessId,
-                account_type: "dynamic",
                 amount: Number(amount)
             })
         });
@@ -205,15 +198,15 @@ async function requestDynamicAccount() {
             startCountdown(acc.expires || 900);
             alert("An samar da asusun banki lafiya!");
         } else {
-            alert(result.message || "Failed to generate dynamic account. Try again.");
+            alert(result.message || "Failed to generate dynamic account from server.");
         }
     } catch(e) {
         btn.innerText = "Generate Payment Account";
         btn.disabled = false;
-        console.error("Securewave Error:", e);
-        alert("CORS or Network Error. Proxy redirection failed.");
+        alert("Server communication error. Check Pipedream workflow setup.");
     }
 }
+
 
 
 function startCountdown(seconds) {
