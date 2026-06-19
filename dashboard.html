@@ -53,7 +53,6 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
     </div>
 </div>
 
-<!-- Sashen Nuna Asusun Dynamic Bayan An Nemo -->
 <div class="bank-card" id="dynamicBankCard">
     <div class="bank-title">⚠️ TEMPORARY DEPOSIT ACCOUNT</div>
     <div class="bank-num" id="dynAccountNo">0000000000</div>
@@ -93,11 +92,7 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
 <script>
 const supabaseUrl = "https://zjenhfapfhuoogxorung.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
-
 const autosyncApiKey = "988|WDYTnvBrrSIlZoflQMuU8lLRotdLUInb6c989515";
-const securewaveSecretKey = "170740381166ce1cf45926c";
-const securewavePublicKey = "YOUR_PUBLIC_KEY"; // Saka public key idan kana da shi, idan babu zai yi amfani da secret key din
-const securewaveBusinessId = "9028328c2c71c30ca995df28728710";
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 let currentUser = null;
@@ -132,7 +127,7 @@ async function checkUser(){
     currentUser = session.user;
     await loadUserData(currentUser.id);
     await loadTransactions(currentUser.id);
-    setInterval(() => checkIncomingFunds(currentUser.email), 10000); // Duba kuɗi kowane daƙiƙa 10
+    setInterval(() => checkIncomingFunds(currentUser.email), 10000);
 }
 
 async function loadUserData(userId){
@@ -156,28 +151,18 @@ async function requestDynamicAccount() {
     btn.innerText = "Generating Account...";
     btn.disabled = true;
 
-    // Tabbatar muna da bayanan mai amfani lafiya
-    if (!currentUser) {
-        alert("User session not loaded yet. Please refresh the page.");
-        btn.innerText = "Generate Payment Account";
-        btn.disabled = false;
-        return;
-    }
-
     const nameParts = currentUser.fullName ? currentUser.fullName.split(" ") : ["User", "Customer"];
     const firstName = nameParts[0] || "User";
     const lastName = nameParts[1] || "Customer";
     const userPhone = currentUser.phone || "08012345678";
 
-    // Hanyar Pipedream dinmu kai tsaye
-    const pipedreamUrl = "https://eo27jf54uzazck2.m.pipedream.net/generate-account";
+    // Kira ta Pipedream workflow kai tsaye don gudun CORS
+    const pipedreamUrl = "https://eo27jf54uzazck2.m.pipedream.net/";
 
     try {
         const response = await fetch(pipedreamUrl, {
             method: "POST",
-            headers: { 
-                "Content-Type": "application/json" 
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 action: "generate_dynamic",
                 email: currentUser.email,
@@ -207,18 +192,14 @@ async function requestDynamicAccount() {
             startCountdown(acc.expires || 900);
             alert("An samar da asusun banki lafiya!");
         } else {
-            alert(result.message || "Failed to generate dynamic account from server.");
+            alert(result.message || "Failed to generate dynamic account. Try again.");
         }
     } catch(e) {
         btn.innerText = "Generate Payment Account";
         btn.disabled = false;
-        console.error("Fetch error:", e);
-        alert("Server communication error. Check Pipedream workflow setup.");
+        alert("Server communication error. Please try again.");
     }
 }
-
-
-
 
 function startCountdown(seconds) {
     if(timerInterval) clearInterval(timerInterval);
