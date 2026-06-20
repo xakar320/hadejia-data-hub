@@ -156,38 +156,29 @@ async function requestDynamicAccount() {
     const lastName = nameParts[1] || "Customer";
     const userPhone = currentUser.phone || "08012345678";
 
-    // Pipedream URL dinka kai tsaye
-    const pipedreamUrl = "https://eo27jf54uzazck2.m.pipedream.net/";
-
     try {
-        console.log("Sending request to Pipedream...");
-        const response = await fetch(pipedreamUrl, {
+        // Kiran Securewave kai tsaye ba tare da Pipedream ba
+        const response = await fetch("https://securewaveng.com/api/v1/dynamic_accounts/generate", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer 170740381166ce1cf45926c",
+                "x-api-key": "170740381166ce1cf45926c"
+            },
             body: JSON.stringify({ 
-                action: "generate_dynamic",
                 email: currentUser.email,
                 first_name: firstName,
                 last_name: lastName,
                 phone_number: userPhone,
+                bank_code: [3],
+                business_id: "9028328c2c71c30ca995df28728710",
+                account_type: "dynamic",
                 amount: Number(amount)
             })
         });
         
-        console.log("Response status:", response.status);
-        const textResult = await response.text();
-        console.log("Raw response body:", textResult);
-
-        let result;
-        try {
-            result = JSON.parse(textResult);
-        } catch(jsonErr) {
-            btn.innerText = "Generate Payment Account";
-            btn.disabled = false;
-            alert(`Server sent invalid response (Not JSON):\n${textResult.substring(0, 200)}`);
-            return;
-        }
-
+        const result = await response.json();
         btn.innerText = "Generate Payment Account";
         btn.disabled = false;
 
@@ -206,16 +197,15 @@ async function requestDynamicAccount() {
             startCountdown(acc.expires || 900);
             alert("An samar da asusun banki lafiya!");
         } else {
-            alert(result.message || "Failed to generate dynamic account. Server returned false status.");
+            alert(result.message || "Failed to generate dynamic account from Securewave.");
         }
     } catch(e) {
         btn.innerText = "Generate Payment Account";
         btn.disabled = false;
-        console.error("Full Fetch Error:", e);
-        // Wannan zai nuna muna ainihin dalilin a allon wayarka yanzu
-        alert(`Network/Fetch Error Details:\nName: ${e.name}\nMessage: ${e.message}`);
+        alert(`Connection Error: ${e.message}`);
     }
 }
+
 
 
 function startCountdown(seconds) {
