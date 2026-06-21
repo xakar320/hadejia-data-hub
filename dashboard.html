@@ -46,6 +46,19 @@ select, input{ width:100%; padding:15px; border-radius:12px; border:1px solid #c
         <div class="logo">Hadejia Data Hub</div>
         <button class="logoutBtn" onclick="logoutUser()">Logout</button>
     </div>
+    <a href="dynamic-account.html" style="
+  display:block;
+  background:#0f8b4c;
+  color:#fff;
+  text-decoration:none;
+  padding:14px;
+  border-radius:12px;
+  text-align:center;
+  font-weight:700;
+  margin-top:15px;
+">
+  Generate Dynamic Account
+    </a>
     <button id="adminLinkBtn" class="adminBtnStyle" onclick="window.location.href='/admin.html'">👨‍💼 Open Admin Panel</button>
     <div class="balanceBox">
         <div class="balanceTitle">Wallet Balance</div>
@@ -328,19 +341,7 @@ async function loadTransactions(userId){
 
 async function logoutUser(){ await client.auth.signOut(); window.location.href = "/"; }
 window.addEventListener("load", () => { checkUser(); changeDataPlans(); });
-    <a href="dynamic-account.html" style="
-  display:block;
-  background:#0f8b4c;
-  color:#fff;
-  text-decoration:none;
-  padding:14px;
-  border-radius:12px;
-  text-align:center;
-  font-weight:700;
-  margin-top:15px;
-">
-  Generate Dynamic Account
-</a>
+  
 </script>
 </body>
 </html>
