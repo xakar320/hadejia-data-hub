@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hadejia Data Hub - Dynamic Account</title>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+    body{
+      background:#f4f7fb;
+      color:#222;
+    }
+    .topbar{
+      background:#0f8b4c;
+      color:#fff;
+      padding:16px;
+      font-size:20px;
+      font-weight:bold;
+      text-align:center;
+    }
+    .container{
+      max-width:700px;
+      margin:25px auto;
+      background:#fff;
+      padding:20px;
+      border-radius:14px;
+      box-shadow:0 8px 25px rgba(0,0,0,0.08);
+    }
+    h2{
+      margin-bottom:18px;
+      color:#0f8b4c;
+      text-align:center;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+    .field{
+      margin-bottom:14px;
+    }
+    .field.full{
+      grid-column:1 / -1;
+    }
+    label{
+      display:block;
+      margin-bottom:6px;
+      font-size:14px;
+      font-weight:600;
+      color:#333;
+    }
+    input, select{
+      width:100%;
+      padding:12px;
+      border:1px solid #d8dee9;
+      border-radius:10px;
+      outline:none;
+      font-size:15px;
+      background:#fff;
+    }
+    input:focus, select:focus{
+      border-color:#0f8b4c;
+      box-shadow:0 0 0 3px rgba(15,139,76,0.12);
+    }
+    .btn{
+      width:100%;
+      border:none;
+      background:#0f8b4c;
+      color:#fff;
+      padding:14px;
+      border-radius:12px;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+      margin-top:8px;
+    }
+    .btn:hover{
+      opacity:.95;
+    }
+    .btn:disabled{
+      opacity:.7;
+      cursor:not-allowed;
+    }
+    .back-btn{
+      display:inline-block;
+      text-decoration:none;
+      background:#e8f6ee;
+      color:#0f8b4c;
+      padding:10px 14px;
+      border-radius:10px;
+      margin-bottom:16px;
+      font-weight:600;
+    }
+    .status{
+      margin-top:16px;
+      padding:12px;
+      border-radius:10px;
+      display:none;
+      font-size:14px;
+      line-height:1.5;
+    }
+    .status.success{
+      display:block;
+      background:#ecfdf3;
+      color:#166534;
+      border:1px solid #bbf7d0;
+    }
+    .status.error{
+      display:block;
+      background:#fff1f2;
+      color:#b42318;
+      border:1px solid #fecdd3;
+    }
+    .result-card{
+      margin-top:18px;
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      padding:18px;
+      background:#fafafa;
+      display:none;
+    }
+    .result-card h3{
+      color:#0f8b4c;
+      margin-bottom:12px;
+    }
+    .result-row{
+      display:flex;
+      justify-content:space-between;
+      gap:15px;
+      padding:10px 0;
+      border-bottom:1px solid #eee;
+      font-size:14px;
+    }
+    .result-row:last-child{
+      border-bottom:none;
+    }
+    .result-label{
+      font-weight:700;
+      color:#444;
+    }
+    .result-value{
+      text-align:right;
+      word-break:break-word;
+    }
+    .raw-box{
+      margin-top:14px;
+      background:#111827;
+      color:#e5e7eb;
+      padding:12px;
+      border-radius:10px;
+      font-size:13px;
+      overflow:auto;
+      max-height:260px;
+      white-space:pre-wrap;
+    }
+    .note{
+      margin-top:14px;
+      padding:12px;
+      border-radius:10px;
+      background:#fff8e1;
+      color:#8a6d3b;
+      font-size:14px;
+      line-height:1.5;
+      border:1px solid #f5e2a8;
+    }
+
+    @media (max-width: 640px){
+      .grid{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">Hadejia Data Hub</div>
+
+  <div class="container">
+    <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
+
+    <h2>Generate Dynamic Account</h2>
+
+    <div class="grid">
+      <div class="field">
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" placeholder="Demo" />
+      </div>
+
+      <div class="field">
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" placeholder="Doe" />
+      </div>
+
+      <div class="field full">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="john.doe@example.com" />
+      </div>
+
+      <div class="field">
+        <label for="phone">Phone Number</label>
+        <input type="text" id="phone" placeholder="08012345678" />
+      </div>
+
+      <div class="field">
+        <label for="amount">Amount</label>
+        <input type="number" id="amount" placeholder="120" />
+      </div>
+
+      <div class="field full">
+        <label for="bankCode">Bank Code</label>
+        <select id="bankCode">
+          <option value="3">3 - Safehaven</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn" id="generateBtn">Generate Dynamic Account</button>
+
+    <div id="statusBox" class="status"></div>
+
+    <div class="note">
+      <strong>Note:</strong> Na bar API keys da business ID a JavaScript a ƙasa domin kai da kanka ka saka su.
+    </div>
+
+    <div class="result-card" id="resultCard">
+      <h3>Generated Account Result</h3>
+
+      <div class="result-row">
+        <div class="result-label">Account Name</div>
+        <div class="result-value" id="resAccountName">-</div>
+      </div>
+
+      <div class="result-row">
+        <div class="result-label">Account Number</div>
+        <div class="result-value" id="resAccountNumber">-</div>
+      </div>
+
+      <div class="result-row">
+        <div class="result-label">Bank Name</div>
+        <div class="result-value" id="resBankName">-</div>
+      </div>
+
+      <div class="result-row">
+        <div class="result-label">Reference / ID</div>
+        <div class="result-value" id="resReference">-</div>
+      </div>
+
+      <div class="raw-box" id="rawResponse"></div>
+    </div>
+  </div>
+
+  <script>
+    /********************************************************
+     * 1) SAKA API DETAILS DINKA ANAN DA KANKA
+     ********************************************************/
+    const API_CONFIG = {
+      baseURL: "PUT_YOUR_BASE_URL_HERE",       // misali: https://example.com/api
+      secretKey: "PUT_YOUR_SECRET_KEY_HERE",   // Bearer secret key
+      publicKey: "PUT_YOUR_PUBLIC_KEY_HERE",   // x-api-key
+      businessId: "PUT_YOUR_BUSINESS_ID_HERE"  // business_id
+    };
+
+    /********************************************************
+     * 2) ELEMENTS
+     ********************************************************/
+    const generateBtn = document.getElementById("generateBtn");
+    const statusBox = document.getElementById("statusBox");
+    const resultCard = document.getElementById("resultCard");
+    const rawResponse = document.getElementById("rawResponse");
+
+    const resAccountName = document.getElementById("resAccountName");
+    const resAccountNumber = document.getElementById("resAccountNumber");
+    const resBankName = document.getElementById("resBankName");
+    const resReference = document.getElementById("resReference");
+
+    /********************************************************
+     * 3) HELPERS
+     ********************************************************/
+    function showStatus(message, type = "success") {
+      statusBox.className = `status ${type}`;
+      statusBox.textContent = message;
+    }
+
+    function clearStatus() {
+      statusBox.className = "status";
+      statusBox.textContent = "";
+      statusBox.style.display = "none";
+    }
+
+    function showResult(data) {
+      resultCard.style.display = "block";
+
+      // saboda response structure na API na iya banbanta,
+      // muna duba possible field names da yawa
+      const accountName =
+        data?.data?.account_name ||
+        data?.data?.accountName ||
+        data?.account_name ||
+        data?.accountName ||
+        "-";
+
+      const accountNumber =
+        data?.data?.account_number ||
+        data?.data?.accountNumber ||
+        data?.account_number ||
+        data?.accountNumber ||
+        "-";
+
+      const bankName =
+        data?.data?.bank_name ||
+        data?.data?.bankName ||
+        data?.bank_name ||
+        data?.bankName ||
+        "-";
+
+      const reference =
+        data?.data?.reference ||
+        data?.data?.id ||
+        data?.reference ||
+        data?.id ||
+        "-";
+
+      resAccountName.textContent = accountName;
+      resAccountNumber.textContent = accountNumber;
+      resBankName.textContent = bankName;
+      resReference.textContent = reference;
+      rawResponse.textContent = JSON.stringify(data, null, 2);
+    }
+
+    function validateConfig() {
+      if (
+        !API_CONFIG.baseURL ||
+        API_CONFIG.baseURL === "PUT_YOUR_BASE_URL_HERE" ||
+        !API_CONFIG.secretKey ||
+        API_CONFIG.secretKey === "PUT_YOUR_SECRET_KEY_HERE" ||
+        !API_CONFIG.publicKey ||
+        API_CONFIG.publicKey === "PUT_YOUR_PUBLIC_KEY_HERE" ||
+        !API_CONFIG.businessId ||
+        API_CONFIG.businessId === "PUT_YOUR_BUSINESS_ID_HERE"
+      ) {
+        showStatus("Da fatan za ka fara saka BASE URL, SECRET KEY, PUBLIC KEY da BUSINESS ID a cikin API_CONFIG.", "error");
+        return false;
+      }
+      return true;
+    }
+
+    /********************************************************
+     * 4) GENERATE DYNAMIC ACCOUNT
+     ********************************************************/
+    async function generateDynamicAccount() {
+      clearStatus();
+      resultCard.style.display = "none";
+
+      if (!validateConfig()) return;
+
+      const first_name = document.getElementById("firstName").value.trim();
+      const last_name = document.getElementById("lastName").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const phone_number = document.getElementById("phone").value.trim();
+      const amount = Number(document.getElementById("amount").value.trim());
+      const bank_code = Number(document.getElementById("bankCode").value);
+
+      if (!first_name || !last_name || !email || !phone_number || !amount) {
+        showStatus("Da fatan ka cika dukkan fields.", "error");
+        return;
+      }
+
+      generateBtn.disabled = true;
+      generateBtn.textContent = "Generating...";
+
+      const payload = {
+        email,
+        first_name,
+        last_name,
+        phone_number,
+        bank_code: [bank_code],
+        business_id: API_CONFIG.businessId,
+        account_type: "dynamic",
+        amount: amount
+      };
+
+      try {
+        const url = `${API_CONFIG.baseURL}/dynamic_accounts/generate`;
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${API_CONFIG.secretKey}`,
+            "x-api-key": API_CONFIG.publicKey
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const text = await response.text();
+        let result;
+
+        try {
+          result = JSON.parse(text);
+        } catch (e) {
+          result = { raw: text };
+        }
+
+        if (!response.ok) {
+          showStatus(
+            result?.message || result?.error || `Request failed with status ${response.status}`,
+            "error"
+          );
+          rawResponse.textContent = JSON.stringify(result, null, 2);
+          resultCard.style.display = "block";
+          return;
+        }
+
+        showStatus("Dynamic account generated successfully.");
+        showResult(result);
+
+      } catch (error) {
+        console.error(error);
+        showStatus("An samu kuskure wajen kiran API. Ka duba BASE URL ko API keys.", "error");
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.textContent = "Generate Dynamic Account";
+      }
+    }
+
+    generateBtn.addEventListener("click", generateDynamicAccount);
+  </script>
+</body>
+  </html>
