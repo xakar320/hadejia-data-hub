@@ -158,16 +158,6 @@
       max-height:260px;
       white-space:pre-wrap;
     }
-    .note{
-      margin-top:14px;
-      padding:12px;
-      border-radius:10px;
-      background:#fff8e1;
-      color:#8a6d3b;
-      font-size:14px;
-      line-height:1.5;
-      border:1px solid #f5e2a8;
-    }
 
     @media (max-width: 640px){
       .grid{
@@ -223,10 +213,6 @@
 
     <div id="statusBox" class="status"></div>
 
-    <div class="note">
-      <strong>Note:</strong> Na bar API keys da business ID a JavaScript a ƙasa domin kai da kanka ka saka su.
-    </div>
-
     <div class="result-card" id="resultCard">
       <h3>Generated Account Result</h3>
 
@@ -255,19 +241,6 @@
   </div>
 
   <script>
-    /********************************************************
-     * 1) SAKA API DETAILS DINKA ANAN DA KANKA
-     ********************************************************/
-    const API_CONFIG = {
-      baseURL: "https://securewaveng.com/api",       // misali: https://example.com/api
-      secretKey: "sk_live_fb381ba4e4e3cb9fadcc0945eb87a89f10d70050ec3d235f0c0d1fb8163d7ccb",   // Bearer secret key
-      publicKey: "pk_live_b825f5a22fb817cec9500cc2b0644c2ea1ca836c2ee61f0b758b831d554b",   // x-api-key
-      businessId: "9028328c2c71c30ca995df28728710"  // business_id
-    };
-
-    /********************************************************
-     * 2) ELEMENTS
-     ********************************************************/
     const generateBtn = document.getElementById("generateBtn");
     const statusBox = document.getElementById("statusBox");
     const resultCard = document.getElementById("resultCard");
@@ -278,12 +251,10 @@
     const resBankName = document.getElementById("resBankName");
     const resReference = document.getElementById("resReference");
 
-    /********************************************************
-     * 3) HELPERS
-     ********************************************************/
     function showStatus(message, type = "success") {
       statusBox.className = `status ${type}`;
       statusBox.textContent = message;
+      statusBox.style.display = "block";
     }
 
     function clearStatus() {
@@ -295,8 +266,6 @@
     function showResult(data) {
       resultCard.style.display = "block";
 
-      // saboda response structure na API na iya banbanta,
-      // muna duba possible field names da yawa
       const accountName =
         data?.data?.account_name ||
         data?.data?.accountName ||
@@ -332,31 +301,9 @@
       rawResponse.textContent = JSON.stringify(data, null, 2);
     }
 
-    function validateConfig() {
-      if (
-        !API_CONFIG.baseURL ||
-        API_CONFIG.baseURL === "PUT_YOUR_BASE_URL_HERE" ||
-        !API_CONFIG.secretKey ||
-        API_CONFIG.secretKey === "PUT_YOUR_SECRET_KEY_HERE" ||
-        !API_CONFIG.publicKey ||
-        API_CONFIG.publicKey === "PUT_YOUR_PUBLIC_KEY_HERE" ||
-        !API_CONFIG.businessId ||
-        API_CONFIG.businessId === "PUT_YOUR_BUSINESS_ID_HERE"
-      ) {
-        showStatus("Da fatan za ka fara saka BASE URL, SECRET KEY, PUBLIC KEY da BUSINESS ID a cikin API_CONFIG.", "error");
-        return false;
-      }
-      return true;
-    }
-
-    /********************************************************
-     * 4) GENERATE DYNAMIC ACCOUNT
-     ********************************************************/
     async function generateDynamicAccount() {
       clearStatus();
       resultCard.style.display = "none";
-
-      if (!validateConfig()) return;
 
       const first_name = document.getElementById("firstName").value.trim();
       const last_name = document.getElementById("lastName").value.trim();
@@ -373,56 +320,37 @@
       generateBtn.disabled = true;
       generateBtn.textContent = "Generating...";
 
-      const payload = {
-        email,
-        first_name,
-        last_name,
-        phone_number,
-        bank_code: [bank_code],
-        business_id: API_CONFIG.businessId,
-        account_type: "dynamic",
-        amount: amount
-      };
-
       try {
-        const url = `${API_CONFIG.baseURL}/dynamic_accounts/generate`;
-
-        const response = await fetch(url, {
+        const response = await fetch("/api/generate-dynamic-account", {
           method: "POST",
           headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${API_CONFIG.secretKey}`,
-            "x-api-key": API_CONFIG.publicKey
+            "Content-Type": "application/json"
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            email,
+            first_name,
+            last_name,
+            phone_number,
+            bank_code,
+            amount
+          })
         });
 
-        const text = await response.text();
-        let result;
-
-        try {
-          result = JSON.parse(text);
-        } catch (e) {
-          result = { raw: text };
-        }
+        const result = await response.json();
 
         if (!response.ok) {
-          showStatus(
-            result?.message || result?.error || `Request failed with status ${response.status}`,
-            "error"
-          );
-          rawResponse.textContent = JSON.stringify(result, null, 2);
+          showStatus(result?.message || "Failed to generate dynamic account", "error");
           resultCard.style.display = "block";
+          rawResponse.textContent = JSON.stringify(result, null, 2);
           return;
         }
 
-        showStatus("Dynamic account generated successfully.");
+        showStatus(result?.message || "Dynamic account generated successfully");
         showResult(result);
 
       } catch (error) {
         console.error(error);
-        showStatus("An samu kuskure wajen kiran API. Ka duba BASE URL ko API keys.", "error");
+        showStatus("An samu kuskure wajen haɗawa da server.", "error");
       } finally {
         generateBtn.disabled = false;
         generateBtn.textContent = "Generate Dynamic Account";
@@ -432,4 +360,4 @@
     generateBtn.addEventListener("click", generateDynamicAccount);
   </script>
 </body>
-  </html>
+</html>
