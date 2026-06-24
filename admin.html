@@ -1,292 +1,659 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hadejia Data Hub - Admin Panel</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial,sans-serif;
-}
-
-body{
-    background:#f0f2f5;
-    padding:20px;
-}
-
-.admin-header{
-    background:linear-gradient(135deg, #111, #333);
-    padding:25px;
-    border-radius:20px;
-    color:white;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:25px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.1);
-}
-
-.admin-header h1{ font-size:24px; }
-
-.backBtn{
-    background:green;
-    border:none;
-    padding:10px 20px;
-    border-radius:10px;
-    color:white;
-    font-weight:bold;
-    cursor:pointer;
-    text-decoration:none;
-}
-
-.admin-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:20px;
-}
-
-.card{
-    background:white;
-    padding:25px;
-    border-radius:20px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.05);
-}
-
-.cardTitle{
-    font-size:20px;
-    font-weight:bold;
-    color:#222;
-    margin-bottom:15px;
-    border-bottom:2px solid #eee;
-    padding-bottom:10px;
-}
-
-label{
-    font-weight:bold;
-    font-size:14px;
-    color:#555;
-    display:block;
-    margin-top:10px;
-}
-
-input, select{
-    width:100%;
-    padding:12px;
-    border-radius:10px;
-    border:1px solid #ccc;
-    margin-top:5px;
-    font-size:16px;
-    outline:none;
-}
-
-.adminBtn{
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:10px;
-    background:linear-gradient(135deg, #ff9900, #ff5500);
-    color:white;
-    font-size:18px;
-    font-weight:bold;
-    margin-top:15px;
-    cursor:pointer;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:10px;
-}
-
-th, td{
-    padding:12px;
-    text-align:left;
-    border-bottom:1px solid #eee;
-}
-
-th{ background:#f9f9f9; color:#555; }
-
-@media(max-width:800px){
-    .admin-grid{ grid-template-columns:1fr; }
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hadejia Data Hub - Admin Panel</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+    body{
+      background:#f3f5f9;
+      padding:15px;
+    }
+    .header{
+      background:linear-gradient(135deg,#ff8c00,#ffb347);
+      color:#fff;
+      border-radius:24px;
+      padding:24px;
+      margin-bottom:20px;
+      box-shadow:0 8px 25px rgba(0,0,0,0.08);
+    }
+    .headerTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .title{
+      font-size:28px;
+      font-weight:bold;
+    }
+    .sub{
+      margin-top:8px;
+      font-size:14px;
+      opacity:0.95;
+      line-height:1.5;
+    }
+    .topBtns{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      border:none;
+      border-radius:12px;
+      padding:12px 16px;
+      font-weight:bold;
+      cursor:pointer;
+      color:#fff;
+    }
+    .btnBack{ background:green; }
+    .btnLogout{ background:red; }
+    .btnRefresh{ background:#333; }
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:15px;
+      margin-bottom:20px;
+    }
+    .statCard{
+      background:#fff;
+      border-radius:18px;
+      padding:18px;
+      box-shadow:0 5px 15px rgba(0,0,0,0.06);
+    }
+    .statTitle{
+      color:#666;
+      font-size:14px;
+      margin-bottom:8px;
+    }
+    .statValue{
+      font-size:28px;
+      font-weight:bold;
+      color:#111;
+    }
+    .card{
+      background:#fff;
+      border-radius:20px;
+      padding:20px;
+      margin-bottom:20px;
+      box-shadow:0 5px 15px rgba(0,0,0,0.06);
+    }
+    .cardTitle{
+      font-size:22px;
+      font-weight:bold;
+      color:#ff8c00;
+      margin-bottom:15px;
+    }
+    .row2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    input, select{
+      width:100%;
+      padding:14px;
+      border:1px solid #d8dce3;
+      border-radius:12px;
+      font-size:15px;
+      outline:none;
+      background:#fff;
+      margin-top:12px;
+    }
+    input:focus, select:focus{
+      border-color:#ff8c00;
+      box-shadow:0 0 0 3px rgba(255,140,0,0.08);
+    }
+    .mainBtn{
+      width:100%;
+      padding:15px;
+      border:none;
+      border-radius:12px;
+      background:linear-gradient(135deg,#ff8c00,#ffb347);
+      color:#fff;
+      font-size:17px;
+      font-weight:bold;
+      margin-top:15px;
+      cursor:pointer;
+    }
+    .mainBtn:disabled{
+      opacity:0.7;
+      cursor:not-allowed;
+    }
+    .searchBox{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      align-items:center;
+    }
+    .miniBtn{
+      border:none;
+      padding:13px 16px;
+      border-radius:12px;
+      cursor:pointer;
+      color:#fff;
+      font-weight:bold;
+      background:#ff8c00;
+      margin-top:12px;
+    }
+    .userList, .txList{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      margin-top:10px;
+    }
+    .userItem, .txItem{
+      background:#f9f9f9;
+      border-radius:14px;
+      padding:15px;
+      border-left:5px solid #ff8c00;
+    }
+    .userTop{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .userName{
+      font-size:17px;
+      font-weight:bold;
+      color:#111;
+    }
+    .userMeta{
+      color:#666;
+      font-size:14px;
+      margin-top:4px;
+      line-height:1.5;
+      word-break:break-word;
+    }
+    .badge{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:bold;
+      color:#fff;
+      margin-top:6px;
+    }
+    .badgeAdmin{ background:green; }
+    .badgeUser{ background:#666; }
+    .userActions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+    .actionBtn{
+      border:none;
+      border-radius:10px;
+      padding:11px;
+      color:#fff;
+      font-weight:bold;
+      cursor:pointer;
+    }
+    .creditBtn{ background:green; }
+    .debitBtn{ background:#d9534f; }
+    .adminBtn{ background:#111; }
+    .txType{
+      font-weight:bold;
+      color:#111;
+      margin-bottom:5px;
+    }
+    .txMeta{
+      font-size:14px;
+      color:#666;
+      line-height:1.5;
+      word-break:break-word;
+    }
+    .txAmount{
+      margin-top:8px;
+      font-weight:bold;
+      font-size:16px;
+    }
+    .empty{
+      text-align:center;
+      color:#888;
+      padding:12px;
+      background:#fafafa;
+      border-radius:12px;
+    }
+    .dangerNote{
+      background:#fff4f4;
+      border:1px solid #ffd1d1;
+      color:#9f1d1d;
+      padding:12px;
+      border-radius:12px;
+      font-size:14px;
+      line-height:1.5;
+      margin-top:12px;
+    }
+    @media(max-width:850px){
+      .stats{ grid-template-columns:1fr; }
+      .row2{ grid-template-columns:1fr; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="admin-header">
-    <h1>👨‍💼 Control Room (Admin)</h1>
-    <a href="/dashboard.html" class="backBtn">User Dashboard</a>
-</div>
-
-<div class="admin-grid">
-
-    <div class="card">
-        <div class="cardTitle">💰 Manage User Wallet</div>
-        
-        <label>Select User</label>
-        <select id="userSelect">
-            <option value="">Loading users...</option>
-        </select>
-
-        <label>Action Type</label>
-        <select id="actionType">
-            <option value="add">➕ Add Funds (Sawa Mutum Kudi)</option>
-            <option value="deduct">➖ Deduct Funds (Rage Wa Mutum Kudi)</option>
-        </select>
-
-        <label>Amount (₦)</label>
-        <input type="number" id="fundAmount" placeholder="Example: 5000">
-
-        <button class="adminBtn" onclick="manageWallet()">Execute Transaction</button>
-    </div>
-
-    <div class="card" style="grid-row: span 2;">
-        <div class="cardTitle">👥 Registered Users</div>
-        <div style="overflow-x:auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Email</th>
-                        <th>Balance</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody">
-                    <tr>
-                        <td colspan="2" style="text-align:center; color:#888;">Loading users list...</td>
-                    </tr>
-                </tbody>
-            </table>
+  <div class="header">
+    <div class="headerTop">
+      <div>
+        <div class="title">👨‍💼 Admin Panel</div>
+        <div class="sub">
+          Manage users, fund wallets, deduct balance, view transactions and control admins.
         </div>
+      </div>
+
+      <div class="topBtns">
+        <button class="btn btnBack" onclick="window.location.href='/dashboard.html'">← Dashboard</button>
+        <button class="btn btnRefresh" onclick="refreshAll()">Refresh</button>
+        <button class="btn btnLogout" onclick="logoutAdmin()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="statCard">
+      <div class="statTitle">Total Users</div>
+      <div class="statValue" id="statUsers">0</div>
+    </div>
+    <div class="statCard">
+      <div class="statTitle">Admins</div>
+      <div class="statValue" id="statAdmins">0</div>
+    </div>
+    <div class="statCard">
+      <div class="statTitle">Total Wallet Balance</div>
+      <div class="statValue" id="statBalance">₦0</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="cardTitle">🔎 Search User</div>
+    <div class="searchBox">
+      <input type="text" id="searchInput" placeholder="Search by name, email or phone">
+      <button class="miniBtn" onclick="searchUsers()">Search</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="cardTitle">💰 Manual Credit / Debit</div>
+
+    <select id="selectedUser">
+      <option value="">Select user</option>
+    </select>
+
+    <div class="row2">
+      <input type="number" id="adminAmount" placeholder="Enter amount">
+      <select id="adminAction">
+        <option value="credit">Credit Wallet</option>
+        <option value="debit">Debit Wallet</option>
+      </select>
     </div>
 
-</div>
+    <input type="text" id="adminReason" placeholder="Reason / Note (e.g. manual funding)">
+    <button class="mainBtn" id="adminProcessBtn" onclick="processManualBalance()">Process</button>
+
+    <div class="dangerNote">
+      Wannan action ɗin zai canza wallet balance kai tsaye a Supabase sannan ya ƙara transaction record.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="cardTitle">👥 All Users</div>
+    <div class="userList" id="userList">
+      <div class="empty">Loading users...</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="cardTitle">📊 Recent Transactions</div>
+    <div class="txList" id="txList">
+      <div class="empty">Loading transactions...</div>
+    </div>
+  </div>
 
 <script>
 const supabaseUrl = "https://zjenhfapfhuoogxorung.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
-
+const supabaseKey = "YOUR_SUPABASE_ANON_KEY";
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-let adminUser = null;
+let currentAdmin = null;
+let allUsers = [];
 
-// GUDANAR DA TSARO NA EMAIL KAI TSAYE
-async function checkAdminSecurity(){
-    const { data: { session } } = await client.auth.getSession();
-    
-    if(!session){
-        window.location.href = "/";
-        return;
-    }
+/* =========================
+   AUTH + ADMIN CHECK
+========================= */
+async function checkAdmin(){
+  const { data: { session } } = await client.auth.getSession();
 
-    const masterAdminEmail = "xakar2@gmail.com";
+  if(!session){
+    window.location.href = "/";
+    return;
+  }
 
-    if(session.user.email !== masterAdminEmail){
-        alert("Access Denied!");
-        window.location.href = "/dashboard.html";
-        return;
-    }
+  currentAdmin = session.user;
 
-    adminUser = session.user;
-    loadAllUsers();
+  const { data: userData, error } = await client
+    .from("users")
+    .select("is_admin, email")
+    .eq("id", currentAdmin.id)
+    .single();
+
+  if(error || !userData){
+    alert("Unable to verify admin");
+    window.location.href = "/dashboard.html";
+    return;
+  }
+
+  const allowed = userData.is_admin === true || currentAdmin.email === "xakar2@gmail.com";
+
+  if(!allowed){
+    alert("Access denied. Admins only.");
+    window.location.href = "/dashboard.html";
+    return;
+  }
+
+  await loadUsers();
+  await loadStats();
+  await loadTransactions();
 }
 
-// DAUKO DUKKAN MASU AMFANI
-async function loadAllUsers(){
-    const { data, error } = await client
-        .from("users")
-        .select("id, email, balance")
-        .order("email", { ascending: true });
+/* =========================
+   LOAD STATS
+========================= */
+async function loadStats(){
+  const { data, error } = await client
+    .from("users")
+    .select("balance, is_admin");
 
-    if(error) {
-        console.log("Error fetching users:", error);
-        document.getElementById("usersTableBody").innerHTML = `<tr><td colspan="2" style="color:red; text-align:center;">Error: ${error.message}</td></tr>`;
-        return;
-    }
+  if(error || !data) return;
 
-    const userSelect = document.getElementById("userSelect");
-    const tableBody = document.getElementById("usersTableBody");
+  const totalUsers = data.length;
+  const totalAdmins = data.filter(u => u.is_admin === true).length;
+  const totalBalance = data.reduce((sum, u) => sum + Number(u.balance || 0), 0);
 
-    userSelect.innerHTML = `<option value="">-- Choose a User --</option>`;
-    tableBody.innerHTML = "";
+  document.getElementById("statUsers").innerText = totalUsers.toLocaleString();
+  document.getElementById("statAdmins").innerText = totalAdmins.toLocaleString();
+  document.getElementById("statBalance").innerText = "₦" + totalBalance.toLocaleString();
+}
 
-    if(!data || data.length === 0){
-        tableBody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#888;">No users found in database table.</td></tr>`;
-        return;
-    }
+/* =========================
+   LOAD USERS
+========================= */
+async function loadUsers(searchTerm = ""){
+  let query = client
+    .from("users")
+    .select("*")
+    .order("created_at", { ascending:false });
 
-    data.forEach(user => {
-        userSelect.innerHTML += `<option value="${user.id}">${user.email}</option>`;
-        tableBody.innerHTML += `
-            <tr>
-                <td>${user.email}</td>
-                <td style="font-weight:bold; color:green;">₦${Number(user.balance).toLocaleString()}</td>
-            </tr>
-        `;
+  const { data, error } = await query;
+
+  const listDiv = document.getElementById("userList");
+  const selectUser = document.getElementById("selectedUser");
+  listDiv.innerHTML = "";
+  selectUser.innerHTML = `<option value="">Select user</option>`;
+
+  if(error){
+    listDiv.innerHTML = `<div class="empty">Failed to load users</div>`;
+    return;
+  }
+
+  let users = data || [];
+
+  if(searchTerm){
+    const term = searchTerm.toLowerCase();
+    users = users.filter(u => {
+      const name = String(u.account_name || "").toLowerCase();
+      const email = String(u.email || "").toLowerCase();
+      const phone = String(u.phone || "").toLowerCase();
+      return name.includes(term) || email.includes(term) || phone.includes(term);
     });
+  }
+
+  allUsers = users;
+
+  if(!users.length){
+    listDiv.innerHTML = `<div class="empty">No users found</div>`;
+    return;
+  }
+
+  users.forEach(user => {
+    selectUser.innerHTML += `<option value="${user.id}">${user.account_name || "No Name"} - ${user.email}</option>`;
+
+    const roleBadge = user.is_admin
+      ? `<span class="badge badgeAdmin">ADMIN</span>`
+      : `<span class="badge badgeUser">USER</span>`;
+
+    listDiv.innerHTML += `
+      <div class="userItem">
+        <div class="userTop">
+          <div>
+            <div class="userName">${user.account_name || "No Name"}</div>
+            <div class="userMeta">
+              Email: ${user.email || "-"}<br>
+              Phone: ${user.phone || "-"}<br>
+              Balance: ₦${Number(user.balance || 0).toLocaleString()}
+            </div>
+            ${roleBadge}
+          </div>
+        </div>
+
+        <div class="userActions">
+          <button class="actionBtn creditBtn" onclick="quickCredit('${user.id}')">+ Credit</button>
+          <button class="actionBtn debitBtn" onclick="quickDebit('${user.id}')">- Debit</button>
+          <button class="actionBtn adminBtn" onclick="toggleAdmin('${user.id}', ${user.is_admin === true})">
+            ${user.is_admin === true ? "Remove Admin" : "Make Admin"}
+          </button>
+        </div>
+      </div>
+    `;
+  });
 }
 
-// AIKIN KARA KO RAGE KUDI
-async function manageWallet(){
-    const targetUserId = document.getElementById("userSelect").value;
-    const action = document.getElementById("actionType").value;
-    const amountInput = document.getElementById("fundAmount").value;
+function searchUsers(){
+  const val = document.getElementById("searchInput").value.trim();
+  loadUsers(val);
+}
 
-    if(!targetUserId){ alert("Please select a user."); return; }
-    if(!amountInput || Number(amountInput) <= 0){ alert("Please enter a valid amount."); return; }
+/* =========================
+   QUICK ACTIONS
+========================= */
+function quickCredit(userId){
+  document.getElementById("selectedUser").value = userId;
+  document.getElementById("adminAction").value = "credit";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
-    const amountValue = Number(amountInput);
+function quickDebit(userId){
+  document.getElementById("selectedUser").value = userId;
+  document.getElementById("adminAction").value = "debit";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
-    try {
-        const { data: user, error: fetchError } = await client
-            .from("users")
-            .select("balance")
-            .eq("id", targetUserId)
-            .single();
+/* =========================
+   CREDIT / DEBIT USER
+========================= */
+async function processManualBalance(){
+  const userId = document.getElementById("selectedUser").value;
+  const amount = Number(document.getElementById("adminAmount").value);
+  const action = document.getElementById("adminAction").value;
+  const reason = document.getElementById("adminReason").value.trim() || "Admin manual adjustment";
+  const btn = document.getElementById("adminProcessBtn");
 
-        if(fetchError) throw fetchError;
+  if(!userId){
+    alert("Please select a user");
+    return;
+  }
 
-        let newBalance = Number(user.balance);
+  if(!amount || amount <= 0){
+    alert("Please enter a valid amount");
+    return;
+  }
 
-        if(action === "add") {
-            newBalance += amountValue;
-        } else if(action === "deduct") {
-            if(newBalance < amountValue) {
-                const confirmDeduct = confirm("Kudin mutumin sun yi kadan da abin da kake son ragewa. Kana son maida asusunsa zuwa ₦0?");
-                if(confirmDeduct) {
-                    newBalance = 0;
-                } else {
-                    return;
-                }
-            } else {
-                newBalance -= amountValue;
-            }
-        }
+  btn.disabled = true;
+  btn.innerText = "Processing...";
 
-        const { error: updateError } = await client
-            .from("users")
-            .update({ balance: newBalance })
-            .eq("id", targetUserId);
+  try{
+    const { data: user, error: fetchError } = await client
+      .from("users")
+      .select("balance, account_name, email")
+      .eq("id", userId)
+      .single();
 
-        if(updateError) throw updateError;
-
-        alert("Wallet updated successfully!");
-        document.getElementById("fundAmount").value = "";
-        loadAllUsers();
-
-    } catch (error) {
-        console.error(error);
-        alert("Failed to update user wallet. Try running the SQL script again.");
+    if(fetchError || !user){
+      btn.disabled = false;
+      btn.innerText = "Process";
+      alert("User not found");
+      return;
     }
+
+    let currentBalance = Number(user.balance || 0);
+    let newBalance = currentBalance;
+
+    if(action === "credit"){
+      newBalance = currentBalance + amount;
+    }else{
+      if(currentBalance < amount){
+        btn.disabled = false;
+        btn.innerText = "Process";
+        alert("User does not have enough balance for debit");
+        return;
+      }
+      newBalance = currentBalance - amount;
+    }
+
+    const { error: updateError } = await client
+      .from("users")
+      .update({ balance: newBalance })
+      .eq("id", userId);
+
+    if(updateError){
+      btn.disabled = false;
+      btn.innerText = "Process";
+      alert("Failed to update wallet: " + updateError.message);
+      return;
+    }
+
+    const txType = action === "credit" ? "Wallet Funding" : "Admin Debit";
+    const txDetails = `${reason} | By admin: ${currentAdmin.email}`;
+
+    await client.from("transactions").insert([{
+      user_id: userId,
+      type: txType,
+      details: txDetails,
+      amount: amount,
+      status: "Success"
+    }]);
+
+    btn.disabled = false;
+    btn.innerText = "Process";
+
+    document.getElementById("adminAmount").value = "";
+    document.getElementById("adminReason").value = "";
+
+    alert(`User wallet ${action === "credit" ? "credited" : "debited"} successfully`);
+
+    await refreshAll();
+  }catch(err){
+    btn.disabled = false;
+    btn.innerText = "Process";
+    alert("Error: " + err.message);
+  }
 }
 
-window.addEventListener("DOMContentLoaded", checkAdminSecurity);
-</script>
+/* =========================
+   TOGGLE ADMIN
+========================= */
+async function toggleAdmin(userId, currentState){
+  if(!confirm(currentState ? "Remove admin from this user?" : "Make this user admin?")){
+    return;
+  }
 
+  const { error } = await client
+    .from("users")
+    .update({ is_admin: !currentState })
+    .eq("id", userId);
+
+  if(error){
+    alert("Failed to update admin status: " + error.message);
+    return;
+  }
+
+  alert("Admin status updated successfully");
+  await refreshAll();
+}
+
+/* =========================
+   LOAD TRANSACTIONS
+========================= */
+async function loadTransactions(){
+  const { data, error } = await client
+    .from("transactions")
+    .select("*")
+    .order("created_at", { ascending:false })
+    .limit(30);
+
+  const txList = document.getElementById("txList");
+  txList.innerHTML = "";
+
+  if(error){
+    txList.innerHTML = `<div class="empty">Failed to load transactions</div>`;
+    return;
+  }
+
+  if(!data || !data.length){
+    txList.innerHTML = `<div class="empty">No transactions yet</div>`;
+    return;
+  }
+
+  for(const tx of data){
+    const date = new Date(tx.created_at).toLocaleString();
+    const isFunding = tx.type === "Wallet Funding";
+    const color = isFunding ? "green" : "red";
+    const sign = isFunding ? "+" : "-";
+
+    txList.innerHTML += `
+      <div class="txItem" style="border-left:5px solid ${color}">
+        <div class="txType">${tx.type || "-"}</div>
+        <div class="txMeta">
+          ${tx.details || "-"}<br>
+          Status: ${tx.status || "-"}<br>
+          Date: ${date}
+        </div>
+        <div class="txAmount" style="color:${color}">
+          ${sign}₦${Number(tx.amount || 0).toLocaleString()}
+        </div>
+      </div>
+    `;
+  }
+}
+
+/* =========================
+   REFRESH
+========================= */
+async function refreshAll(){
+  await loadUsers(document.getElementById("searchInput").value.trim());
+  await loadStats();
+  await loadTransactions();
+}
+
+/* =========================
+   LOGOUT
+========================= */
+async function logoutAdmin(){
+  await client.auth.signOut();
+  window.location.href = "/";
+}
+
+window.addEventListener("load", checkAdmin);
+</script>
 </body>
-</html>
+    </html>
