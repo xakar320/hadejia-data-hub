@@ -1,86 +1,411 @@
-export default async function handler(req, res) {
-  // Allow only POST
-  if (req.method !== "POST") {
-    return res.status(405).json({
-      status: false,
-      message: "Method not allowed"
-    });
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generate Dynamic Account - Hadejia Data Hub</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+    body{
+      background:#f3f5f9;
+      padding:15px;
+    }
+    .header{
+      background:linear-gradient(135deg, green, limegreen);
+      color:#fff;
+      padding:24px;
+      border-radius:24px;
+      margin-bottom:20px;
+      box-shadow:0 8px 25px rgba(0,0,0,0.08);
+    }
+    .headerTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .title{
+      font-size:28px;
+      font-weight:bold;
+    }
+    .sub{
+      margin-top:8px;
+      font-size:14px;
+      line-height:1.5;
+      opacity:0.95;
+    }
+    .topBtns{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      border:none;
+      border-radius:12px;
+      padding:12px 16px;
+      font-weight:bold;
+      cursor:pointer;
+      color:#fff;
+    }
+    .btnBack{ background:#111; }
+    .btnDash{ background:#ff9800; }
+    .card{
+      background:#fff;
+      border-radius:20px;
+      padding:20px;
+      margin-bottom:20px;
+      box-shadow:0 5px 15px rgba(0,0,0,0.06);
+    }
+    .cardTitle{
+      font-size:24px;
+      font-weight:bold;
+      color:green;
+      margin-bottom:15px;
+    }
+    input{
+      width:100%;
+      padding:15px;
+      border-radius:12px;
+      border:1px solid #ccc;
+      margin-top:12px;
+      font-size:16px;
+      outline:none;
+      background:#fff;
+    }
+    input:focus{
+      border-color:green;
+      box-shadow:0 0 0 3px rgba(0,128,0,0.08);
+    }
+    .mainBtn{
+      width:100%;
+      padding:15px;
+      border:none;
+      border-radius:12px;
+      background:linear-gradient(135deg, green, limegreen);
+      color:white;
+      font-size:18px;
+      font-weight:bold;
+      margin-top:15px;
+      cursor:pointer;
+    }
+    .mainBtn:disabled{
+      opacity:0.7;
+      cursor:not-allowed;
+    }
+    .resultCard{
+      display:none;
+      background: linear-gradient(135deg, #111, #333);
+      color: #fff;
+      padding: 22px;
+      border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin-top:20px;
+    }
+    .resultTitle{
+      font-size:14px;
+      color:#ffc107;
+      font-weight:bold;
+      text-transform:uppercase;
+      margin-bottom:10px;
+    }
+    .accNum{
+      font-size:32px;
+      font-weight:bold;
+      margin:10px 0;
+      letter-spacing:1px;
+      word-break:break-word;
+    }
+    .detail{
+      margin-top:8px;
+      font-size:15px;
+      line-height:1.6;
+    }
+    .countdown{
+      margin-top:12px;
+      color:#ff6b6b;
+      font-weight:bold;
+      font-size:15px;
+    }
+    .actionBtns{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-top:15px;
+    }
+    .actionBtn{
+      border:none;
+      border-radius:12px;
+      padding:14px;
+      font-weight:bold;
+      cursor:pointer;
+      color:#fff;
+    }
+    .copyBtn{ background:#0f8b4c; }
+    .shareBtn{ background:#ff9800; }
+    .note{
+      background:#fff7e6;
+      border:1px solid #ffd591;
+      color:#8a6100;
+      padding:12px;
+      border-radius:12px;
+      margin-top:15px;
+      font-size:14px;
+      line-height:1.5;
+    }
+    .muted{
+      font-size:13px;
+      color:#666;
+      margin-top:12px;
+      line-height:1.5;
+    }
+    @media(max-width:480px){
+      .actionBtns{ grid-template-columns:1fr; }
+      .accNum{ font-size:28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="headerTop">
+      <div>
+        <div class="title">🏦 Dynamic Account</div>
+        <div class="sub">
+          Generate temporary bank account for wallet funding.
+        </div>
+      </div>
+
+      <div class="topBtns">
+        <button class="btn btnBack" onclick="history.back()">← Back</button>
+        <button class="btn btnDash" onclick="window.location.href='/dashboard.html'">Dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="cardTitle">Generate Payment Account</div>
+
+    <input type="number" id="amount" placeholder="Enter amount to deposit (₦)">
+    <button class="mainBtn" id="generateBtn" onclick="generateDynamicAccount()">Generate Account</button>
+
+    <div class="note">
+      Ka shigar da adadin kuɗin da kake son tura wa wallet. Bayan ka danna generate, za a baka temporary bank account number da zaka tura kuɗi zuwa gare shi.
+    </div>
+
+    <div class="muted">
+      Wannan page ɗin yana amfani da backend route: <b>/api/generate-dynamic-account</b><br>
+      API keys da business ID suna zaune a Vercel environment variables, ba a browser ba.
+    </div>
+
+    <div class="resultCard" id="resultCard">
+      <div class="resultTitle">Generated Account Result</div>
+      <div class="detail"><b>Account Name</b></div>
+      <div class="detail" id="accName">-</div>
+
+      <div class="detail" style="margin-top:15px;"><b>Account Number</b></div>
+      <div class="accNum" id="accNumber">-</div>
+
+      <div class="detail"><b>Bank Name</b></div>
+      <div class="detail" id="bankName">-</div>
+
+      <div class="detail"><b>Amount To Transfer</b></div>
+      <div class="detail" id="amountToPay">₦0</div>
+
+      <div class="detail"><b>Reference / ID</b></div>
+      <div class="detail" id="accRef">-</div>
+
+      <div class="countdown" id="expiryText">Expires in: 15:00</div>
+
+      <div class="actionBtns">
+        <button class="actionBtn copyBtn" onclick="copyAccountNumber()">Copy Account Number</button>
+        <button class="actionBtn shareBtn" onclick="shareDetails()">Share Details</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const supabaseUrl = "https://zjenhfapfhuoogxorung.supabase.co";
+const supabaseKey = "YOUR_SUPABASE_ANON_KEY";
+const client = supabase.createClient(supabaseUrl, supabaseKey);
+
+let currentUser = null;
+let timerInterval = null;
+let latestAccountData = null;
+
+/* =========================
+   CHECK USER
+========================= */
+async function checkUser(){
+  const { data: { session } } = await client.auth.getSession();
+  if(!session){
+    window.location.href = "/";
+    return;
   }
 
-  try {
-    const {
-      email,
-      first_name,
-      last_name,
-      phone_number,
-      bank_code,
-      amount
-    } = req.body || {};
+  currentUser = session.user;
 
-    // Basic validation
-    if (!email || !first_name || !last_name || !phone_number || !amount || !bank_code) {
-      return res.status(400).json({
-        status: false,
-        message: "Missing required fields"
-      });
-    }
+  const { data, error } = await client
+    .from("users")
+    .select("account_name, phone")
+    .eq("id", currentUser.id)
+    .single();
 
-    // Get secrets from Vercel Environment Variables
-    const baseURL = process.env.SECUREWAVE_BASE_URL;
-    const secretKey = process.env.SECUREWAVE_SECRET_KEY;
-    const publicKey = process.env.SECUREWAVE_PUBLIC_KEY;
-    const businessId = process.env.SECUREWAVE_BUSINESS_ID;
-
-    if (!baseURL || !secretKey || !publicKey || !businessId) {
-      return res.status(500).json({
-        status: false,
-        message: "Server environment variables are missing"
-      });
-    }
-
-    const payload = {
-      email,
-      first_name,
-      last_name,
-      phone_number,
-      bank_code: [Number(bank_code)],
-      business_id: businessId,
-      account_type: "dynamic",
-      amount: Number(amount)
-    };
-
-    const response = await fetch(`${baseURL}/dynamic_accounts/generate`, {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${secretKey}`,
-        "x-api-key": publicKey
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const rawText = await response.text();
-
-    let data;
-    try {
-      data = JSON.parse(rawText);
-    } catch (e) {
-      data = {
-        status: false,
-        message: "Invalid JSON response from upstream API",
-        raw: rawText
-      };
-    }
-
-    return res.status(response.status).json(data);
-
-  } catch (error) {
-    console.error("Dynamic account error:", error);
-    return res.status(500).json({
-      status: false,
-      message: "Internal server error",
-      error: error.message
-    });
+  if(!error && data){
+    currentUser.fullName = data.account_name || "User Customer";
+    currentUser.phone = data.phone || "08012345678";
+  } else {
+    currentUser.fullName = "User Customer";
+    currentUser.phone = "08012345678";
   }
 }
+
+/* =========================
+   GENERATE ACCOUNT
+========================= */
+async function generateDynamicAccount(){
+  const amount = Number(document.getElementById("amount").value);
+  const btn = document.getElementById("generateBtn");
+
+  if(!amount || amount <= 100){
+    alert("Please enter an amount greater than ₦100");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = "Generating...";
+
+  try{
+    const nameParts = (currentUser.fullName || "User Customer").trim().split(" ");
+    const firstName = nameParts[0] || "User";
+    const lastName = nameParts.slice(1).join(" ") || "Customer";
+
+    const response = await fetch("/api/generate-dynamic-account", {
+      method: "POST",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify({
+        email: currentUser.email,
+        first_name: firstName,
+        last_name: lastName,
+        phone_number: currentUser.phone || "08012345678",
+        amount: amount,
+        bank_code: [3]
+      })
+    });
+
+    const result = await response.json();
+
+    btn.disabled = false;
+    btn.innerText = "Generate Account";
+
+    if((result.status === true || result.success === true) && result.data && result.data[0]){
+      const acc = result.data[0];
+      latestAccountData = acc;
+
+      document.getElementById("accName").innerText = acc.account_name || "-";
+      document.getElementById("accNumber").innerText = acc.account_number || "-";
+      document.getElementById("bankName").innerText = acc.account_bank || "Safehaven";
+      document.getElementById("amountToPay").innerText = "₦" + Number(acc.amount_to_pay || amount).toLocaleString();
+      document.getElementById("accRef").innerText = acc.account_reference || "-";
+      document.getElementById("resultCard").style.display = "block";
+
+      startCountdown(Number(acc.expires || 900));
+      alert(result.message || "Dynamic account successfully generated");
+    }else{
+      alert(result.message || "Failed to generate dynamic account");
+    }
+  }catch(err){
+    btn.disabled = false;
+    btn.innerText = "Generate Account";
+    alert("Connection Error: " + err.message);
+  }
+}
+
+/* =========================
+   COUNTDOWN
+========================= */
+function startCountdown(seconds){
+  if(timerInterval) clearInterval(timerInterval);
+
+  let timeRemaining = Number(seconds || 900);
+  const display = document.getElementById("expiryText");
+
+  timerInterval = setInterval(() => {
+    let minutes = Math.floor(timeRemaining / 60);
+    let secs = timeRemaining % 60;
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    secs = secs < 10 ? "0" + secs : secs;
+
+    display.innerText = `Expires in: ${minutes}:${secs}`;
+    timeRemaining--;
+
+    if(timeRemaining < 0){
+      clearInterval(timerInterval);
+      display.innerText = "Expired! Generate a new account.";
+    }
+  }, 1000);
+}
+
+/* =========================
+   COPY
+========================= */
+async function copyAccountNumber(){
+  const accNo = document.getElementById("accNumber").innerText.trim();
+  if(!accNo || accNo === "-"){
+    alert("No account number to copy");
+    return;
+  }
+
+  try{
+    await navigator.clipboard.writeText(accNo);
+    alert("Account number copied!");
+  }catch(err){
+    alert("Failed to copy account number");
+  }
+}
+
+/* =========================
+   SHARE
+========================= */
+async function shareDetails(){
+  if(!latestAccountData){
+    alert("No account details to share");
+    return;
+  }
+
+  const text =
+`Hadejia Data Hub Payment Details
+
+Bank: ${latestAccountData.account_bank || "Safehaven"}
+Account Name: ${latestAccountData.account_name || "-"}
+Account Number: ${latestAccountData.account_number || "-"}
+Amount: ₦${Number(latestAccountData.amount_to_pay || 0).toLocaleString()}
+Reference: ${latestAccountData.account_reference || "-"}`;
+
+  if(navigator.share){
+    try{
+      await navigator.share({
+        title: "Payment Account Details",
+        text
+      });
+    }catch(err){}
+  }else{
+    try{
+      await navigator.clipboard.writeText(text);
+      alert("Details copied to clipboard for sharing");
+    }catch(err){
+      alert("Unable to share details");
+    }
+  }
+}
+
+window.addEventListener("load", checkUser);
+</script>
+</body>
+</html>
