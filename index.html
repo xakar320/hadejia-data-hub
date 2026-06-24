@@ -1,138 +1,330 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hadejia Data Hub</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<style>
-*{ margin:0; padding:0; box-sizing:border-box; font-family:Arial; }
-body{ background:linear-gradient(135deg, green, darkgreen); height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
-.container{ width:100%; max-width:420px; background:white; padding:30px; border-radius:25px; box-shadow:0 5px 20px rgba(0,0,0,0.2); }
-.logo{ text-align:center; margin-bottom:25px; }
-.logo h1{ color:green; font-size:32px; }
-.logo p{ margin-top:5px; color:#555; }
-.tabs{ display:flex; margin-bottom:20px; border-radius:12px; overflow:hidden; }
-.tabs button{ flex:1; padding:15px; border:none; font-size:16px; font-weight:bold; cursor:pointer; background:#eee; color:#555; }
-.tabs button.active{ background:green; color:white; }
-.form-box{ display:none; }
-.form-box.active{ display:block; }
-input{ width:100%; padding:15px; margin-top:12px; border:1px solid #ccc; border-radius:12px; font-size:16px; outline:none; }
-input:focus{ border-color:green; }
-.submitBtn{ width:100%; padding:15px; border:none; border-radius:12px; background:linear-gradient(135deg, green, limegreen); color:white; font-size:18px; font-weight:bold; margin-top:20px; cursor:pointer; }
-.loading{ text-align:center; display:none; margin-top:10px; color:green; font-weight:bold; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hadejia Data Hub - Login</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+    body{
+      background:#f3f5f9;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:15px;
+    }
+    .container{
+      width:100%;
+      max-width:430px;
+      background:#fff;
+      border-radius:25px;
+      padding:25px;
+      box-shadow:0 8px 30px rgba(0,0,0,0.08);
+    }
+    .topBox{
+      background:linear-gradient(135deg,green,limegreen);
+      color:#fff;
+      border-radius:22px;
+      padding:25px 20px;
+      margin-bottom:20px;
+      text-align:center;
+    }
+    .logo{
+      font-size:30px;
+      font-weight:bold;
+      margin-bottom:8px;
+    }
+    .sub{
+      font-size:14px;
+      opacity:0.95;
+      line-height:1.5;
+    }
+    .tabs{
+      display:flex;
+      gap:10px;
+      margin-bottom:18px;
+    }
+    .tabBtn{
+      flex:1;
+      padding:14px;
+      border:none;
+      border-radius:12px;
+      font-size:16px;
+      font-weight:bold;
+      cursor:pointer;
+      background:#eef2f7;
+      color:#333;
+    }
+    .tabBtn.active{
+      background:linear-gradient(135deg,green,limegreen);
+      color:#fff;
+    }
+    .formCard{
+      display:none;
+    }
+    .formCard.active{
+      display:block;
+    }
+    .title{
+      font-size:22px;
+      font-weight:bold;
+      color:green;
+      margin-bottom:14px;
+    }
+    input{
+      width:100%;
+      padding:15px;
+      border:1px solid #d8dce3;
+      border-radius:12px;
+      margin-top:12px;
+      font-size:16px;
+      outline:none;
+      background:#fff;
+    }
+    input:focus{
+      border-color:green;
+      box-shadow:0 0 0 3px rgba(0,128,0,0.08);
+    }
+    .mainBtn{
+      width:100%;
+      padding:15px;
+      border:none;
+      border-radius:12px;
+      background:linear-gradient(135deg,green,limegreen);
+      color:#fff;
+      font-size:18px;
+      font-weight:bold;
+      margin-top:15px;
+      cursor:pointer;
+    }
+    .mainBtn:disabled{
+      opacity:0.7;
+      cursor:not-allowed;
+    }
+    .hint{
+      font-size:13px;
+      color:#666;
+      margin-top:10px;
+      line-height:1.5;
+    }
+    .footerNote{
+      margin-top:18px;
+      text-align:center;
+      font-size:13px;
+      color:#666;
+      line-height:1.5;
+    }
+    .pinRow{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="logo">
-        <h1>Hadejia Data Hub</h1>
-        <p>Reliable Data & Telecom Services</p>
+  <div class="container">
+    <div class="topBox">
+      <div class="logo">Hadejia Data Hub</div>
+      <div class="sub">
+        Buy Data, Voice Bundle and fund your wallet easily.
+      </div>
     </div>
 
     <div class="tabs">
-        <button id="loginTab" class="active" onclick="switchTab('login')">Login</button>
-        <button id="registerTab" onclick="switchTab('register')">Register</button>
+      <button class="tabBtn active" id="loginTabBtn" onclick="switchTab('login')">Login</button>
+      <button class="tabBtn" id="signupTabBtn" onclick="switchTab('signup')">Create Account</button>
     </div>
 
-    <!-- LOGIN FORM -->
-    <div id="loginForm" class="form-box active">
-        <input type="email" id="loginEmail" placeholder="Enter Email Address">
-        <input type="password" id="loginPassword" placeholder="Enter Password">
-        <button class="submitBtn" onclick="login()">Login</button>
-        <div id="loginLoading" class="loading">Processing Login...</div>
+    <!-- LOGIN -->
+    <div class="formCard active" id="loginCard">
+      <div class="title">Login</div>
+      <input type="email" id="loginEmail" placeholder="Email address" />
+      <input type="password" id="loginPassword" placeholder="Password" />
+      <button class="mainBtn" id="loginBtn" onclick="loginUser()">Login</button>
+      <div class="hint">Use the email and password you used during signup.</div>
     </div>
 
-    <!-- REGISTER FORM -->
-    <div id="registerForm" class="form-box">
-        <input type="text" id="registerName" placeholder="Enter Full Name (e.g. Aliyu Musa)">
-        <input type="email" id="registerEmail" placeholder="Enter Email Address">
-        <input type="number" id="registerPhone" placeholder="Enter Phone Number (e.g. 08123456789)">
-        <input type="password" id="registerPassword" placeholder="Create Password">
-        <button class="submitBtn" onclick="register()">Create Account</button>
-        <div id="registerLoading" class="loading">Creating Account...</div>
+    <!-- SIGNUP -->
+    <div class="formCard" id="signupCard">
+      <div class="title">Create Account</div>
+      <input type="text" id="signupFullName" placeholder="Full Name" />
+      <input type="email" id="signupEmail" placeholder="Email address" />
+      <input type="text" id="signupPhone" placeholder="Phone Number" maxlength="11" />
+      <input type="password" id="signupPassword" placeholder="Password" />
+      <div class="pinRow">
+        <input type="password" id="signupPin" placeholder="4-digit PIN" maxlength="4" />
+        <input type="password" id="signupPin2" placeholder="Confirm PIN" maxlength="4" />
+      </div>
+      <button class="mainBtn" id="signupBtn" onclick="signupUser()">Create Account</button>
+      <div class="hint">
+        Your transaction PIN will be used for data / voice purchases.
+      </div>
     </div>
-</div>
 
-<script>
-const supabaseUrl = "https://zjenhfapfhuoogxorung.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
-const client = supabase.createClient(supabaseUrl, supabaseKey);
+    <div class="footerNote">
+      Powered by Hadejia Data Hub
+    </div>
+  </div>
 
-function switchTab(tab){
-    if(tab === 'login'){
-        document.getElementById("loginTab").classList.add("active");
-        document.getElementById("registerTab").classList.remove("active");
-        document.getElementById("loginForm").classList.add("active");
-        document.getElementById("registerForm").classList.remove("active");
-    } else {
-        document.getElementById("registerTab").classList.add("active");
-        document.getElementById("loginTab").classList.remove("active");
-        document.getElementById("registerForm").classList.add("active");
-        document.getElementById("loginForm").classList.remove("active");
+  <script>
+    const supabaseUrl = "https://zjenhfapfhuoogxorung.supabase.co";
+    const supabaseKey = "YOUR_SUPABASE_ANON_KEY";
+    const client = supabase.createClient(supabaseUrl, supabaseKey);
+
+    function switchTab(type){
+      const loginTabBtn = document.getElementById("loginTabBtn");
+      const signupTabBtn = document.getElementById("signupTabBtn");
+      const loginCard = document.getElementById("loginCard");
+      const signupCard = document.getElementById("signupCard");
+
+      if(type === "login"){
+        loginTabBtn.classList.add("active");
+        signupTabBtn.classList.remove("active");
+        loginCard.classList.add("active");
+        signupCard.classList.remove("active");
+      } else {
+        signupTabBtn.classList.add("active");
+        loginTabBtn.classList.remove("active");
+        signupCard.classList.add("active");
+        loginCard.classList.remove("active");
+      }
     }
-}
 
-async function login(){
-    document.getElementById("loginLoading").style.display = "block";
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
+    async function checkExistingSession(){
+      const { data: { session } } = await client.auth.getSession();
+      if(session){
+        window.location.href = "/dashboard.html";
+      }
+    }
 
-    const { data, error } = await client.auth.signInWithPassword({ email, password });
-    document.getElementById("loginLoading").style.display = "none";
+    async function signupUser(){
+      const fullName = document.getElementById("signupFullName").value.trim();
+      const email = document.getElementById("signupEmail").value.trim().toLowerCase();
+      const phone = document.getElementById("signupPhone").value.trim();
+      const password = document.getElementById("signupPassword").value;
+      const pin = document.getElementById("signupPin").value.trim();
+      const pin2 = document.getElementById("signupPin2").value.trim();
+      const btn = document.getElementById("signupBtn");
 
-    if(error){ alert(error.message); return; }
-    window.location.href = "/dashboard.html";
-}
-
-async function register(){
-    document.getElementById("registerLoading").style.display = "block";
-    const fullName = document.getElementById("registerName").value;
-    const email = document.getElementById("registerEmail").value;
-    const phoneInput = document.getElementById("registerPhone").value;
-    const password = document.getElementById("registerPassword").value;
-
-    if(!fullName || fullName.trim().length < 3) {
-        alert("Please enter a valid full name");
-        document.getElementById("registerLoading").style.display = "none";
+      if(!fullName || !email || !phone || !password || !pin || !pin2){
+        alert("Please fill all fields");
         return;
-    }
-    if(!phoneInput || phoneInput.length < 11) {
-        alert("Please enter a valid 11-digit phone number");
-        document.getElementById("registerLoading").style.display = "none";
+      }
+
+      if(phone.length !== 11){
+        alert("Phone number must be 11 digits");
         return;
-    }
+      }
 
-    const { data, error } = await client.auth.signUp({ email, password });
-
-    if(error){
-        alert(error.message);
-        document.getElementById("registerLoading").style.display = "none";
+      if(pin.length !== 4 || isNaN(pin)){
+        alert("PIN must be 4 digits");
         return;
-    }
+      }
 
-    if(data && data.user) {
-        // Muna amfani da upsert maimakon insert don magance matsalar duplicate pkey
-        const { error: dbError } = await client.from("users").upsert([{
-            id: data.user.id,
-            email: email,
-            balance: 0,
-            phone: phoneInput.toString().trim(),
-            account_name: fullName.trim()
-        }]);
+      if(pin !== pin2){
+        alert("PINs do not match");
+        return;
+      }
 
-        document.getElementById("registerLoading").style.display = "none";
+      btn.disabled = true;
+      btn.innerText = "Creating account...";
 
-        if(dbError) {
-            alert("Database Error: " + dbError.message);
-            return;
+      try{
+        const { data, error } = await client.auth.signUp({
+          email,
+          password
+        });
+
+        if(error){
+          btn.disabled = false;
+          btn.innerText = "Create Account";
+          alert(error.message);
+          return;
         }
 
-        alert("Account created successfully! Please login.");
-        switchTab('login');
+        const user = data.user;
+        if(!user){
+          btn.disabled = false;
+          btn.innerText = "Create Account";
+          alert("Signup failed");
+          return;
+        }
+
+        const { error: insertError } = await client.from("users").insert([{
+          id: user.id,
+          email: email,
+          account_name: fullName,
+          phone: phone,
+          balance: 0,
+          pin: pin,
+          is_admin: false
+        }]);
+
+        btn.disabled = false;
+        btn.innerText = "Create Account";
+
+        if(insertError){
+          alert("Account created but profile setup failed: " + insertError.message);
+          return;
+        }
+
+        alert("Account created successfully! You can now login.");
+        switchTab("login");
+
+        document.getElementById("loginEmail").value = email;
+        document.getElementById("loginPassword").value = password;
+
+      }catch(err){
+        btn.disabled = false;
+        btn.innerText = "Create Account";
+        alert("Signup error: " + err.message);
+      }
     }
-}
-</script>
+
+    async function loginUser(){
+      const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+      const password = document.getElementById("loginPassword").value;
+      const btn = document.getElementById("loginBtn");
+
+      if(!email || !password){
+        alert("Please enter email and password");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "Logging in...";
+
+      try{
+        const { error } = await client.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        btn.disabled = false;
+        btn.innerText = "Login";
+
+        if(error){
+          alert(error.message);
+          return;
+        }
+
+        window.location.href = "/dashboard.html";
+      }catch(err){
+        btn.disabled = false;
+        btn.innerText = "Login";
+        alert("Login error: " + err.message);
+      }
+    }
+
+    window.addEventListener("load", checkExistingSession);
+  </script>
 </body>
-</html>
+    </html>
