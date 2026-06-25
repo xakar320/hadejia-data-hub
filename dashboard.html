@@ -552,67 +552,97 @@
   /* =========================
      DYNAMIC ACCOUNT
   ========================== */
-  async function requestDynamicAccount(){
+  async function requestDynamicAccount() {
     const amount = Number(document.getElementById("fundAmount").value);
 
-    if(!amount || amount <= 100){
-      alert("Please enter an amount greater than ₦100");
-      return;
+    if (!amount || amount < 100) {
+        alert("Please enter amount of ₦100 or more");
+        return;
+    }
+
+    if (!currentUser) {
+        alert("User session not found");
+        return;
     }
 
     const btn = document.getElementById("generateAccountBtn");
-    btn.innerText = "Generating Account...";
     btn.disabled = true;
+    btn.innerText = "Generating Account...";
 
-    try{
-      const response = await fetch("/api/generate-dynamic-account", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount,
-          email: currentUser.email,
-          full_name: currentUser.fullName || "Customer User",
-          phone: currentUser.phone || "08000000000",
-          user_id: currentUser.id
-        })
-      });
+    try {
+        // user details
+        const fullName = (currentUser.fullName || "").trim();
+        const phone = (currentUser.phone || "").trim();
+        const email = (currentUser.email || "").trim();
 
-      const result = await response.json();
+        // split name safely
+        let firstName = "User";
+        let lastName = "Customer";
 
-      btn.innerText = "Generate Payment Account";
-      btn.disabled = false;
+        if (fullName) {
+            const parts = fullName.split(" ").filter(Boolean);
+            firstName = parts[0] || "User";
+            lastName = parts.slice(1).join(" ") || "Customer";
+        }
 
-      if(!response.ok){
-        alert(result.message || "Unable to generate account");
-        return;
-      }
+        if (!email) {
+            throw new Error("User email missing");
+        }
 
-      if(result.status === true && result.data && result.data[0]){
+        if (!phone) {
+            throw new Error("Phone number missing in user profile");
+        }
+
+        const payload = {
+            email,
+            first_name: firstName,
+            last_name: lastName,
+            phone_number: phone,
+            amount,
+            bank_code: [3]
+        };
+
+        const response = await fetch("/api/generate-dynamic-account", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        btn.disabled = false;
+        btn.innerText = "Generate Payment Account";
+
+        if (!response.ok || result.status !== true || !result.data || !result.data[0]) {
+            console.log("Dynamic account error:", result);
+            alert(result.message || "Failed to generate dynamic account");
+            return;
+        }
+
         const acc = result.data[0];
-        currentDynamicAccount = acc;
-
-        const finalCredit = Number(acc.amount_to_pay || amount) - 50;
+        const creditedAmount = Number(acc.amount_to_pay || amount) - 50;
 
         document.getElementById("dynAccountNo").innerText = acc.account_number || "-";
         document.getElementById("dynBankName").innerText = "Bank: " + (acc.account_bank || "Safehaven");
-        document.getElementById("dynAccountName").innerText = "Name: " + (acc.account_name || "Securewaveng Checkout");
+        document.getElementById("dynAccountName").innerText = "Name: " + (acc.account_name || "N/A");
         document.getElementById("dynAmountToPay").innerHTML =
-          `Amount to Transfer: ₦${Number(acc.amount_to_pay || amount).toLocaleString()}<br>
-          <span style="font-size:13px;color:#ff6b6b;">(₦50 fee applies. ₦${finalCredit.toLocaleString()} will be credited to your wallet)</span>`;
+            `Amount to Transfer: ₦${Number(acc.amount_to_pay || amount).toLocaleString()}<br>
+             <span style="font-size:13px;color:#ffcc00;">
+               ₦50 fee applies. Wallet will receive ₦${creditedAmount.toLocaleString()}
+             </span>`;
 
         document.getElementById("dynamicBankCard").style.display = "block";
         startCountdown(Number(acc.expires || 900));
 
-        alert("Dynamic account generated successfully");
-      }else{
-        alert(result.message || "Failed to generate dynamic account");
-      }
+        alert("Dynamic account generated successfully!");
 
-    }catch(err){
-      btn.innerText = "Generate Payment Account";
-      btn.disabled = false;
-      alert("Network/Server Error while generating account");
-      console.error(err);
+    } catch (error) {
+        btn.disabled = false;
+        btn.innerText = "Generate Payment Account";
+        alert(error.message || "Failed to generate account");
+        console.error(error);
     }
   }
 
