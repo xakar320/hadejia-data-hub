@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({
       status: false,
-      message: "Method not allowed. Use POST."
+      message: "Method not allowed"
     });
   }
 
@@ -25,10 +25,36 @@ export default async function handler(req, res) {
       bank_code
     } = req.body || {};
 
-    if (!email || !first_name || !last_name || !phone_number || !amount) {
+    // ENV
+    const SECRET_KEY = process.env.SECUREWAVE_SECRET_KEY;
+    const PUBLIC_KEY = process.env.SECUREWAVE_PUBLIC_KEY;
+    const BUSINESS_ID = process.env.SECUREWAVE_BUSINESS_ID;
+
+    if (!SECRET_KEY || !PUBLIC_KEY || !BUSINESS_ID) {
+      return res.status(500).json({
+        status: false,
+        message: "Server environment variables are missing"
+      });
+    }
+
+    // VALIDATION
+    if (
+      !email ||
+      !first_name ||
+      !last_name ||
+      !phone_number ||
+      !amount
+    ) {
       return res.status(400).json({
         status: false,
-        message: "Missing required fields"
+        message: "Missing required fields",
+        debug: {
+          email: !!email,
+          first_name: !!first_name,
+          last_name: !!last_name,
+          phone_number: !!phone_number,
+          amount: !!amount
+        }
       });
     }
 
@@ -38,29 +64,30 @@ export default async function handler(req, res) {
       last_name,
       phone_number,
       bank_code: Array.isArray(bank_code) && bank_code.length ? bank_code : [3],
-      business_id: process.env.SECUREWAVE_BUSINESS_ID,
+      business_id: BUSINESS_ID,
       account_type: "dynamic",
       amount: Number(amount)
     };
 
-    const response = await fetch(`${process.env.SECUREWAVE_BASE_URL}/dynamic_accounts/generate`, {
+    const response = await fetch("https://securewaveng.com/api/v1/dynamic_accounts/generate", {
       method: "POST",
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.SECUREWAVE_SECRET_KEY}`,
-        "x-api-key": process.env.SECUREWAVE_PUBLIC_KEY
+        "Authorization": `Bearer ${SECRET_KEY}`,
+        "x-api-key": PUBLIC_KEY
       },
       body: JSON.stringify(payload)
     });
 
     const data = await response.json();
 
-    return res.status(response.ok ? 200 : 400).json(data);
+    return res.status(response.status).json(data);
+
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: error.message || "Server error generating dynamic account"
+      message: error.message || "Internal server error"
     });
   }
 }
