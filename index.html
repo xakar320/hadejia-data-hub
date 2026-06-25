@@ -3,191 +3,204 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hadejia Data Hub - Login / Signup</title>
+  <title>Hadejia Data Hub</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      font-family:Arial,sans-serif;
-    }
-    body{
-      background:#f3f5f9;
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      padding:20px;
-    }
-    .container{
-      width:100%;
-      max-width:430px;
-      background:#fff;
-      border-radius:28px;
-      box-shadow:0 8px 30px rgba(0,0,0,0.08);
-      padding:22px;
-    }
-    .hero{
-      background:linear-gradient(135deg, #006400, #32cd32);
-      border-radius:24px;
-      padding:28px 20px;
-      color:#fff;
-      text-align:center;
-      margin-bottom:18px;
-    }
-    .hero h1{
-      font-size:30px;
-      line-height:1.2;
-      margin-bottom:10px;
-      font-weight:800;
-    }
-    .hero p{
-      font-size:16px;
-      line-height:1.6;
-      opacity:0.96;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
     }
 
-    .tabs{
-      display:flex;
-      gap:10px;
-      margin-bottom:18px;
-    }
-    .tabBtn{
-      flex:1;
-      border:none;
-      border-radius:14px;
-      padding:14px;
-      font-size:16px;
-      font-weight:700;
-      cursor:pointer;
-      background:#eef1f6;
-      color:#333;
-      transition:0.2s;
-    }
-    .tabBtn.active{
-      background:linear-gradient(135deg, #006400, #32cd32);
-      color:#fff;
+    body {
+      background: #f3f5f9;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
     }
 
-    .formBox{
-      display:none;
-      animation:fadeIn .25s ease;
-    }
-    .formBox.active{
-      display:block;
-    }
-
-    @keyframes fadeIn{
-      from{opacity:0; transform:translateY(6px);}
-      to{opacity:1; transform:translateY(0);}
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: #fff;
+      border-radius: 30px;
+      padding: 24px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.08);
     }
 
-    .title{
-      font-size:24px;
-      font-weight:800;
-      color:#0a7d16;
-      margin-bottom:14px;
+    .hero {
+      background: linear-gradient(135deg, #046307, #31d62c);
+      border-radius: 28px;
+      padding: 30px 20px;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 24px;
     }
 
-    .inputGroup{
-      margin-bottom:13px;
-    }
-    .inputGroup label{
-      display:block;
-      margin-bottom:7px;
-      font-weight:700;
-      color:#333;
-      font-size:15px;
-    }
-    .input{
-      width:100%;
-      padding:15px 14px;
-      border:1px solid #d7dbe3;
-      border-radius:14px;
-      font-size:16px;
-      outline:none;
-      background:#fff;
-    }
-    .input:focus{
-      border-color:#21a437;
-      box-shadow:0 0 0 3px rgba(50,205,50,0.12);
+    .hero h1 {
+      font-size: 2.3rem;
+      margin-bottom: 10px;
+      line-height: 1.2;
     }
 
-    .pinInput{
-      text-align:center;
-      letter-spacing:6px;
-      font-size:20px;
-      font-weight:700;
+    .hero p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      opacity: 0.98;
     }
 
-    .mainBtn{
-      width:100%;
-      border:none;
-      border-radius:16px;
-      padding:16px;
-      margin-top:8px;
-      background:linear-gradient(135deg, #006400, #32cd32);
-      color:#fff;
-      font-size:20px;
-      font-weight:800;
-      cursor:pointer;
-    }
-    .mainBtn:disabled{
-      opacity:0.7;
-      cursor:not-allowed;
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 24px;
     }
 
-    .miniText{
-      margin-top:14px;
-      text-align:center;
-      color:#666;
-      font-size:15px;
-      line-height:1.6;
+    .tabBtn {
+      border: none;
+      padding: 16px;
+      border-radius: 18px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #edf1f5;
+      color: #222;
+      transition: 0.25s;
     }
 
-    .errorBox, .successBox{
-      display:none;
-      margin-top:14px;
-      padding:14px;
-      border-radius:14px;
-      font-size:15px;
-      line-height:1.5;
-      font-weight:700;
-    }
-    .errorBox{
-      background:#fff1f1;
-      border:1px solid #f3b0b0;
-      color:#b42318;
-    }
-    .successBox{
-      background:#edfdf3;
-      border:1px solid #8ee0a8;
-      color:#067647;
+    .tabBtn.active {
+      background: linear-gradient(135deg, #046307, #31d62c);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(4, 99, 7, 0.25);
     }
 
-    .footer{
-      margin-top:18px;
-      text-align:center;
-      color:#555;
-      font-size:15px;
+    .sectionTitle {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0a7a12;
+      margin-bottom: 18px;
     }
 
-    .switchLine{
-      margin-top:15px;
-      text-align:center;
-      font-size:15px;
-      color:#555;
+    .form {
+      display: none;
     }
-    .switchLine span{
-      color:#0a7d16;
-      font-weight:800;
-      cursor:pointer;
+
+    .form.active {
+      display: block;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 17px 16px;
+      border-radius: 18px;
+      border: 1px solid #d9dee5;
+      background: #f7f9fc;
+      font-size: 17px;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    .field input:focus {
+      border-color: #1fb526;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(49, 214, 44, 0.12);
+    }
+
+    .pinInput {
+      text-align: center;
+      letter-spacing: 10px;
+      font-weight: bold;
+      font-size: 22px !important;
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 18px;
+      padding: 17px;
+      background: linear-gradient(135deg, #046307, #31d62c);
+      color: #fff;
+      font-size: 22px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: 0.2s;
+    }
+
+    .btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .message {
+      display: none;
+      margin-top: 16px;
+      padding: 15px;
+      border-radius: 16px;
+      font-size: 15px;
+      line-height: 1.5;
+      font-weight: 700;
+    }
+
+    .errorBox {
+      background: #fdecec;
+      color: #b42318;
+      border: 1px solid #f3c6c6;
+    }
+
+    .successBox {
+      background: #ecfdf3;
+      color: #067647;
+      border: 1px solid #b7ebc6;
+    }
+
+    .note {
+      margin-top: 18px;
+      font-size: 15px;
+      color: #555;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    .smallText {
+      font-size: 13px;
+      color: #666;
+      margin-top: 12px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .footerText {
+      text-align: center;
+      margin-top: 18px;
+      color: #444;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 18px; }
+      .hero h1 { font-size: 2rem; }
+      .btn { font-size: 20px; }
     }
   </style>
 </head>
 <body>
-
   <div class="container">
     <div class="hero">
       <h1>Hadejia Data Hub</h1>
@@ -195,293 +208,285 @@
     </div>
 
     <div class="tabs">
-      <button class="tabBtn active" id="loginTabBtn" onclick="showTab('login')">Login</button>
-      <button class="tabBtn" id="signupTabBtn" onclick="showTab('signup')">Signup</button>
+      <button class="tabBtn active" id="loginTabBtn" onclick="switchTab('login')">Login</button>
+      <button class="tabBtn" id="signupTabBtn" onclick="switchTab('signup')">Signup</button>
     </div>
 
     <!-- LOGIN FORM -->
-    <div class="formBox active" id="loginBox">
-      <div class="title">🔐 Login</div>
+    <div id="loginForm" class="form active">
+      <div class="sectionTitle">🔐 Login to your account</div>
 
-      <div class="inputGroup">
+      <div class="field">
         <label>Email Address</label>
-        <input type="email" id="loginEmail" class="input" placeholder="Enter your email" />
+        <input type="email" id="loginEmail" placeholder="Enter your email" />
       </div>
 
-      <div class="inputGroup">
+      <div class="field">
         <label>Password</label>
-        <input type="password" id="loginPassword" class="input" placeholder="Enter your password" />
+        <input type="password" id="loginPassword" placeholder="Enter your password" />
       </div>
 
-      <button class="mainBtn" id="loginBtn" onclick="loginUser()">Login</button>
+      <button class="btn" id="loginBtn" onclick="handleLogin()">Login</button>
 
-      <div class="errorBox" id="loginErrorBox"></div>
-      <div class="successBox" id="loginSuccessBox"></div>
+      <div id="loginError" class="message errorBox"></div>
+      <div id="loginSuccess" class="message successBox"></div>
 
-      <div class="switchLine">
-        Baka da account? <span onclick="showTab('signup')">Create one</span>
-      </div>
-
-      <div class="miniText">
+      <div class="note">
         Use the email and password you used during signup.
       </div>
     </div>
 
     <!-- SIGNUP FORM -->
-    <div class="formBox" id="signupBox">
-      <div class="title">📝 Create Account</div>
+    <div id="signupForm" class="form">
+      <div class="sectionTitle">📝 Create Account</div>
 
-      <div class="inputGroup">
+      <div class="field">
         <label>Full Name</label>
-        <input type="text" id="signupFullName" class="input" placeholder="Enter full name" />
+        <input type="text" id="signupFullName" placeholder="Enter your full name" />
       </div>
 
-      <div class="inputGroup">
+      <div class="field">
         <label>Phone Number</label>
-        <input type="tel" id="signupPhone" class="input" placeholder="Enter phone number" />
+        <input type="tel" id="signupPhone" placeholder="Enter your phone number" />
       </div>
 
-      <div class="inputGroup">
+      <div class="field">
         <label>Email Address</label>
-        <input type="email" id="signupEmail" class="input" placeholder="Enter email address" />
+        <input type="email" id="signupEmail" placeholder="Enter your email address" />
       </div>
 
-      <div class="inputGroup">
+      <div class="field">
         <label>Password</label>
-        <input type="password" id="signupPassword" class="input" placeholder="Create password" />
+        <input type="password" id="signupPassword" placeholder="Create password" />
       </div>
 
-      <div class="inputGroup">
+      <div class="field">
         <label>4-digit Transaction PIN</label>
-        <input type="password" id="signupPin" maxlength="4" class="input pinInput" placeholder="••••" />
+        <input
+          type="password"
+          id="signupPin"
+          maxlength="4"
+          inputmode="numeric"
+          class="pinInput"
+          placeholder="••••"
+        />
       </div>
 
-      <button class="mainBtn" id="signupBtn" onclick="signupUser()">Create Account</button>
+      <button class="btn" id="signupBtn" onclick="handleSignup()">Create Account</button>
 
-      <div class="errorBox" id="signupErrorBox"></div>
-      <div class="successBox" id="signupSuccessBox"></div>
+      <div id="signupError" class="message errorBox"></div>
+      <div id="signupSuccess" class="message successBox"></div>
 
-      <div class="switchLine">
-        Kana da account? <span onclick="showTab('login')">Login here</span>
-      </div>
-
-      <div class="miniText">
-        Bayan signup, za ka iya shiga dashboard ka saya data, voice bundle da kuma fund wallet.
+      <div class="smallText">
+        Bayan signup, za ka iya login ka shiga dashboard ɗinka.
       </div>
     </div>
 
-    <div class="footer">
-      Powered by Hadejia Data Hub
-    </div>
+    <div class="footerText">Powered by Hadejia Data Hub</div>
   </div>
 
   <script>
-    /* =========================================================
+    /* =========================
        SUPABASE CONFIG
-    ========================================================= */
-    const supabaseUrl = "https://zjenhfapfhuoogxorung.supabase.co";
-    const supabaseKey = "YOUR_SUPABASE_ANON_KEY_HERE";
-    const client = supabase.createClient(supabaseUrl, supabaseKey);
+    ========================== */
+    const SUPABASE_URL = "https://zjenhfapfhuoogxorung.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";
 
-    /* =========================================================
-       TAB SWITCH
-    ========================================================= */
-    function showTab(tab){
-      document.getElementById("loginBox").classList.remove("active");
-      document.getElementById("signupBox").classList.remove("active");
-      document.getElementById("loginTabBtn").classList.remove("active");
-      document.getElementById("signupTabBtn").classList.remove("active");
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      clearAllMessages();
+    /* =========================
+       TAB SWITCHING
+    ========================== */
+    function switchTab(tab) {
+      const loginForm = document.getElementById("loginForm");
+      const signupForm = document.getElementById("signupForm");
+      const loginTabBtn = document.getElementById("loginTabBtn");
+      const signupTabBtn = document.getElementById("signupTabBtn");
 
-      if(tab === "login"){
-        document.getElementById("loginBox").classList.add("active");
-        document.getElementById("loginTabBtn").classList.add("active");
+      hideAllMessages();
+
+      if (tab === "login") {
+        loginForm.classList.add("active");
+        signupForm.classList.remove("active");
+        loginTabBtn.classList.add("active");
+        signupTabBtn.classList.remove("active");
       } else {
-        document.getElementById("signupBox").classList.add("active");
-        document.getElementById("signupTabBtn").classList.add("active");
+        signupForm.classList.add("active");
+        loginForm.classList.remove("active");
+        signupTabBtn.classList.add("active");
+        loginTabBtn.classList.remove("active");
       }
     }
 
-    function clearAllMessages(){
-      hideBox("loginErrorBox");
-      hideBox("loginSuccessBox");
-      hideBox("signupErrorBox");
-      hideBox("signupSuccessBox");
+    function hideAllMessages() {
+      const ids = ["loginError", "loginSuccess", "signupError", "signupSuccess"];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        el.style.display = "none";
+        el.innerText = "";
+      });
     }
 
-    function showError(id, message){
-      const box = document.getElementById(id);
-      box.style.display = "block";
-      box.innerText = message;
+    function showMessage(id, message) {
+      const el = document.getElementById(id);
+      el.innerText = message;
+      el.style.display = "block";
     }
 
-    function showSuccess(id, message){
-      const box = document.getElementById(id);
-      box.style.display = "block";
-      box.innerText = message;
-    }
-
-    function hideBox(id){
-      const box = document.getElementById(id);
-      box.style.display = "none";
-      box.innerText = "";
-    }
-
-    /* =========================================================
-       CHECK EXISTING SESSION
-    ========================================================= */
-    async function checkSessionOnLoad(){
-      try{
+    /* =========================
+       CHECK ACTIVE SESSION
+    ========================== */
+    async function checkExistingSession() {
+      try {
         const { data, error } = await client.auth.getSession();
-        if(error){
-          console.log("Session check error:", error.message);
-          return;
-        }
-
-        if(data?.session){
+        if (error) return;
+        if (data?.session?.user) {
           window.location.href = "/dashboard.html";
         }
-      }catch(err){
-        console.log(err);
-      }
+      } catch (e) {}
     }
 
-    /* =========================================================
+    /* =========================
        SIGNUP
-       NOTE:
-       Wannan signup zai tura account_name, phone, pin
-       zuwa Supabase metadata.
-       Trigger ɗin SQL ɗinka zai saka su a public.users table.
-    ========================================================= */
-    async function signupUser(){
-      clearAllMessages();
+       Uses backend route /api/signup
+    ========================== */
+    async function handleSignup() {
+      hideAllMessages();
 
       const fullName = document.getElementById("signupFullName").value.trim();
       const phone = document.getElementById("signupPhone").value.trim();
-      const email = document.getElementById("signupEmail").value.trim();
-      const password = document.getElementById("signupPassword").value.trim();
+      const email = document.getElementById("signupEmail").value.trim().toLowerCase();
+      const password = document.getElementById("signupPassword").value;
       const pin = document.getElementById("signupPin").value.trim();
-
-      if(!fullName || !phone || !email || !password || !pin){
-        showError("signupErrorBox", "Da Allah ka cika dukkan fields.");
-        return;
-      }
-
-      if(phone.length < 11){
-        showError("signupErrorBox", "Shigar da ingantaccen phone number.");
-        return;
-      }
-
-      if(pin.length !== 4 || isNaN(pin)){
-        showError("signupErrorBox", "PIN dole ya zama digit 4.");
-        return;
-      }
-
-      if(password.length < 6){
-        showError("signupErrorBox", "Password ya zama akalla harafi 6.");
-        return;
-      }
-
       const btn = document.getElementById("signupBtn");
-      btn.disabled = true;
-      btn.innerText = "Creating account...";
 
-      try{
-        const { data, error } = await client.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              account_name: fullName,
-              phone: phone,
-              pin: pin
-            }
-          }
+      if (!fullName || !phone || !email || !password || !pin) {
+        showMessage("signupError", "Please fill all fields");
+        return;
+      }
+
+      if (phone.length < 11) {
+        showMessage("signupError", "Phone number must be at least 11 digits");
+        return;
+      }
+
+      if (!/^\d{4}$/.test(pin)) {
+        showMessage("signupError", "PIN must be exactly 4 digits");
+        return;
+      }
+
+      try {
+        btn.disabled = true;
+        btn.innerText = "Creating Account...";
+
+        const response = await fetch("/api/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            fullName,
+            phone,
+            email,
+            password,
+            pin
+          })
         });
 
-        if(error) throw error;
+        const result = await response.json();
 
-        showSuccess(
-          "signupSuccessBox",
-          "Signup successful! Yanzu zaka iya login."
-        );
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || "Signup failed");
+        }
 
-        // clear fields
+        showMessage("signupSuccess", "Account created successfully. You can now login.");
+
+        // Clear signup form
         document.getElementById("signupFullName").value = "";
         document.getElementById("signupPhone").value = "";
         document.getElementById("signupEmail").value = "";
         document.getElementById("signupPassword").value = "";
         document.getElementById("signupPin").value = "";
 
+        // Switch to login after short delay
         setTimeout(() => {
-          showTab("login");
-          document.getElementById("loginEmail").value = email;
+          switchTab("login");
         }, 1200);
 
-      } catch(err){
-        showError("signupErrorBox", err.message || "Signup failed.");
+      } catch (err) {
+        showMessage("signupError", err.message || "Signup failed");
       } finally {
         btn.disabled = false;
         btn.innerText = "Create Account";
       }
     }
 
-    /* =========================================================
+    /* =========================
        LOGIN
-    ========================================================= */
-    async function loginUser(){
-      clearAllMessages();
+       Uses Supabase Auth directly
+    ========================== */
+    async function handleLogin() {
+      hideAllMessages();
 
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value.trim();
+      const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+      const password = document.getElementById("loginPassword").value;
+      const btn = document.getElementById("loginBtn");
 
-      if(!email || !password){
-        showError("loginErrorBox", "Ka shigar da email da password.");
+      if (!email || !password) {
+        showMessage("loginError", "Please enter your email and password");
         return;
       }
 
-      const btn = document.getElementById("loginBtn");
-      btn.disabled = true;
-      btn.innerText = "Logging in...";
+      try {
+        btn.disabled = true;
+        btn.innerText = "Logging in...";
 
-      try{
         const { data, error } = await client.auth.signInWithPassword({
           email,
           password
         });
 
-        if(error) throw error;
+        if (error) {
+          throw new Error(error.message || "Login failed");
+        }
 
-        showSuccess("loginSuccessBox", "Login successful! Ana kai ka dashboard...");
+        if (!data?.user) {
+          throw new Error("Login failed");
+        }
+
+        showMessage("loginSuccess", "Login successful. Redirecting...");
 
         setTimeout(() => {
           window.location.href = "/dashboard.html";
         }, 800);
 
-      } catch(err){
-        showError("loginErrorBox", err.message || "Login failed.");
+      } catch (err) {
+        showMessage("loginError", err.message || "Login failed");
       } finally {
         btn.disabled = false;
         btn.innerText = "Login";
       }
     }
 
-    /* =========================================================
+    /* =========================
        ENTER KEY SUPPORT
-    ========================================================= */
-    document.getElementById("loginPassword").addEventListener("keypress", function(e){
-      if(e.key === "Enter") loginUser();
+    ========================== */
+    document.addEventListener("keydown", function(e) {
+      const loginVisible = document.getElementById("loginForm").classList.contains("active");
+      const signupVisible = document.getElementById("signupForm").classList.contains("active");
+
+      if (e.key === "Enter") {
+        if (loginVisible) handleLogin();
+        if (signupVisible) handleSignup();
+      }
     });
 
-    document.getElementById("signupPin").addEventListener("keypress", function(e){
-      if(e.key === "Enter") signupUser();
+    /* =========================
+       INIT
+    ========================== */
+    window.addEventListener("load", () => {
+      checkExistingSession();
     });
-
-    /* =========================================================
-       START
-    ========================================================= */
-    window.addEventListener("load", checkSessionOnLoad);
   </script>
 </body>
 </html>
