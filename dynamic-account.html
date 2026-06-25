@@ -4,408 +4,516 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Generate Dynamic Account - Hadejia Data Hub</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *{
       margin:0;
       padding:0;
       box-sizing:border-box;
-      font-family:Arial,sans-serif;
+      font-family: Arial, sans-serif;
     }
+
     body{
       background:#f3f5f9;
-      padding:15px;
+      padding:16px;
+      color:#222;
     }
-    .header{
+
+    .container{
+      max-width:650px;
+      margin:0 auto;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:16px;
+      gap:10px;
+    }
+
+    .backBtn{
+      display:inline-block;
+      text-decoration:none;
+      background:#111;
+      color:#fff;
+      padding:12px 16px;
+      border-radius:12px;
+      font-weight:700;
+      font-size:14px;
+    }
+
+    .pageTitle{
+      font-size:22px;
+      font-weight:800;
+      color:green;
+      text-align:right;
+      flex:1;
+    }
+
+    .card{
+      background:#fff;
+      border-radius:22px;
+      padding:20px;
+      box-shadow:0 8px 25px rgba(0,0,0,0.08);
+      margin-bottom:18px;
+    }
+
+    .hero{
       background:linear-gradient(135deg, green, limegreen);
       color:#fff;
-      padding:24px;
       border-radius:24px;
-      margin-bottom:20px;
-      box-shadow:0 8px 25px rgba(0,0,0,0.08);
+      padding:24px 20px;
+      margin-bottom:18px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.12);
     }
-    .headerTop{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
+
+    .hero h1{
+      font-size:26px;
+      margin-bottom:8px;
     }
-    .title{
-      font-size:28px;
-      font-weight:bold;
-    }
-    .sub{
-      margin-top:8px;
+
+    .hero p{
       font-size:14px;
       line-height:1.5;
       opacity:0.95;
     }
-    .topBtns{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .btn{
-      border:none;
-      border-radius:12px;
-      padding:12px 16px;
-      font-weight:bold;
-      cursor:pointer;
-      color:#fff;
-    }
-    .btnBack{ background:#111; }
-    .btnDash{ background:#ff9800; }
-    .card{
-      background:#fff;
-      border-radius:20px;
-      padding:20px;
-      margin-bottom:20px;
-      box-shadow:0 5px 15px rgba(0,0,0,0.06);
-    }
-    .cardTitle{
-      font-size:24px;
-      font-weight:bold;
+
+    .sectionTitle{
+      font-size:22px;
+      font-weight:800;
       color:green;
-      margin-bottom:15px;
+      margin-bottom:14px;
     }
+
+    label{
+      display:block;
+      margin-top:12px;
+      margin-bottom:7px;
+      font-weight:700;
+      color:#333;
+      font-size:14px;
+    }
+
     input{
       width:100%;
       padding:15px;
-      border-radius:12px;
-      border:1px solid #ccc;
-      margin-top:12px;
-      font-size:16px;
+      border:1px solid #d7d7d7;
+      border-radius:14px;
       outline:none;
+      font-size:16px;
       background:#fff;
     }
+
     input:focus{
       border-color:green;
       box-shadow:0 0 0 3px rgba(0,128,0,0.08);
     }
-    .mainBtn{
-      width:100%;
-      padding:15px;
-      border:none;
-      border-radius:12px;
-      background:linear-gradient(135deg, green, limegreen);
-      color:white;
-      font-size:18px;
-      font-weight:bold;
-      margin-top:15px;
-      cursor:pointer;
+
+    .hint{
+      font-size:13px;
+      color:#666;
+      margin-top:8px;
+      line-height:1.5;
     }
-    .mainBtn:disabled{
-      opacity:0.7;
+
+    .btn{
+      width:100%;
+      border:none;
+      border-radius:14px;
+      padding:15px;
+      cursor:pointer;
+      font-size:17px;
+      font-weight:800;
+      margin-top:16px;
+      transition:0.2s ease;
+    }
+
+    .btn:active{
+      transform:scale(0.98);
+    }
+
+    .primaryBtn{
+      background:linear-gradient(135deg, green, limegreen);
+      color:#fff;
+    }
+
+    .secondaryBtn{
+      background:#111;
+      color:#fff;
+    }
+
+    .shareBtn{
+      background:#0f8b4c;
+      color:#fff;
+    }
+
+    .copyBtn{
+      background:#e69500;
+      color:#fff;
+    }
+
+    .btn[disabled]{
+      opacity:0.65;
       cursor:not-allowed;
     }
+
     .resultCard{
       display:none;
-      background: linear-gradient(135deg, #111, #333);
-      color: #fff;
-      padding: 22px;
-      border-radius: 20px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      margin-top:20px;
+      background:linear-gradient(135deg, #111, #333);
+      color:#fff;
+      border-radius:24px;
+      padding:22px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.15);
+      margin-top:18px;
     }
-    .resultTitle{
+
+    .resultHeader{
       font-size:14px;
       color:#ffc107;
-      font-weight:bold;
+      font-weight:800;
       text-transform:uppercase;
-      margin-bottom:10px;
+      letter-spacing:0.5px;
+      margin-bottom:14px;
     }
-    .accNum{
+
+    .accNo{
       font-size:32px;
-      font-weight:bold;
-      margin:10px 0;
+      font-weight:900;
       letter-spacing:1px;
+      margin:10px 0 14px;
       word-break:break-word;
     }
-    .detail{
-      margin-top:8px;
+
+    .infoRow{
+      margin-top:10px;
       font-size:15px;
       line-height:1.6;
     }
+
+    .infoRow strong{
+      color:#ffc107;
+    }
+
+    .creditNote{
+      margin-top:14px;
+      background:rgba(255,255,255,0.08);
+      padding:12px;
+      border-radius:14px;
+      font-size:14px;
+      line-height:1.6;
+    }
+
     .countdown{
-      margin-top:12px;
-      color:#ff6b6b;
-      font-weight:bold;
+      margin-top:14px;
+      color:#ff8c8c;
+      font-weight:800;
       font-size:15px;
     }
-    .actionBtns{
+
+    .btnGrid{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:12px;
-      margin-top:15px;
+      margin-top:18px;
     }
-    .actionBtn{
-      border:none;
-      border-radius:12px;
+
+    .statusBox{
+      display:none;
+      margin-top:16px;
       padding:14px;
-      font-weight:bold;
-      cursor:pointer;
-      color:#fff;
-    }
-    .copyBtn{ background:#0f8b4c; }
-    .shareBtn{ background:#ff9800; }
-    .note{
-      background:#fff7e6;
-      border:1px solid #ffd591;
-      color:#8a6100;
-      padding:12px;
-      border-radius:12px;
-      margin-top:15px;
+      border-radius:14px;
       font-size:14px;
+      font-weight:700;
       line-height:1.5;
     }
-    .muted{
+
+    .statusSuccess{
+      background:#e9f9ef;
+      color:#0f8b4c;
+      border:1px solid #bde7cc;
+    }
+
+    .statusError{
+      background:#fff1f1;
+      color:#c62828;
+      border:1px solid #f0b9b9;
+    }
+
+    .miniNote{
+      margin-top:14px;
       font-size:13px;
       color:#666;
-      margin-top:12px;
-      line-height:1.5;
+      line-height:1.6;
     }
-    @media(max-width:480px){
-      .actionBtns{ grid-template-columns:1fr; }
-      .accNum{ font-size:28px; }
+
+    .footerNote{
+      margin-top:12px;
+      font-size:12px;
+      color:#888;
+      text-align:center;
+      line-height:1.6;
+    }
+
+    @media (max-width: 600px){
+      .pageTitle{
+        font-size:18px;
+      }
+
+      .hero h1{
+        font-size:22px;
+      }
+
+      .accNo{
+        font-size:28px;
+      }
+
+      .btnGrid{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="container">
 
-  <div class="header">
-    <div class="headerTop">
-      <div>
-        <div class="title">🏦 Dynamic Account</div>
-        <div class="sub">
-          Generate temporary bank account for wallet funding.
-        </div>
-      </div>
-
-      <div class="topBtns">
-        <button class="btn btnBack" onclick="history.back()">← Back</button>
-        <button class="btn btnDash" onclick="window.location.href='/dashboard.html'">Dashboard</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="cardTitle">Generate Payment Account</div>
-
-    <input type="number" id="amount" placeholder="Enter amount to deposit (₦)">
-    <button class="mainBtn" id="generateBtn" onclick="generateDynamicAccount()">Generate Account</button>
-
-    <div class="note">
-      Ka shigar da adadin kuɗin da kake son tura wa wallet. Bayan ka danna generate, za a baka temporary bank account number da zaka tura kuɗi zuwa gare shi.
+    <div class="topbar">
+      <a href="/dashboard.html" class="backBtn">← Back to Dashboard</a>
+      <div class="pageTitle">Dynamic Account</div>
     </div>
 
-    <div class="muted">
-      Wannan page ɗin yana amfani da backend route: <b>/api/generate-dynamic-account</b><br>
-      API keys da business ID suna zaune a Vercel environment variables, ba a browser ba.
+    <div class="hero">
+      <h1>Generate Dynamic Bank Account</h1>
+      <p>
+        Shigar da adadin kuɗin da kake son sakawa wallet ɗinka.  
+        Za a samar maka da temporary account number na biya.  
+        Da zarar ka tura kuɗi zuwa wannan account, wallet ɗinka zai iya samun credit ta webhook ɗin SecureWave idan an haɗa komai daidai.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="sectionTitle">💰 Fund Wallet</div>
+
+      <label for="amount">Amount to Deposit (₦)</label>
+      <input type="number" id="amount" placeholder="Misali: 1000" min="100" />
+
+      <div class="hint">
+        - Mafi ƙarancin amount da ka shigar ya fi ₦100.<br>
+        - SecureWave zai samar da account number na wucin gadi domin wannan deposit ɗin.<br>
+        - Za a iya cire <strong>₦50 fee</strong> idan ka yi transfer.
+      </div>
+
+      <button class="btn primaryBtn" id="generateBtn" onclick="generateDynamicAccount()">
+        Generate Payment Account
+      </button>
+
+      <div id="statusBox" class="statusBox"></div>
+
+      <div class="miniNote">
+        Wannan page ɗin yana amfani da backend route:
+        <strong>/api/generate-dynamic-account</strong><br>
+        API keys da business ID suna zaune a Vercel environment variables, ba a JavaScript na browser ba.
+      </div>
     </div>
 
     <div class="resultCard" id="resultCard">
-      <div class="resultTitle">Generated Account Result</div>
-      <div class="detail"><b>Account Name</b></div>
-      <div class="detail" id="accName">-</div>
+      <div class="resultHeader">Generated Account Result</div>
 
-      <div class="detail" style="margin-top:15px;"><b>Account Number</b></div>
-      <div class="accNum" id="accNumber">-</div>
+      <div class="infoRow"><strong>Account Name:</strong></div>
+      <div id="accountName" style="font-size:18px; font-weight:800; margin-top:4px;">-</div>
 
-      <div class="detail"><b>Bank Name</b></div>
-      <div class="detail" id="bankName">-</div>
+      <div class="infoRow" style="margin-top:18px;"><strong>Account Number:</strong></div>
+      <div class="accNo" id="accountNumber">-</div>
 
-      <div class="detail"><b>Amount To Transfer</b></div>
-      <div class="detail" id="amountToPay">₦0</div>
+      <div class="infoRow"><strong>Bank Name:</strong> <span id="bankName">-</span></div>
+      <div class="infoRow"><strong>Reference / ID:</strong> <span id="reference">-</span></div>
+      <div class="infoRow"><strong>Amount To Transfer:</strong> ₦<span id="amountToPay">0</span></div>
 
-      <div class="detail"><b>Reference / ID</b></div>
-      <div class="detail" id="accRef">-</div>
-
-      <div class="countdown" id="expiryText">Expires in: 15:00</div>
-
-      <div class="actionBtns">
-        <button class="actionBtn copyBtn" onclick="copyAccountNumber()">Copy Account Number</button>
-        <button class="actionBtn shareBtn" onclick="shareDetails()">Share Details</button>
+      <div class="creditNote" id="creditNote">
+        ₦50 fee applies. Wallet credit after fee: ₦0
       </div>
+
+      <div class="countdown" id="expiryText">Expires in: --:--</div>
+
+      <div class="btnGrid">
+        <button class="btn copyBtn" onclick="copyAccountNumber()">Copy Account Number</button>
+        <button class="btn shareBtn" onclick="shareDetails()">Share Details</button>
+      </div>
+    </div>
+
+    <div class="footerNote">
+      Idan account ɗin ya expire, sai ka sake generate wani sabo kafin ka tura kuɗi.
     </div>
   </div>
 
-<script>
-const supabaseUrl = "https://zjenhfapfhuoogxorung.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
-const client = supabase.createClient(supabaseUrl, supabaseKey);
+  <script>
+    let countdownInterval = null;
+    let currentGeneratedAccount = null;
 
-let currentUser = null;
-let timerInterval = null;
-let latestAccountData = null;
+    function showStatus(message, type = "success") {
+      const box = document.getElementById("statusBox");
+      box.style.display = "block";
+      box.className = "statusBox " + (type === "success" ? "statusSuccess" : "statusError");
+      box.innerText = message;
+    }
 
-/* =========================
-   CHECK USER
-========================= */
-async function checkUser(){
-  const { data: { session } } = await client.auth.getSession();
-  if(!session){
-    window.location.href = "/";
-    return;
-  }
+    function hideStatus() {
+      const box = document.getElementById("statusBox");
+      box.style.display = "none";
+      box.innerText = "";
+    }
 
-  currentUser = session.user;
+    function formatNaira(value) {
+      return Number(value || 0).toLocaleString();
+    }
 
-  const { data, error } = await client
-    .from("users")
-    .select("account_name, phone")
-    .eq("id", currentUser.id)
-    .single();
+    async function generateDynamicAccount() {
+      hideStatus();
 
-  if(!error && data){
-    currentUser.fullName = data.account_name || "User Customer";
-    currentUser.phone = data.phone || "08012345678";
-  } else {
-    currentUser.fullName = "User Customer";
-    currentUser.phone = "08012345678";
-  }
-}
+      const amountInput = document.getElementById("amount");
+      const generateBtn = document.getElementById("generateBtn");
+      const amount = Number(amountInput.value);
 
-/* =========================
-   GENERATE ACCOUNT
-========================= */
-async function generateDynamicAccount(){
-  const amount = Number(document.getElementById("amount").value);
-  const btn = document.getElementById("generateBtn");
+      if (!amount || amount <= 100) {
+        showStatus("Please enter an amount greater than ₦100.", "error");
+        return;
+      }
 
-  if(!amount || amount <= 100){
-    alert("Please enter an amount greater than ₦100");
-    return;
-  }
+      generateBtn.disabled = true;
+      generateBtn.innerText = "Generating Account...";
 
-  btn.disabled = true;
-  btn.innerText = "Generating...";
+      try {
+        const response = await fetch("/api/generate-dynamic-account", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ amount })
+        });
 
-  try{
-    const nameParts = (currentUser.fullName || "User Customer").trim().split(" ");
-    const firstName = nameParts[0] || "User";
-    const lastName = nameParts.slice(1).join(" ") || "Customer";
+        const result = await response.json();
 
-    const response = await fetch("/api/generate-dynamic-account", {
-      method: "POST",
-      headers: { "Content-Type":"application/json" },
-      body: JSON.stringify({
-        email: currentUser.email,
-        first_name: firstName,
-        last_name: lastName,
-        phone_number: currentUser.phone || "08012345678",
-        amount: amount,
-        bank_code: [3]
-      })
-    });
+        if (!response.ok || !result.status) {
+          throw new Error(result.message || "Failed to generate dynamic account.");
+        }
 
-    const result = await response.json();
+        const acc = result.data && result.data[0] ? result.data[0] : null;
 
-    btn.disabled = false;
-    btn.innerText = "Generate Account";
+        if (!acc) {
+          throw new Error("No account data returned from server.");
+        }
 
-    if((result.status === true || result.success === true) && result.data && result.data[0]){
-      const acc = result.data[0];
-      latestAccountData = acc;
+        currentGeneratedAccount = acc;
+        renderAccountResult(acc);
+        showStatus(result.message || "Dynamic account generated successfully.", "success");
 
-      document.getElementById("accName").innerText = acc.account_name || "-";
-      document.getElementById("accNumber").innerText = acc.account_number || "-";
-      document.getElementById("bankName").innerText = acc.account_bank || "Safehaven";
-      document.getElementById("amountToPay").innerText = "₦" + Number(acc.amount_to_pay || amount).toLocaleString();
-      document.getElementById("accRef").innerText = acc.account_reference || "-";
+      } catch (error) {
+        console.error("Generate dynamic account error:", error);
+        showStatus(error.message || "Something went wrong while generating account.", "error");
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.innerText = "Generate Payment Account";
+      }
+    }
+
+    function renderAccountResult(acc) {
+      const accountName = acc.account_name || "Securewaveng Checkout";
+      const accountNumber = acc.account_number || "-";
+      const bankName = acc.account_bank || "Safehaven";
+      const reference = acc.account_reference || "-";
+      const amountToPay = Number(acc.amount_to_pay || 0);
+      const expires = Number(acc.expires || 900);
+
+      const walletCredit = amountToPay - 50;
+
+      document.getElementById("accountName").innerText = accountName;
+      document.getElementById("accountNumber").innerText = accountNumber;
+      document.getElementById("bankName").innerText = bankName;
+      document.getElementById("reference").innerText = reference;
+      document.getElementById("amountToPay").innerText = formatNaira(amountToPay);
+
+      document.getElementById("creditNote").innerHTML =
+        `₦50 fee applies. Wallet credit after fee: <strong>₦${formatNaira(walletCredit > 0 ? walletCredit : 0)}</strong>`;
+
       document.getElementById("resultCard").style.display = "block";
 
-      startCountdown(Number(acc.expires || 900));
-      alert(result.message || "Dynamic account successfully generated");
-    }else{
-      alert(result.message || "Failed to generate dynamic account");
+      startCountdown(expires);
     }
-  }catch(err){
-    btn.disabled = false;
-    btn.innerText = "Generate Account";
-    alert("Connection Error: " + err.message);
-  }
-}
 
-/* =========================
-   COUNTDOWN
-========================= */
-function startCountdown(seconds){
-  if(timerInterval) clearInterval(timerInterval);
+    function startCountdown(seconds) {
+      if (countdownInterval) clearInterval(countdownInterval);
 
-  let timeRemaining = Number(seconds || 900);
-  const display = document.getElementById("expiryText");
+      let timeRemaining = Number(seconds || 0);
+      const expiryText = document.getElementById("expiryText");
 
-  timerInterval = setInterval(() => {
-    let minutes = Math.floor(timeRemaining / 60);
-    let secs = timeRemaining % 60;
-    minutes = minutes < 10 ? "0" + minutes : minutes;
-    secs = secs < 10 ? "0" + secs : secs;
+      countdownInterval = setInterval(() => {
+        if (timeRemaining < 0) {
+          clearInterval(countdownInterval);
+          expiryText.innerText = "Expired! Generate a new account.";
+          return;
+        }
 
-    display.innerText = `Expires in: ${minutes}:${secs}`;
-    timeRemaining--;
+        const mins = Math.floor(timeRemaining / 60);
+        const secs = timeRemaining % 60;
 
-    if(timeRemaining < 0){
-      clearInterval(timerInterval);
-      display.innerText = "Expired! Generate a new account.";
+        const mm = mins < 10 ? "0" + mins : mins;
+        const ss = secs < 10 ? "0" + secs : secs;
+
+        expiryText.innerText = `Expires in: ${mm}:${ss}`;
+        timeRemaining--;
+      }, 1000);
     }
-  }, 1000);
-}
 
-/* =========================
-   COPY
-========================= */
-async function copyAccountNumber(){
-  const accNo = document.getElementById("accNumber").innerText.trim();
-  if(!accNo || accNo === "-"){
-    alert("No account number to copy");
-    return;
-  }
+    async function copyAccountNumber() {
+      if (!currentGeneratedAccount || !currentGeneratedAccount.account_number) {
+        showStatus("No account number to copy yet.", "error");
+        return;
+      }
 
-  try{
-    await navigator.clipboard.writeText(accNo);
-    alert("Account number copied!");
-  }catch(err){
-    alert("Failed to copy account number");
-  }
-}
+      try {
+        await navigator.clipboard.writeText(currentGeneratedAccount.account_number);
+        showStatus("Account number copied successfully.", "success");
+      } catch (error) {
+        showStatus("Failed to copy account number.", "error");
+      }
+    }
 
-/* =========================
-   SHARE
-========================= */
-async function shareDetails(){
-  if(!latestAccountData){
-    alert("No account details to share");
-    return;
-  }
+    async function shareDetails() {
+      if (!currentGeneratedAccount) {
+        showStatus("No generated account details to share yet.", "error");
+        return;
+      }
 
-  const text =
+      const accountName = currentGeneratedAccount.account_name || "Securewaveng Checkout";
+      const accountNumber = currentGeneratedAccount.account_number || "-";
+      const bankName = currentGeneratedAccount.account_bank || "Safehaven";
+      const amountToPay = Number(currentGeneratedAccount.amount_to_pay || 0);
+      const reference = currentGeneratedAccount.account_reference || "-";
+
+      const shareText =
 `Hadejia Data Hub Payment Details
 
-Bank: ${latestAccountData.account_bank || "Safehaven"}
-Account Name: ${latestAccountData.account_name || "-"}
-Account Number: ${latestAccountData.account_number || "-"}
-Amount: ₦${Number(latestAccountData.amount_to_pay || 0).toLocaleString()}
-Reference: ${latestAccountData.account_reference || "-"}`;
+Bank: ${bankName}
+Account Name: ${accountName}
+Account Number: ${accountNumber}
+Amount: ₦${formatNaira(amountToPay)}
+Reference: ${reference}
 
-  if(navigator.share){
-    try{
-      await navigator.share({
-        title: "Payment Account Details",
-        text
-      });
-    }catch(err){}
-  }else{
-    try{
-      await navigator.clipboard.writeText(text);
-      alert("Details copied to clipboard for sharing");
-    }catch(err){
-      alert("Unable to share details");
+Please transfer the exact amount above.`;
+
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            title: "Dynamic Account Payment Details",
+            text: shareText
+          });
+        } else {
+          await navigator.clipboard.writeText(shareText);
+          showStatus("Share not supported on this device. Details copied to clipboard instead.", "success");
+        }
+      } catch (error) {
+        console.log("Share cancelled or failed:", error);
+      }
     }
-  }
-}
-
-window.addEventListener("load", checkUser);
-</script>
+  </script>
 </body>
   </html>
