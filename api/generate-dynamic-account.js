@@ -69,7 +69,8 @@ export default async function handler(req, res) {
       amount: Number(amount)
     };
 
-    const response = await fetch("https://securewaveng.com/api/v1/dynamic_accounts/generate", {
+    const response = await fetch(
+  "https://securewaveng.com/api/dynamic_accounts/generate", {
       method: "POST",
       headers: {
         "Accept": "application/json",
