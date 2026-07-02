@@ -512,7 +512,7 @@
     try{
       const { data, error } = await client
         .from("users")
-        .select("balance, is_admin, phone, account_name, transaction_pin")
+        .select("balance, is_admin, phone, full_name, transaction_pin")
         .eq("id", userId)
         .single();
 
@@ -527,7 +527,7 @@
         }
 
         currentUser.phone = data.phone || "";
-        currentUser.fullName = data.account_name || "";
+        currentUser.fullName = data.full_name  || "";
         currentUser.savedPin = data.transaction_pin || "";
       }
     }catch(err){
