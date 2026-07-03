@@ -509,38 +509,46 @@
   }
 
   async function loadUserData(userId){
-    try{
-      const { data, error } = await client
-        .from("users")
-        .select("balance, is_admin, phone, full_name, transaction_pin")
-        .eq("id", userId)
-        .single();
+  async function loadUserData(userId) {
+  try {
 
-      if(error) throw error;
+    const { data, error } = await client
+      .from("users")
+      .select("*")
+      .eq("id", userId)
+      .single();
 
-      if(data){
-        currentBalance = Number(data.balance || 0);
-        document.getElementById("walletBalance").innerText = "₦" + currentBalance.toLocaleString();
-
-        const { data: adminData } = await client
-  .from("users")
-  .select("is_admin")
-  .eq("id", currentUser.id)
-  .single();
-
-if (adminData?.is_admin === true) {
-  document.getElementById("adminLinkBtn").style.display = "inline-block";
-}
-
-        currentUser.phone = data.phone || "";
-        currentUser.fullName = data.full_name  || "";
-        currentUser.savedPin = data.transaction_pin || "";
-      }
-    }catch(err){
-      console.error(err);
+    if (error) {
+      console.error(error);
+      alert("User profile not found");
+      return;
     }
-  }
 
+    // Save current user
+    currentUser = {
+      ...currentUser,
+      ...data
+    };
+
+    // Wallet Balance
+    currentBalance = Number(data.balance || 0);
+    document.getElementById("walletBalance").innerText =
+      "₦" + currentBalance.toLocaleString();
+
+    // Admin Button
+    if (data.is_admin === true) {
+      document.getElementById("adminLinkBtn").style.display = "inline-block";
+    } else {
+      document.getElementById("adminLinkBtn").style.display = "none";
+    }
+
+    console.log("User Loaded:", data);
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to load profile");
+  }
+}
   /* =========================
      DYNAMIC ACCOUNT
   ========================== */
