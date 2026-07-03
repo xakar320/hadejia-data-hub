@@ -522,9 +522,15 @@
         currentBalance = Number(data.balance || 0);
         document.getElementById("walletBalance").innerText = "₦" + currentBalance.toLocaleString();
 
-        if(data.is_admin === true || currentUser.email === "xakar2@gmail.com"){
-          document.getElementById("adminLinkBtn").style.display = "inline-block";
-        }
+        const { data: adminData } = await client
+  .from("users")
+  .select("is_admin")
+  .eq("id", currentUser.id)
+  .single();
+
+if (adminData?.is_admin === true) {
+  document.getElementById("adminLinkBtn").style.display = "inline-block";
+}
 
         currentUser.phone = data.phone || "";
         currentUser.fullName = data.full_name  || "";
