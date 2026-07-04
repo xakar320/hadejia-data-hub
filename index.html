@@ -1,492 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hadejia Data Hub</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hadejia Data Hub - Login</title>
 
-    body {
-      background: #f3f5f9;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
+    <link rel="stylesheet" href="css/style.css">
 
-    .container {
-      width: 100%;
-      max-width: 500px;
-      background: #fff;
-      border-radius: 30px;
-      padding: 24px;
-      box-shadow: 0 10px 35px rgba(0,0,0,0.08);
-    }
-
-    .hero {
-      background: linear-gradient(135deg, #046307, #31d62c);
-      border-radius: 28px;
-      padding: 30px 20px;
-      color: #fff;
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .hero h1 {
-      font-size: 2.3rem;
-      margin-bottom: 10px;
-      line-height: 1.2;
-    }
-
-    .hero p {
-      font-size: 1.1rem;
-      line-height: 1.6;
-      opacity: 0.98;
-    }
-
-    .tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 24px;
-    }
-
-    .tabBtn {
-      border: none;
-      padding: 16px;
-      border-radius: 18px;
-      font-size: 18px;
-      font-weight: 700;
-      cursor: pointer;
-      background: #edf1f5;
-      color: #222;
-      transition: 0.25s;
-    }
-
-    .tabBtn.active {
-      background: linear-gradient(135deg, #046307, #31d62c);
-      color: #fff;
-      box-shadow: 0 8px 18px rgba(4, 99, 7, 0.25);
-    }
-
-    .sectionTitle {
-      font-size: 18px;
-      font-weight: 800;
-      color: #0a7a12;
-      margin-bottom: 18px;
-    }
-
-    .form {
-      display: none;
-    }
-
-    .form.active {
-      display: block;
-    }
-
-    .field {
-      margin-bottom: 16px;
-    }
-
-    .field label {
-      display: block;
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: #333;
-    }
-
-    .field input {
-      width: 100%;
-      padding: 17px 16px;
-      border-radius: 18px;
-      border: 1px solid #d9dee5;
-      background: #f7f9fc;
-      font-size: 17px;
-      outline: none;
-      transition: 0.2s;
-    }
-
-    .field input:focus {
-      border-color: #1fb526;
-      background: #fff;
-      box-shadow: 0 0 0 3px rgba(49, 214, 44, 0.12);
-    }
-
-    .pinInput {
-      text-align: center;
-      letter-spacing: 10px;
-      font-weight: bold;
-      font-size: 22px !important;
-    }
-
-    .btn {
-      width: 100%;
-      border: none;
-      border-radius: 18px;
-      padding: 17px;
-      background: linear-gradient(135deg, #046307, #31d62c);
-      color: #fff;
-      font-size: 22px;
-      font-weight: 800;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: 0.2s;
-    }
-
-    .btn:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    .message {
-      display: none;
-      margin-top: 16px;
-      padding: 15px;
-      border-radius: 16px;
-      font-size: 15px;
-      line-height: 1.5;
-      font-weight: 700;
-    }
-
-    .errorBox {
-      background: #fdecec;
-      color: #b42318;
-      border: 1px solid #f3c6c6;
-    }
-
-    .successBox {
-      background: #ecfdf3;
-      color: #067647;
-      border: 1px solid #b7ebc6;
-    }
-
-    .note {
-      margin-top: 18px;
-      font-size: 15px;
-      color: #555;
-      line-height: 1.7;
-      text-align: center;
-    }
-
-    .smallText {
-      font-size: 13px;
-      color: #666;
-      margin-top: 12px;
-      line-height: 1.6;
-      text-align: center;
-    }
-
-    .footerText {
-      text-align: center;
-      margin-top: 18px;
-      color: #444;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    @media (max-width: 480px) {
-      .container { padding: 18px; }
-      .hero h1 { font-size: 2rem; }
-      .btn { font-size: 20px; }
-    }
-  </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
 </head>
+
 <body>
-  <div class="container">
-    <div class="hero">
-      <h1>Hadejia Data Hub</h1>
-      <p>Buy Data, Voice Bundle and fund your wallet easily.</p>
+
+<div class="login-container">
+
+    <div class="login-card">
+
+        <div class="logo">
+            📶
+        </div>
+
+        <h1>Hadejia Data Hub</h1>
+
+        <p>Welcome Back</p>
+
+        <form id="loginForm">
+
+            <input
+                type="email"
+                id="email"
+                placeholder="Email Address"
+                required
+            >
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                required
+            >
+
+            <button
+                type="submit"
+                id="loginBtn">
+                Login
+            </button>
+
+        </form>
+
+        <div class="links">
+
+            <a href="register.html">
+                Create Account
+            </a>
+
+            <a href="#">
+                Forgot Password?
+            </a>
+
+        </div>
+
+        <div id="message"></div>
+
     </div>
 
-    <div class="tabs">
-      <button class="tabBtn active" id="loginTabBtn" onclick="switchTab('login')">Login</button>
-      <button class="tabBtn" id="signupTabBtn" onclick="switchTab('signup')">Signup</button>
-    </div>
+</div>
 
-    <!-- LOGIN FORM -->
-    <div id="loginForm" class="form active">
-      <div class="sectionTitle">🔐 Login to your account</div>
+<script src="js/auth.js"></script>
 
-      <div class="field">
-        <label>Email Address</label>
-        <input type="email" id="loginEmail" placeholder="Enter your email" />
-      </div>
-
-      <div class="field">
-        <label>Password</label>
-        <input type="password" id="loginPassword" placeholder="Enter your password" />
-      </div>
-
-      <button class="btn" id="loginBtn" onclick="handleLogin()">Login</button>
-
-      <div id="loginError" class="message errorBox"></div>
-      <div id="loginSuccess" class="message successBox"></div>
-
-      <div class="note">
-        Use the email and password you used during signup.
-      </div>
-    </div>
-
-    <!-- SIGNUP FORM -->
-    <div id="signupForm" class="form">
-      <div class="sectionTitle">📝 Create Account</div>
-
-      <div class="field">
-        <label>Full Name</label>
-        <input type="text" id="signupFullName" placeholder="Enter your full name" />
-      </div>
-
-      <div class="field">
-        <label>Phone Number</label>
-        <input type="tel" id="signupPhone" placeholder="Enter your phone number" />
-      </div>
-
-      <div class="field">
-        <label>Email Address</label>
-        <input type="email" id="signupEmail" placeholder="Enter your email address" />
-      </div>
-
-      <div class="field">
-        <label>Password</label>
-        <input type="password" id="signupPassword" placeholder="Create password" />
-      </div>
-
-      <div class="field">
-        <label>4-digit Transaction PIN</label>
-        <input
-          type="password"
-          id="signupPin"
-          maxlength="4"
-          inputmode="numeric"
-          class="pinInput"
-          placeholder="••••"
-        />
-      </div>
-
-      <button class="btn" id="signupBtn" onclick="handleSignup()">Create Account</button>
-
-      <div id="signupError" class="message errorBox"></div>
-      <div id="signupSuccess" class="message successBox"></div>
-
-      <div class="smallText">
-        Bayan signup, za ka iya login ka shiga dashboard ɗinka.
-      </div>
-    </div>
-
-    <div class="footerText">Powered by Hadejia Data Hub</div>
-  </div>
-
-  <script>
-    /* =========================
-       SUPABASE CONFIG
-    ========================== */
-    const SUPABASE_URL = "https://zjenhfapfhuoogxorung.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
-
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    /* =========================
-       TAB SWITCHING
-    ========================== */
-    function switchTab(tab) {
-      const loginForm = document.getElementById("loginForm");
-      const signupForm = document.getElementById("signupForm");
-      const loginTabBtn = document.getElementById("loginTabBtn");
-      const signupTabBtn = document.getElementById("signupTabBtn");
-
-      hideAllMessages();
-
-      if (tab === "login") {
-        loginForm.classList.add("active");
-        signupForm.classList.remove("active");
-        loginTabBtn.classList.add("active");
-        signupTabBtn.classList.remove("active");
-      } else {
-        signupForm.classList.add("active");
-        loginForm.classList.remove("active");
-        signupTabBtn.classList.add("active");
-        loginTabBtn.classList.remove("active");
-      }
-    }
-
-    function hideAllMessages() {
-      const ids = ["loginError", "loginSuccess", "signupError", "signupSuccess"];
-      ids.forEach(id => {
-        const el = document.getElementById(id);
-        el.style.display = "none";
-        el.innerText = "";
-      });
-    }
-
-    function showMessage(id, message) {
-      const el = document.getElementById(id);
-      el.innerText = message;
-      el.style.display = "block";
-    }
-
-    /* =========================
-       CHECK ACTIVE SESSION
-    ========================== */
-    async function checkExistingSession() {
-      try {
-        const { data, error } = await client.auth.getSession();
-        if (error) return;
-        if (data?.session?.user) {
-          window.location.href = "/dashboard.html";
-        }
-      } catch (e) {}
-    }
-
-    /* =========================
-       SIGNUP
-       Uses backend route /api/signup
-    ========================== */
-    async function handleSignup() {
-      hideAllMessages();
-
-      const fullName = document.getElementById("signupFullName").value.trim();
-      const phone = document.getElementById("signupPhone").value.trim();
-      const email = document.getElementById("signupEmail").value.trim().toLowerCase();
-      const password = document.getElementById("signupPassword").value;
-      const pin = document.getElementById("signupPin").value.trim();
-      const btn = document.getElementById("signupBtn");
-
-      if (!fullName || !phone || !email || !password || !pin) {
-        showMessage("signupError", "Please fill all fields");
-        return;
-      }
-
-      if (phone.length < 11) {
-        showMessage("signupError", "Phone number must be at least 11 digits");
-        return;
-      }
-
-      if (!/^\d{4}$/.test(pin)) {
-        showMessage("signupError", "PIN must be exactly 4 digits");
-        return;
-      }
-
-      try {
-        btn.disabled = true;
-        btn.innerText = "Creating Account...";
-
-        const response = await fetch("/api/signup", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            fullName,
-            phone,
-            email,
-            password,
-            pin
-          })
-        });
-
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
-          throw new Error(result.message || "Signup failed");
-        }
-
-        showMessage("signupSuccess", "Account created successfully. You can now login.");
-
-        // Clear signup form
-        document.getElementById("signupFullName").value = "";
-        document.getElementById("signupPhone").value = "";
-        document.getElementById("signupEmail").value = "";
-        document.getElementById("signupPassword").value = "";
-        document.getElementById("signupPin").value = "";
-
-        // Switch to login after short delay
-        setTimeout(() => {
-          switchTab("login");
-        }, 1200);
-
-      } catch (err) {
-        showMessage("signupError", err.message || "Signup failed");
-      } finally {
-        btn.disabled = false;
-        btn.innerText = "Create Account";
-      }
-    }
-
-    /* =========================
-       LOGIN
-       Uses Supabase Auth directly
-    ========================== */
-    async function handleLogin() {
-      hideAllMessages();
-
-      const email = document.getElementById("loginEmail").value.trim().toLowerCase();
-      const password = document.getElementById("loginPassword").value;
-      const btn = document.getElementById("loginBtn");
-
-      if (!email || !password) {
-        showMessage("loginError", "Please enter your email and password");
-        return;
-      }
-
-      try {
-        btn.disabled = true;
-        btn.innerText = "Logging in...";
-
-        const { data, error } = await client.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if (error) {
-          throw new Error(error.message || "Login failed");
-        }
-
-        if (!data?.user) {
-          throw new Error("Login failed");
-        }
-
-        showMessage("loginSuccess", "Login successful. Redirecting...");
-
-        setTimeout(() => {
-          window.location.href = "/dashboard.html";
-        }, 800);
-
-      } catch (err) {
-        showMessage("loginError", err.message || "Login failed");
-      } finally {
-        btn.disabled = false;
-        btn.innerText = "Login";
-      }
-    }
-
-    /* =========================
-       ENTER KEY SUPPORT
-    ========================== */
-    document.addEventListener("keydown", function(e) {
-      const loginVisible = document.getElementById("loginForm").classList.contains("active");
-      const signupVisible = document.getElementById("signupForm").classList.contains("active");
-
-      if (e.key === "Enter") {
-        if (loginVisible) handleLogin();
-        if (signupVisible) handleSignup();
-      }
-    });
-
-    /* =========================
-       INIT
-    ========================== */
-    window.addEventListener("load", () => {
-      checkExistingSession();
-    });
-  </script>
 </body>
 </html>
