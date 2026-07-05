@@ -1,10 +1,9 @@
 // ==========================
-// CHECK LOGIN
+// CHECK USER SESSION
 // ==========================
 let currentUser = null;
 
 window.addEventListener("load", async () => {
-
     const { data: { session } } = await client.auth.getSession();
 
     if (!session) {
@@ -14,14 +13,14 @@ window.addEventListener("load", async () => {
 
     currentUser = session.user;
 
-    loadUser();
-    loadTransactions();
+    await loadProfile();
+    await loadTransactions();
 });
 
 // ==========================
-// LOAD USER
+// LOAD PROFILE
 // ==========================
-async function loadUser() {
+async function loadProfile() {
 
     const { data, error } = await client
         .from("users")
@@ -29,15 +28,18 @@ async function loadUser() {
         .eq("id", currentUser.id)
         .single();
 
-    if (error || !data) {
-        alert("Unable to load profile");
+    if (error) {
+        console.log(error);
         return;
     }
 
-    document.getElementById("fullName").innerText = data.full_name || "-";
-    document.getElementById("email").innerText = data.email || "-";
-    document.getElementById("phone").innerText = data.phone || "-";
-    document.getElementById("balance").innerText =
+    document.getElementById("welcomeName").innerText =
+        data.full_name || "User";
+
+    document.getElementById("welcomeEmail").innerText =
+        data.email;
+
+    document.getElementById("walletBalance").innerText =
         "₦" + Number(data.balance || 0).toLocaleString();
 
     // Show Admin Button
@@ -51,7 +53,7 @@ async function loadUser() {
 // ==========================
 async function loadTransactions() {
 
-    const box = document.getElementById("transactions");
+    const box = document.getElementById("transactionList");
 
     const { data, error } = await client
         .from("transactions")
@@ -61,12 +63,12 @@ async function loadTransactions() {
         .limit(10);
 
     if (error) {
-        box.innerHTML = "Unable to load transactions";
+        box.innerHTML = "Failed to load transactions";
         return;
     }
 
     if (!data.length) {
-        box.innerHTML = "No transactions yet.";
+        box.innerHTML = "<p>No transaction yet.</p>";
         return;
     }
 
@@ -75,34 +77,25 @@ async function loadTransactions() {
     data.forEach(tx => {
 
         box.innerHTML += `
-            <div class="transactionItem">
-                <div>
-                    <b>${tx.type}</b><br>
-                    ${tx.details}
-                </div>
-
-                <div>
-                    ₦${Number(tx.amount).toLocaleString()}
-                </div>
+        <div class="transaction-item">
+            <div>
+                <strong>${tx.type}</strong><br>
+                ${tx.details}
             </div>
+
+            <div>
+                ₦${Number(tx.amount).toLocaleString()}
+            </div>
+        </div>
         `;
     });
-}
 
-// ==========================
-// ADMIN PAGE
-// ==========================
-function goAdmin() {
-    window.location.href = "admin.html";
 }
 
 // ==========================
 // LOGOUT
 // ==========================
 async function logout() {
-
     await client.auth.signOut();
-
     window.location.href = "index.html";
-
 }
