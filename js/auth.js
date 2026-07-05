@@ -1,6 +1,6 @@
 
 // ==========================
-// LOGIN FUNCTION
+// LOGIN
 // ==========================
 const loginForm = document.getElementById("loginForm");
 
@@ -12,35 +12,29 @@ if (loginForm) {
         const password = document.getElementById("password").value;
         const message = document.getElementById("message");
 
-        try {
-            const { data, error } = await client.auth.signInWithPassword({
-                email,
-                password
-            });
+        const { data, error } = await client.auth.signInWithPassword({
+            email,
+            password
+        });
 
-            if (error) {
-                message.style.color = "red";
-                message.innerText = error.message;
-                return;
-            }
-
-            message.style.color = "green";
-            message.innerText = "Login successful... redirecting";
-
-            setTimeout(() => {
-                window.location.href = "dashboard.html";
-            }, 1000);
-
-        } catch (err) {
+        if (error) {
             message.style.color = "red";
-            message.innerText = "Login failed";
+            message.innerText = error.message;
+            return;
         }
+
+        message.style.color = "green";
+        message.innerText = "Login successful...";
+
+        setTimeout(() => {
+            window.location.href = "dashboard.html";
+        }, 1000);
     });
 }
 
 
 // ==========================
-// REGISTER FUNCTION
+// REGISTER (WITH PIN)
 // ==========================
 const registerForm = document.getElementById("registerForm");
 
@@ -51,54 +45,57 @@ if (registerForm) {
         const fullName = document.getElementById("fullName").value;
         const email = document.getElementById("email").value;
         const phone = document.getElementById("phone").value;
+        const pin = document.getElementById("pin").value;
         const password = document.getElementById("password").value;
         const message = document.getElementById("message");
 
-        try {
-            // 1. Create auth user
-            const { data, error } = await client.auth.signUp({
-                email,
-                password
-            });
-
-            if (error) {
-                message.style.color = "red";
-                message.innerText = error.message;
-                return;
-            }
-
-            // 2. Save user in database
-            const user = data.user;
-
-            const { error: dbError } = await client
-                .from("users")
-                .insert([
-                    {
-                        id: user.id,
-                        full_name: fullName,
-                        email: email,
-                        phone: phone,
-                        balance: 0,
-                        is_admin: false
-                    }
-                ]);
-
-            if (dbError) {
-                message.style.color = "red";
-                message.innerText = dbError.message;
-                return;
-            }
-
-            message.style.color = "green";
-            message.innerText = "Account created successfully";
-
-            setTimeout(() => {
-                window.location.href = "index.html";
-            }, 1500);
-
-        } catch (err) {
+        // 🔐 PIN VALIDATION
+        if (pin.length !== 4 || isNaN(pin)) {
             message.style.color = "red";
-            message.innerText = "Registration failed";
+            message.innerText = "PIN must be 4 digits only";
+            return;
         }
+
+        // 1. CREATE AUTH USER
+        const { data, error } = await client.auth.signUp({
+            email,
+            password
+        });
+
+        if (error) {
+            message.style.color = "red";
+            message.innerText = error.message;
+            return;
+        }
+
+        const user = data.user;
+
+        // 2. SAVE USER TO DATABASE
+        const { error: dbError } = await client
+            .from("users")
+            .insert([
+                {
+                    id: user.id,
+                    full_name: fullName,
+                    email: email,
+                    phone: phone,
+                    balance: 0,
+                    is_admin: false,
+                    transaction_pin: pin
+                }
+            ]);
+
+        if (dbError) {
+            message.style.color = "red";
+            message.innerText = dbError.message;
+            return;
+        }
+
+        message.style.color = "green";
+        message.innerText = "Account created successfully";
+
+        setTimeout(() => {
+            window.location.href = "index.html";
+        }, 1500);
     });
 }
