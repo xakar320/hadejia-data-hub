@@ -1,63 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hadejia Data Hub - Dashboard</title>
-
-    <link rel="stylesheet" href="css/style.css">
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase.js"></script>
-</head>
-
-<body>
-
 <!-- HEADER -->
-<div class="header">
-    <h2>📊 Dashboard</h2>
+<header class="dashboard-header">
 
-    <button onclick="logout()" class="logoutBtn">
-        Logout
-    </button>
+    <div class="profile-section">
 
-    <button id="adminBtn" class="adminBtnStyle" style="display:none;" onclick="goAdmin()">
-        Admin Panel
-    </button>
-</div>
+        <div class="avatar">
+            👤
+        </div>
 
-<!-- PROFILE CARD -->
-<div class="card">
-    <h3>👤 Profile</h3>
+        <div>
+            <h2 id="welcomeName">Loading...</h2>
+            <p id="welcomeEmail">Loading...</p>
+        </div>
 
-    <p><b>Name:</b> <span id="fullName">Loading...</span></p>
-    <p><b>Email:</b> <span id="email">Loading...</span></p>
-    <p><b>Phone:</b> <span id="phone">Loading...</span></p>
-</div>
-
-<!-- WALLET -->
-<div class="card">
-    <h3>💰 Wallet Balance</h3>
-    <h1 id="balance">₦0</h1>
-</div>
-
-<!-- QUICK ACTION -->
-<div class="card">
-    <h3>⚡ Quick Actions</h3>
-
-    <button onclick="alert('Coming soon')">Buy Data</button>
-    <button onclick="alert('Coming soon')">Buy Voice</button>
-</div>
-
-<!-- TRANSACTIONS -->
-<div class="card">
-    <h3>📜 Transactions</h3>
-    <div id="transactions">
-        Loading...
     </div>
+
+    <div class="header-buttons">
+
+        <button id="adminBtn"
+                class="admin-btn"
+                onclick="location.href='admin.html'"
+                style="display:none">
+
+            👨‍💼 Admin
+
+        </button>
+
+        <button class="logout-btn"
+                onclick="logout()">
+
+            Logout
+
+        </button>
+
+    </div>
+
+</header>
+
+<!-- BALANCE CARD -->
+
+<div class="wallet-card">
+
+    <small>Wallet Balance</small>
+
+    <h1 id="walletBalance">
+
+        ₦0
+
+    </h1>
+
+    <button
+        class="fund-btn"
+        onclick="location.href='dynamic-account.html'">
+
+        💳 Fund Wallet
+
+    </button>
+
+</div>
+<div class="service-grid">
+
+<div class="service-card">
+📶
+<h3>Buy Data</h3>
 </div>
 
-<script src="js/dashboard.js"></script>
+<div class="service-card">
+📞
+<h3>Voice Bundle</h3>
+</div>
 
-</body>
-</html>
+<div class="service-card">
+📱
+<h3>Airtime</h3>
+</div>
+
+<div class="service-card">
+⚡
+<h3>Electricity</h3>
+</div>
+
+<div class="service-card">
+📺
+<h3>Cable TV</h3>
+</div>
+
+<div class="service-card">
+💳
+<h3>Fund Wallet</h3>
+</div>
+
+</div>
+<div class="card">
+
+<h2>
+
+📊 Recent Transactions
+
+</h2>
+
+<div id="transactionList">
+
+Loading...
+
+</div>
+
+</div>
