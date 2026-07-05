@@ -43,3 +43,75 @@ async function buyData() {
 
     processPurchase(network, plan, phone, amount);
 }
+
+async function processPurchase(network, plan, phone, amount){
+
+    const response = await fetch("/api/place-order",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+
+            network,
+            plan,
+            phone
+
+        })
+
+    });
+
+    const result = await response.json();
+
+    if(!result.status){
+
+        alert(result.message);
+
+        return;
+
+    }
+
+    // deduct wallet
+
+    const newBalance = Number(currentBalance) - amount;
+
+    await client
+
+    .from("users")
+
+    .update({
+
+        balance:newBalance
+
+    })
+
+    .eq("id",currentUser.id);
+
+    // save transaction
+
+    await client
+
+    .from("transactions")
+
+    .insert([{
+
+        user_id:currentUser.id,
+
+        type:"Data Purchase",
+
+        details:network+" "+phone,
+
+        amount,
+
+        status:"Success"
+
+    }]);
+
+    alert("Data Purchase Successful");
+
+    location.reload();
+
+            }
