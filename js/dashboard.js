@@ -137,3 +137,7 @@ async function loadUserProfile() {
         alert("Failed to load profile.");
     }
 }
+
+window.addEventListener("load", async () => {
+    await loadUserProfile();
+});
