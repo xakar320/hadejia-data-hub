@@ -138,6 +138,90 @@ async function loadUserProfile() {
     }
 }
 
+/* ==========================
+   LOAD TRANSACTION HISTORY
+========================== */
+
+async function loadTransactions() {
+    try {
+
+        const { data, error } = await client
+            .from("transactions")
+            .select("*")
+            .eq("user_id", currentUser.id)
+            .order("created_at", { ascending: false })
+            .limit(20);
+
+        if (error) throw error;
+
+        const list = document.getElementById("transactionList");
+        list.innerHTML = "";
+
+        if (!data || data.length === 0) {
+            list.innerHTML = `
+                <div class="empty">
+                    No transactions found.
+                </div>
+            `;
+            return;
+        }
+
+        data.forEach(tx => {
+
+            const amount =
+                "₦" + Number(tx.amount || 0).toLocaleString();
+
+            const date =
+                new Date(tx.created_at).toLocaleString();
+
+            const color =
+                tx.status === "Success"
+                    ? "#16a34a"
+                    : "#dc2626";
+
+            list.innerHTML += `
+                <div class="transactionItem">
+
+                    <div class="txLeft">
+                        <h4>${tx.type}</h4>
+
+                        <p>${tx.details || ""}</p>
+
+                        <small>${date}</small>
+                    </div>
+
+                    <div class="txRight">
+
+                        <span
+                        style="
+                        color:${color};
+                        font-weight:bold;">
+                        ${amount}
+                        </span>
+
+                        <br>
+
+                        <small>${tx.status}</small>
+
+                    </div>
+
+                </div>
+            `;
+        });
+
+    } catch (err) {
+        console.error(err);
+
+        document.getElementById("transactionList").innerHTML =
+        `
+        <div class="empty">
+            Failed to load transactions.
+        </div>
+        `;
+    }
+}
+
 window.addEventListener("load", async () => {
     await loadUserProfile();
+    await loadTransactions();
 });
