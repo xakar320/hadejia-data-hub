@@ -1,101 +1,86 @@
-// ==========================
-// CHECK USER SESSION
-// ==========================
+// js/dashboard.js
+
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 let currentUser = null;
+let userProfile = null;
 
-window.addEventListener("load", async () => {
-    const { data: { session } } = await client.auth.getSession();
+// ===============================
+// CHECK LOGIN
+// ===============================
 
-    if (!session) {
-        window.location.href = "index.html";
+async function checkUser() {
+
+    const { data:{ session } } = await client.auth.getSession();
+
+    if(!session){
+        window.location.href="index.html";
         return;
     }
 
     currentUser = session.user;
 
     await loadProfile();
-    await loadTransactions();
-});
 
-// ==========================
+}
+
+// ===============================
 // LOAD PROFILE
-// ==========================
-async function loadProfile() {
+// ===============================
 
-    const { data, error } = await client
-        .from("users")
-        .select("*")
-        .eq("id", currentUser.id)
-        .single();
+async function loadProfile(){
 
-    if (error) {
-        console.log(error);
+    const { data,error } = await client
+    .from("users")
+    .select("*")
+    .eq("id",currentUser.id)
+    .single();
+
+    if(error){
+
+        alert("Unable to load profile");
+
         return;
+
     }
 
-    document.getElementById("welcomeName").innerText =
-        data.full_name || "User";
+    userProfile=data;
 
-    document.getElementById("welcomeEmail").innerText =
-        data.email;
-
-    document.getElementById("walletBalance").innerText =
-        "₦" + Number(data.balance || 0).toLocaleString();
-
-    // Show Admin Button
-    if (data.is_admin === true) {
-        document.getElementById("adminBtn").style.display = "inline-block";
-    }
-}
-
-// ==========================
-// LOAD TRANSACTIONS
-// ==========================
-async function loadTransactions() {
-
-    const box = document.getElementById("transactionList");
-
-    const { data, error } = await client
-        .from("transactions")
-        .select("*")
-        .eq("user_id", currentUser.id)
-        .order("created_at", { ascending: false })
-        .limit(10);
-
-    if (error) {
-        box.innerHTML = "Failed to load transactions";
-        return;
-    }
-
-    if (!data.length) {
-        box.innerHTML = "<p>No transaction yet.</p>";
-        return;
-    }
-
-    box.innerHTML = "";
-
-    data.forEach(tx => {
-
-        box.innerHTML += `
-        <div class="transaction-item">
-            <div>
-                <strong>${tx.type}</strong><br>
-                ${tx.details}
-            </div>
-
-            <div>
-                ₦${Number(tx.amount).toLocaleString()}
-            </div>
-        </div>
-        `;
-    });
+    showProfile();
 
 }
 
-// ==========================
+// ===============================
+// SHOW PROFILE
+// ===============================
+
+function showProfile(){
+
+    document.getElementById("fullName").innerHTML =
+    userProfile.full_name;
+
+    document.getElementById("walletBalance").innerHTML =
+    "₦"+Number(userProfile.balance).toLocaleString();
+
+    if(userProfile.is_admin){
+
+        document.getElementById("adminBtn")
+        .style.display="inline-block";
+
+    }
+
+}
+
+// ===============================
 // LOGOUT
-// ==========================
-async function logout() {
+// ===============================
+
+async function logout(){
+
     await client.auth.signOut();
-    window.location.href = "index.html";
+
+    location.href="index.html";
+
 }
+
+checkUser();
