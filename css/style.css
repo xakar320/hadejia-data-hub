@@ -106,3 +106,22 @@ button:hover{
     font-size:13px;
     color:red;
 }
+
+.dashboard-footer{
+    margin-top:30px;
+    padding:20px;
+    text-align:center;
+    background:#fff;
+    border-radius:15px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+.dashboard-footer p{
+    font-size:18px;
+    font-weight:bold;
+    color:#16a34a;
+}
+
+.dashboard-footer small{
+    color:#666;
+}
