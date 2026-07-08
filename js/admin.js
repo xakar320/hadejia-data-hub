@@ -217,3 +217,169 @@ async function debitUser(id){
 }
 
 checkAdmin();
+
+// ===============================
+// SEARCH USER
+// ===============================
+
+async function searchUsers() {
+
+    const keyword =
+        document
+        .getElementById("searchUser")
+        .value
+        .toLowerCase();
+
+    const { data, error } = await client
+
+        .from("users")
+
+        .select("*");
+
+    if (error) return;
+
+    const tbody =
+        document.getElementById("usersTable");
+
+    tbody.innerHTML = "";
+
+    data
+    .filter(user =>
+
+        (user.full_name || "")
+        .toLowerCase()
+        .includes(keyword)
+
+        ||
+
+        (user.email || "")
+        .toLowerCase()
+        .includes(keyword)
+
+    )
+
+    .forEach(user => {
+
+        tbody.innerHTML += `
+
+<tr>
+
+<td>${user.full_name}</td>
+
+<td>${user.email}</td>
+
+<td>
+
+₦${Number(user.balance).toLocaleString()}
+
+</td>
+
+<td>
+
+<button
+onclick="creditUser('${user.id}')">
+
+Credit
+
+</button>
+
+<button
+onclick="debitUser('${user.id}')">
+
+Debit
+
+</button>
+
+<button
+onclick="deleteUser('${user.id}')">
+
+Delete
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+    });
+
+}
+
+// ===============================
+// DELETE USER
+// ===============================
+
+async function deleteUser(id){
+
+    const yes =
+    confirm("Delete this user?");
+
+    if(!yes) return;
+
+    const { error } = await client
+
+    .from("users")
+
+    .delete()
+
+    .eq("id",id);
+
+    if(error){
+
+        alert("Unable to delete");
+
+        return;
+
+    }
+
+    alert("User Deleted");
+
+    loadUsers();
+
+}
+
+// ===============================
+// VIEW TRANSACTIONS
+// ===============================
+
+async function viewTransactions(){
+
+    const { data,error } = await client
+
+    .from("transactions")
+
+    .select("*")
+
+    .order("created_at",{
+        ascending:false
+    })
+
+    .limit(100);
+
+    if(error){
+
+        alert("Unable to load transactions");
+
+        return;
+
+    }
+
+    console.table(data);
+
+    alert(
+    "Transactions loaded.\nOpen Browser Console."
+    );
+
+}
+
+// ===============================
+// REFRESH
+// ===============================
+
+function refreshUsers(){
+
+    loadUsers();
+
+}
