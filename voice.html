@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Voice Bundle - Hadejia Data Hub</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="dashboard-header">
+<h2>📞 Voice Bundle</h2>
+<button onclick="location.href='dashboard.html'">← Dashboard</button>
+</header>
+
+<div class="card">
+<label>Network</label>
+<select id="network">
+<option>MTN</option>
+<option>AIRTEL</option>
+<option>GLO</option>
+<option>9MOBILE</option>
+</select>
+
+<label>Voice Plan</label>
+<select id="voicePlan"></select>
+
+<label>Phone Number</label>
+<input type="tel" id="phone" placeholder="08012345678">
+
+<label>Transaction PIN</label>
+<input type="password" id="pin" maxlength="4" placeholder="****">
+
+<button id="buyVoiceBtn">Buy Voice Bundle</button>
+
+<div id="result"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/voice.js"></script>
+</body>
+</html>
