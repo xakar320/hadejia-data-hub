@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Hadejia Data Hub - Register</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <img src="images/logo.png"
+             class="logo"
+             alt="Logo">
+
+        <h1>Create Account</h1>
+
+        <p class="subtitle">
+
+            Register New Account
+
+        </p>
+
+        <form id="registerForm">
+
+            <input
+                type="text"
+                id="fullName"
+                placeholder="Full Name"
+                required>
+
+            <input
+                type="email"
+                id="registerEmail"
+                placeholder="Email Address"
+                required>
+
+            <input
+                type="tel"
+                id="phone"
+                placeholder="Phone Number"
+                required>
+
+            <input
+                type="password"
+                id="registerPassword"
+                placeholder="Password"
+                minlength="6"
+                required>
+
+            <input
+                type="password"
+                id="confirmPassword"
+                placeholder="Confirm Password"
+                minlength="6"
+                required>
+
+            <input
+                type="password"
+                id="transactionPin"
+                placeholder="4 Digit Transaction PIN"
+                maxlength="4"
+                pattern="[0-9]{4}"
+                required>
+
+            <button
+                type="submit"
+                id="registerBtn">
+
+                Create Account
+
+            </button>
+
+        </form>
+
+        <div class="links">
+
+            <a href="index.html">
+
+                Already have an account? Login
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+
+</body>
+  </html>
