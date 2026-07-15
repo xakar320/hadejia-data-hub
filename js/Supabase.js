@@ -1,11 +1,50 @@
-// ==========================
-// SUPABASE CONFIG
-// ==========================
-const SUPABASE_URL = "https://zjenhfapfhuoogxorung.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
+// =====================================
+// Hadejia Data Hub
+// js/supabase.js
+// =====================================
 
-// Create Supabase client
-const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// PASTE YOUR SUPABASE URL HERE
+const SUPABASE_URL =
+"https://YOUR_PROJECT_ID.supabase.co";
 
-// Export for other files (optional)
-window.client = client;
+// PASTE YOUR SUPABASE ANON KEY HERE
+const SUPABASE_ANON_KEY =
+"YOUR_SUPABASE_ANON_KEY";
+
+// Create Supabase Client
+const client = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
+
+// Check Connection (Optional)
+async function testConnection() {
+
+    try {
+
+        const {
+            data,
+            error
+        } = await client.auth.getSession();
+
+        if (error) {
+
+            console.error(error);
+
+        } else {
+
+            console.log("✅ Supabase Connected");
+
+        }
+
+    }
+
+    catch (err) {
+
+        console.error("Connection Error:", err);
+
+    }
+
+}
+
+testConnection();
