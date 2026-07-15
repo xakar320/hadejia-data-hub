@@ -1,50 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hadejia Data Hub - Login</title>
 
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase.js"></script>
+<title>Hadejia Data Hub - Login</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 </head>
 
 <body>
 
-<div class="login-container">
+<div class="container">
 
-    <div class="login-card">
+    <div class="card">
 
-        <div class="logo">
-            📶
-        </div>
+        <img src="images/logo.png"
+             class="logo"
+             alt="Logo">
 
         <h1>Hadejia Data Hub</h1>
 
-        <p>Welcome Back</p>
+        <p class="subtitle">
+            Welcome Back
+        </p>
 
         <form id="loginForm">
 
             <input
                 type="email"
-                id="email"
+                id="loginEmail"
                 placeholder="Email Address"
-                required
-            >
+                required>
 
             <input
                 type="password"
-                id="password"
+                id="loginPassword"
                 placeholder="Password"
-                required
-            >
+                required>
 
             <button
                 type="submit"
                 id="loginBtn">
+
                 Login
+
             </button>
 
         </form>
@@ -61,12 +65,11 @@
 
         </div>
 
-        <div id="message"></div>
-
     </div>
 
 </div>
 
+<script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
 
 </body>
