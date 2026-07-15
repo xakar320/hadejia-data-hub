@@ -1,127 +1,243 @@
+/* ===============================
+   Hadejia Data Hub
+   style.css
+================================= */
+
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family: Arial, sans-serif;
+    font-family:Arial,sans-serif;
 }
 
 body{
-    background: linear-gradient(135deg, #0f8b4c, #18b45f);
-    height:100vh;
+
+    background:#f4f7fb;
+
     display:flex;
+
     justify-content:center;
+
     align-items:center;
-}
 
-/* LOGIN / REGISTER CONTAINER */
-.login-container{
-    width:100%;
-    max-width:420px;
+    min-height:100vh;
+
     padding:20px;
+
 }
 
-/* CARD */
-.login-card{
-    background:#fff;
-    padding:25px;
-    border-radius:20px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.2);
-    text-align:center;
-}
+.container{
 
-/* LOGO */
-.logo{
-    font-size:50px;
-    margin-bottom:10px;
-}
-
-/* TITLE */
-h1{
-    font-size:22px;
-    color:#0f8b4c;
-    margin-bottom:5px;
-}
-
-p{
-    font-size:14px;
-    color:#777;
-    margin-bottom:20px;
-}
-
-/* INPUTS */
-input{
     width:100%;
+
+    max-width:420px;
+
+}
+
+.card{
+
+    background:#fff;
+
+    padding:30px;
+
+    border-radius:15px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.12);
+
+}
+
+.logo{
+
+    width:90px;
+
+    display:block;
+
+    margin:0 auto 20px;
+
+}
+
+h1{
+
+    text-align:center;
+
+    color:#0f766e;
+
+    margin-bottom:10px;
+
+}
+
+.subtitle{
+
+    text-align:center;
+
+    color:#777;
+
+    margin-bottom:25px;
+
+}
+
+form{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+
+}
+
+input{
+
+    width:100%;
+
     padding:14px;
-    margin-bottom:12px;
+
     border:1px solid #ddd;
+
     border-radius:10px;
-    outline:none;
+
     font-size:15px;
-    transition:0.3s;
+
+    outline:none;
+
+    transition:.3s;
+
 }
 
 input:focus{
-    border-color:#0f8b4c;
-    box-shadow:0 0 5px rgba(15,139,76,0.3);
+
+    border-color:#0f766e;
+
+    box-shadow:0 0 5px rgba(15,118,110,.3);
+
 }
 
-/* BUTTON */
 button{
-    width:100%;
+
     padding:14px;
-    background:#0f8b4c;
+
+    background:#0f766e;
+
     color:#fff;
+
     border:none;
+
     border-radius:10px;
+
     font-size:16px;
+
     font-weight:bold;
+
     cursor:pointer;
-    transition:0.3s;
+
+    transition:.3s;
+
 }
 
 button:hover{
-    background:#0c6f3d;
+
+    background:#115e59;
+
 }
 
-/* LINKS */
+button:disabled{
+
+    background:#999;
+
+    cursor:not-allowed;
+
+}
+
 .links{
-    margin-top:15px;
+
+    margin-top:20px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    flex-wrap:wrap;
+
+    gap:10px;
+
 }
 
 .links a{
-    display:block;
-    color:#0f8b4c;
+
     text-decoration:none;
+
+    color:#0f766e;
+
     font-size:14px;
-    margin-top:8px;
+
 }
 
 .links a:hover{
+
     text-decoration:underline;
+
 }
 
-/* MESSAGE */
-#message{
-    margin-top:10px;
-    font-size:13px;
-    color:red;
-}
+.success{
 
-.dashboard-footer{
-    margin-top:30px;
-    padding:20px;
+    background:#dcfce7;
+
+    color:#166534;
+
+    padding:12px;
+
+    border-radius:8px;
+
+    margin-top:15px;
+
     text-align:center;
-    background:#fff;
-    border-radius:15px;
-    box-shadow:0 2px 10px rgba(0,0,0,.08);
+
 }
 
-.dashboard-footer p{
-    font-size:18px;
-    font-weight:bold;
-    color:#16a34a;
+.error{
+
+    background:#fee2e2;
+
+    color:#b91c1c;
+
+    padding:12px;
+
+    border-radius:8px;
+
+    margin-top:15px;
+
+    text-align:center;
+
 }
 
-.dashboard-footer small{
-    color:#666;
+/* ===============================
+   Mobile Responsive
+================================= */
+
+@media(max-width:480px){
+
+.card{
+
+    padding:20px;
+
 }
+
+.logo{
+
+    width:70px;
+
+}
+
+h1{
+
+    font-size:24px;
+
+}
+
+button{
+
+    font-size:15px;
+
+}
+
+    }
