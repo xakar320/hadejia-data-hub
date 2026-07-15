@@ -1,101 +1,161 @@
+// =====================================
+// Hadejia Data Hub
+// auth.js
+// =====================================
 
-// ==========================
-// LOGIN
-// ==========================
-const loginForm = document.getElementById("loginForm");
+// ===============================
+// REGISTER
+// ===============================
 
-if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-        const message = document.getElementById("message");
-
-        const { data, error } = await client.auth.signInWithPassword({
-            email,
-            password
-        });
-
-        if (error) {
-            message.style.color = "red";
-            message.innerText = error.message;
-            return;
-        }
-
-        message.style.color = "green";
-        message.innerText = "Login successful...";
-
-        setTimeout(() => {
-            window.location.href = "dashboard.html";
-        }, 1000);
-    });
-}
-
-
-// ==========================
-// REGISTER (WITH PIN)
-// ==========================
 const registerForm = document.getElementById("registerForm");
 
 if (registerForm) {
+
     registerForm.addEventListener("submit", async (e) => {
+
         e.preventDefault();
 
-        const fullName = document.getElementById("fullName").value;
-        const email = document.getElementById("email").value;
-        const phone = document.getElementById("phone").value;
-        const pin = document.getElementById("pin").value;
-        const password = document.getElementById("password").value;
-        const message = document.getElementById("message");
+        const fullName =
+            document.getElementById("fullName").value.trim();
 
-        // 🔐 PIN VALIDATION
-        if (pin.length !== 4 || isNaN(pin)) {
-            message.style.color = "red";
-            message.innerText = "PIN must be 4 digits only";
+        const email =
+            document.getElementById("registerEmail").value.trim();
+
+        const phone =
+            document.getElementById("phone").value.trim();
+
+        const password =
+            document.getElementById("registerPassword").value;
+
+        const confirmPassword =
+            document.getElementById("confirmPassword").value;
+
+        const pin =
+            document.getElementById("transactionPin").value;
+
+        if (password !== confirmPassword) {
+            alert("Passwords do not match");
             return;
         }
 
-        // 1. CREATE AUTH USER
-        const { data, error } = await client.auth.signUp({
-            email,
-            password
-        });
-
-        if (error) {
-            message.style.color = "red";
-            message.innerText = error.message;
+        if (!/^[0-9]{4}$/.test(pin)) {
+            alert("PIN must be exactly 4 digits");
             return;
         }
 
-        const user = data.user;
+        const btn = document.getElementById("registerBtn");
+        btn.disabled = true;
+        btn.textContent = "Creating Account...";
 
-        // 2. SAVE USER TO DATABASE
-        const { error: dbError } = await client
-            .from("users")
-            .insert([
-                {
-                    id: user.id,
+        try {
+
+            // Create Auth User
+            const { data, error } =
+                await client.auth.signUp({
+
+                    email,
+                    password
+
+                });
+
+            if (error) throw error;
+
+            // Save User Profile
+            const { error: profileError } =
+                await client
+                .from("users")
+                .insert([{
+
+                    id: data.user.id,
+
                     full_name: fullName,
-                    email: email,
-                    phone: phone,
-                    balance: 0,
-                    is_admin: false,
-                    transaction_pin: pin
-                }
-            ]);
 
-        if (dbError) {
-            message.style.color = "red";
-            message.innerText = dbError.message;
-            return;
+                    email: email,
+
+                    phone: phone,
+
+                    transaction_pin: pin,
+
+                    balance: 0,
+
+                    is_admin: false
+
+                }]);
+
+            if (profileError) throw profileError;
+
+            alert("Account created successfully.");
+
+            location.href = "index.html";
+
         }
 
-        message.style.color = "green";
-        message.innerText = "Account created successfully";
+        catch (err) {
 
-        setTimeout(() => {
-            window.location.href = "index.html";
-        }, 1500);
+            console.error(err);
+
+            alert(err.message);
+
+        }
+
+        btn.disabled = false;
+        btn.textContent = "Create Account";
+
     });
+
 }
+
+// ===============================
+// LOGIN
+// ===============================
+
+const loginForm = document.getElementById("loginForm");
+
+if (loginForm) {
+
+    loginForm.addEventListener("submit", async (e) => {
+
+        e.preventDefault();
+
+        const email =
+            document.getElementById("loginEmail").value.trim();
+
+        const password =
+            document.getElementById("loginPassword").value;
+
+        const btn =
+            document.getElementById("loginBtn");
+
+        btn.disabled = true;
+        btn.textContent = "Logging In...";
+
+        try {
+
+            const { error } =
+                await client.auth.signInWithPassword({
+
+                    email,
+                    password
+
+                });
+
+            if (error) throw error;
+
+            location.href = "dashboard.html";
+
+        }
+
+        catch (err) {
+
+            console.error(err);
+
+            alert(err.message);
+
+        }
+
+        btn.disabled = false;
+        btn.textContent = "Login";
+
+    });
+
+        }
