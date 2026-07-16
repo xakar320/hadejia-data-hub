@@ -1,161 +1,115 @@
-// =====================================
-// Hadejia Data Hub
+// ========================================
 // auth.js
-// =====================================
+// Part 1A
+// Supabase Setup + Register
+// ========================================
 
-// ===============================
+// Make sure js/supabase.js is loaded first
+// It must contain:
+// const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// =============================
 // REGISTER
-// ===============================
+// =============================
 
-const registerForm = document.getElementById("registerForm");
+async function registerUser() {
 
-if (registerForm) {
+    const name = document.getElementById("name").value.trim();
 
-    registerForm.addEventListener("submit", async (e) => {
+    const phone = document.getElementById("phone").value.trim();
 
-        e.preventDefault();
+    const email = document.getElementById("email").value.trim();
 
-        const fullName =
-            document.getElementById("fullName").value.trim();
+    const password = document.getElementById("password").value;
 
-        const email =
-            document.getElementById("registerEmail").value.trim();
+    const pin = document.getElementById("pin").value;
 
-        const phone =
-            document.getElementById("phone").value.trim();
+    if (
+        !name ||
+        !phone ||
+        !email ||
+        !password ||
+        !pin
+    ) {
 
-        const password =
-            document.getElementById("registerPassword").value;
+        alert("Please fill all fields.");
 
-        const confirmPassword =
-            document.getElementById("confirmPassword").value;
+        return;
 
-        const pin =
-            document.getElementById("transactionPin").value;
+    }
 
-        if (password !== confirmPassword) {
-            alert("Passwords do not match");
+    if (pin.length !== 4) {
+
+        alert("PIN must be exactly 4 digits.");
+
+        return;
+
+    }
+
+    try {
+
+        // Create Auth User
+        const { data, error } =
+        await client.auth.signUp({
+
+            email: email,
+
+            password: password
+
+        });
+
+        if (error) throw error;
+
+        const user = data.user;
+
+        if (!user) {
+
+            alert("Registration failed.");
+
             return;
-        }
-
-        if (!/^[0-9]{4}$/.test(pin)) {
-            alert("PIN must be exactly 4 digits");
-            return;
-        }
-
-        const btn = document.getElementById("registerBtn");
-        btn.disabled = true;
-        btn.textContent = "Creating Account...";
-
-        try {
-
-            // Create Auth User
-            const { data, error } =
-                await client.auth.signUp({
-
-                    email,
-                    password
-
-                });
-
-            if (error) throw error;
-
-            // Save User Profile
-            const { error: profileError } =
-                await client
-                .from("users")
-                .insert([{
-
-                    id: data.user.id,
-
-                    full_name: fullName,
-
-                    email: email,
-
-                    phone: phone,
-
-                    transaction_pin: pin,
-
-                    balance: 0,
-
-                    is_admin: false
-
-                }]);
-
-            if (profileError) throw profileError;
-
-            alert("Account created successfully.");
-
-            location.href = "index.html";
 
         }
 
-        catch (err) {
+        // Save profile into users table
+        const { error: insertError } =
+        await client
+        .from("users")
+        .insert([{
 
-            console.error(err);
+            id: user.id,
 
-            alert(err.message);
+            name: name,
 
-        }
+            phone: phone,
 
-        btn.disabled = false;
-        btn.textContent = "Create Account";
+            email: email,
 
-    });
+            balance: 0,
 
-}
+            pin: pin,
 
-// ===============================
-// LOGIN
-// ===============================
+            is_admin: false,
 
-const loginForm = document.getElementById("loginForm");
+            created_at:
+            new Date().toISOString()
 
-if (loginForm) {
+        }]);
 
-    loginForm.addEventListener("submit", async (e) => {
+        if (insertError)
+            throw insertError;
 
-        e.preventDefault();
+        alert("Registration Successful!");
 
-        const email =
-            document.getElementById("loginEmail").value.trim();
+        location.href = "index.html";
 
-        const password =
-            document.getElementById("loginPassword").value;
+    }
 
-        const btn =
-            document.getElementById("loginBtn");
+    catch (err) {
 
-        btn.disabled = true;
-        btn.textContent = "Logging In...";
+        console.error(err);
 
-        try {
+        alert(err.message);
 
-            const { error } =
-                await client.auth.signInWithPassword({
+    }
 
-                    email,
-                    password
-
-                });
-
-            if (error) throw error;
-
-            location.href = "dashboard.html";
-
-        }
-
-        catch (err) {
-
-            console.error(err);
-
-            alert(err.message);
-
-        }
-
-        btn.disabled = false;
-        btn.textContent = "Login";
-
-    });
-
-        }
+            }
