@@ -113,3 +113,107 @@ async function registerUser() {
     }
 
             }
+
+// =====================================
+// FORGOT PASSWORD
+// =====================================
+
+async function forgotPassword() {
+
+    const email = prompt("Enter your registered email");
+
+    if (!email) return;
+
+    try {
+
+        const { error } =
+        await client.auth.resetPasswordForEmail(email, {
+
+            redirectTo:
+            window.location.origin +
+            "/change-password.html"
+
+        });
+
+        if (error) throw error;
+
+        alert(
+            "Password reset link has been sent to your email."
+        );
+
+    }
+
+    catch (err) {
+
+        console.error(err);
+
+        alert(err.message);
+
+    }
+
+}
+
+// =====================================
+// CHECK SESSION
+// =====================================
+
+async function checkSession() {
+
+    try {
+
+        const {
+            data: { session }
+        } = await client.auth.getSession();
+
+        if (!session) {
+
+            location.href = "index.html";
+
+            return;
+
+        }
+
+        return session.user;
+
+    }
+
+    catch (err) {
+
+        console.error(err);
+
+        location.href = "index.html";
+
+    }
+
+}
+
+// =====================================
+// LOGOUT
+// =====================================
+
+async function logout() {
+
+    const yes =
+    confirm("Are you sure you want to logout?");
+
+    if (!yes) return;
+
+    try {
+
+        await client.auth.signOut();
+
+        alert("Logout Successful");
+
+        location.href = "index.html";
+
+    }
+
+    catch (err) {
+
+        console.error(err);
+
+        alert("Logout Failed");
+
+    }
+
+}
