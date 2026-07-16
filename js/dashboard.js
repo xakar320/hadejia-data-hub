@@ -60,6 +60,9 @@ async function loadUserProfile() {
         if (error) throw error;
 
         currentUserData = data;
+        
+        console.log(data);
+alert(JSON.stringify(data));
 
         document.getElementById("userName").textContent =
             data.full_name || "User";
