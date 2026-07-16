@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Dashboard | Hadejia Data Hub</title>
+
+<link rel="stylesheet"
+href="css/dashboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- HEADER -->
+
+<header class="header">
+
+<div class="profile">
+
+<div class="avatar">
+
+👤
+
+</div>
+
+<div>
+
+<h2 id="userName">
+
+Loading...
+
+</h2>
+
+<p id="userEmail">
+
+Loading...
+
+</p>
+
+<p id="userPhone">
+
+Loading...
+
+</p>
+
+</div>
+
+</div>
+
+<div>
+
+<button
+id="adminBtn"
+class="adminBtn"
+style="display:none"
+onclick="location.href='admin.html'">
+
+Admin
+
+</button>
+
+<button
+class="logoutBtn"
+onclick="logout()">
+
+Logout
+
+</button>
+
+</div>
+
+</header>
+
+<!-- WALLET -->
+
+<div class="walletCard">
+
+<h3>
+
+Wallet Balance
+
+</h3>
+
+<h1 id="walletBalance">
+
+₦0
+
+</h1>
+
+<button
+class="fundBtn"
+onclick="location.href='dynamic-account.html'">
+
+Fund Wallet
+
+</button>
+
+</div>
+
+<!-- SERVICES -->
+
+<div class="serviceGrid">
+
+<div
+class="serviceCard"
+onclick="location.href='buy-data.html'">
+
+📶
+
+<h3>
+
+Buy Data
+
+</h3>
+
+</div>
+
+<div
+class="serviceCard"
+onclick="location.href='voice.html'">
+
+📞
+
+<h3>
+
+Voice Bundle
+
+</h3>
+
+</div>
+
+<div
+class="serviceCard"
+onclick="location.href='airtime.html'">
+
+📱
+
+<h3>
+
+Airtime
+
+</h3>
+
+</div>
+
+<div
+class="serviceCard"
+onclick="location.href='electricity.html'">
+
+⚡
+
+<h3>
+
+Electricity
+
+</h3>
+
+</div>
+
+<div
+class="serviceCard"
+onclick="location.href='cable.html'">
+
+📺
+
+<h3>
+
+Cable TV
+
+</h3>
+
+</div>
+
+<div
+class="serviceCard"
+onclick="location.href='profile.html'">
+
+👤
+
+<h3>
+
+Profile
+
+</h3>
+
+</div>
+
+<div
+class="serviceCard"
+onclick="location.href='transactions.html'">
+
+📄
+
+<h3>
+
+Transactions
+
+</h3>
+
+</div>
+
+<div
+class="serviceCard"
+onclick="location.href='change-pin.html'">
+
+🔒
+
+<h3>
+
+Change PIN
+
+</h3>
+
+</div>
+
+</div>
+
+<!-- RECENT TRANSACTIONS -->
+
+<div class="card">
+
+<h2>
+
+Recent Transactions
+
+</h2>
+
+<div id="transactionList">
+
+Loading...
+
+</div>
+
+</div>
+
+</div>
+
+<script src="js/supabase.js"></script>
+
+<script src="js/dashboard.js"></script>
+
+</body>
+
+</html>
