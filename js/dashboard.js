@@ -212,3 +212,78 @@ window.addEventListener("load", () => {
     checkUser();
 
 });
+
+// =============================
+// LOGIN
+// =============================
+
+async function loginUser() {
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const password =
+        document.getElementById("password").value;
+
+    if (!email || !password) {
+
+        alert("Please enter your email and password.");
+
+        return;
+
+    }
+
+    try {
+
+        const { data, error } =
+        await client.auth.signInWithPassword({
+
+            email: email,
+
+            password: password
+
+        });
+
+        if (error) throw error;
+
+        // Check user session
+        const user = data.user;
+
+        if (!user) {
+
+            alert("Login failed.");
+
+            return;
+
+        }
+
+        // Check if profile exists
+        const {
+            data: profile,
+            error: profileError
+        } = await client
+        .from("users")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+        if (profileError) {
+
+            alert("User profile not found.");
+
+            return;
+
+        }
+
+        // Go to Dashboard
+        window.location.href = "dashboard.html";
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert(err.message);
+
+    }
+
+}
