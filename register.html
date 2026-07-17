@@ -3,11 +3,15 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Hadejia Data Hub - Register</title>
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
 
-<link rel="stylesheet" href="css/style.css">
+<title>Register</title>
+
+<link
+rel="stylesheet"
+href="css/style.css">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -17,88 +21,63 @@
 
 <div class="container">
 
-    <div class="card">
+<div class="card">
 
-        <img src="images/logo.png"
-             class="logo"
-             alt="Logo">
+<img
+src="images/logo.png"
+class="logo">
 
-        <h1>Create Account</h1>
+<h1>Create Account</h1>
 
-        <p class="subtitle">
+<input
+type="text"
+id="name"
+placeholder="Full Name">
 
-            Register New Account
+<input
+type="text"
+id="phone"
+placeholder="Phone Number">
 
-        </p>
+<input
+type="email"
+id="email"
+placeholder="Email Address">
 
-        <form id="registerForm">
+<input
+type="password"
+id="password"
+placeholder="Password">
 
-            <input
-                type="text"
-                id="fullName"
-                placeholder="Full Name"
-                required>
+<input
+type="number"
+id="pin"
+maxlength="4"
+placeholder="4 Digit PIN">
 
-            <input
-                type="email"
-                id="registerEmail"
-                placeholder="Email Address"
-                required>
+<button
+onclick="registerUser()">
 
-            <input
-                type="tel"
-                id="phone"
-                placeholder="Phone Number"
-                required>
+Create Account
 
-            <input
-                type="password"
-                id="registerPassword"
-                placeholder="Password"
-                minlength="6"
-                required>
+</button>
 
-            <input
-                type="password"
-                id="confirmPassword"
-                placeholder="Confirm Password"
-                minlength="6"
-                required>
+<br>
 
-            <input
-                type="password"
-                id="transactionPin"
-                placeholder="4 Digit Transaction PIN"
-                maxlength="4"
-                pattern="[0-9]{4}"
-                required>
+<a href="index.html">
 
-            <button
-                type="submit"
-                id="registerBtn">
+Already have account?
+Login
 
-                Create Account
+</a>
 
-            </button>
-
-        </form>
-
-        <div class="links">
-
-            <a href="index.html">
-
-                Already have an account? Login
-
-            </a>
-
-        </div>
-
-    </div>
+</div>
 
 </div>
 
 <script src="js/supabase.js"></script>
+
 <script src="js/auth.js"></script>
 
 </body>
-  </html>
+</html>
