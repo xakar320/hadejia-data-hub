@@ -1,28 +1,29 @@
-// ========================================
+// =====================================
+// Hadejia Data Hub
 // auth.js
-// Part 1A
-// Supabase Setup + Register
-// ========================================
+// Part 1
+// =====================================
 
-// Make sure js/supabase.js is loaded first
-// It must contain:
-// const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// =============================
-// REGISTER
-// =============================
+// ===============================
+// REGISTER USER
+// ===============================
 
 async function registerUser() {
 
-    const name = document.getElementById("name").value.trim();
+    const name =
+        document.getElementById("name").value.trim();
 
-    const phone = document.getElementById("phone").value.trim();
+    const phone =
+        document.getElementById("phone").value.trim();
 
-    const email = document.getElementById("email").value.trim();
+    const email =
+        document.getElementById("email").value.trim();
 
-    const password = document.getElementById("password").value;
+    const password =
+        document.getElementById("password").value;
 
-    const pin = document.getElementById("pin").value;
+    const pin =
+        document.getElementById("pin").value;
 
     if (
         !name ||
@@ -38,7 +39,7 @@ async function registerUser() {
 
     }
 
-    if (pin.length !== 4) {
+    if (!/^[0-9]{4}$/.test(pin)) {
 
         alert("PIN must be exactly 4 digits.");
 
@@ -49,8 +50,10 @@ async function registerUser() {
     try {
 
         // Create Auth User
-        const { data, error } =
-        await client.auth.signUp({
+        const {
+            data,
+            error
+        } = await client.auth.signUp({
 
             email: email,
 
@@ -60,23 +63,16 @@ async function registerUser() {
 
         if (error) throw error;
 
-        const user = data.user;
+        // Save Profile
+        const {
+            error: insertError
+        } = await client
 
-        if (!user) {
-
-            alert("Registration failed.");
-
-            return;
-
-        }
-
-        // Save profile into users table
-        const { error: insertError } =
-        await client
         .from("users")
+
         .insert([{
 
-            id: user.id,
+            id: data.user.id,
 
             name: name,
 
@@ -84,21 +80,18 @@ async function registerUser() {
 
             email: email,
 
-            balance: 0,
-
             pin: pin,
 
-            is_admin: false,
+            balance: 0,
 
-            created_at:
-            new Date().toISOString()
+            is_admin: false
 
         }]);
 
         if (insertError)
             throw insertError;
 
-        alert("Registration Successful!");
+        alert("Account Created Successfully");
 
         location.href = "index.html";
 
@@ -112,7 +105,65 @@ async function registerUser() {
 
     }
 
-            }
+}
+
+// ===============================
+// LOGIN USER
+// ===============================
+
+async function loginUser() {
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const password =
+        document.getElementById("password").value;
+
+    if (!email || !password) {
+
+        alert("Please enter email and password.");
+
+        return;
+
+    }
+
+    try {
+
+        const {
+            data,
+            error
+        } = await client.auth.signInWithPassword({
+
+            email: email,
+
+            password: password
+
+        });
+
+        if (error)
+            throw error;
+
+        if (!data.user) {
+
+            alert("Login Failed");
+
+            return;
+
+        }
+
+        location.href = "dashboard.html";
+
+    }
+
+    catch (err) {
+
+        console.error(err);
+
+        alert(err.message);
+
+    }
+
+}
 
 // =====================================
 // FORGOT PASSWORD
@@ -130,16 +181,13 @@ async function forgotPassword() {
         await client.auth.resetPasswordForEmail(email, {
 
             redirectTo:
-            window.location.origin +
-            "/change-password.html"
+            window.location.origin + "/index.html"
 
         });
 
         if (error) throw error;
 
-        alert(
-            "Password reset link has been sent to your email."
-        );
+        alert("Password reset link has been sent to your email.");
 
     }
 
@@ -165,15 +213,7 @@ async function checkSession() {
             data: { session }
         } = await client.auth.getSession();
 
-        if (!session) {
-
-            location.href = "index.html";
-
-            return;
-
-        }
-
-        return session.user;
+        return session;
 
     }
 
@@ -181,7 +221,26 @@ async function checkSession() {
 
         console.error(err);
 
+        return null;
+
+    }
+
+}
+
+// =====================================
+// REQUIRE LOGIN
+// Use this on protected pages
+// =====================================
+
+async function requireLogin() {
+
+    const session = await checkSession();
+
+    if (!session) {
+
         location.href = "index.html";
+
+        return;
 
     }
 
@@ -193,16 +252,9 @@ async function checkSession() {
 
 async function logout() {
 
-    const yes =
-    confirm("Are you sure you want to logout?");
-
-    if (!yes) return;
-
     try {
 
         await client.auth.signOut();
-
-        alert("Logout Successful");
 
         location.href = "index.html";
 
@@ -217,3 +269,27 @@ async function logout() {
     }
 
 }
+
+// =====================================
+// AUTO CHECK
+// =====================================
+
+window.addEventListener("load", async () => {
+
+    const page =
+        window.location.pathname
+        .split("/")
+        .pop();
+
+    // Login/Register pages don't require login
+    if (
+        page === "index.html" ||
+        page === "register.html" ||
+        page === ""
+    ) {
+        return;
+    }
+
+    await requireLogin();
+
+});
