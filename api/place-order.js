@@ -141,8 +141,100 @@ export default async function handler(req, res) {
         // SUCCESS
         //------------------------------------
 
-        if (result.status === true ||
-            result.success === true) {
+        // ========================================
+// PURCHASE SUCCESS
+// ========================================
+
+const purchaseSuccess =
+
+    result.status === true ||
+
+    result.success === true ||
+
+    result.code === "success" ||
+
+    result.data?.status === "successful";
+
+if (purchaseSuccess) {
+
+    //------------------------------------
+    // Deduct Wallet
+    //------------------------------------
+
+    const newBalance =
+        Number(user.balance) - Number(amount);
+
+    const { error: walletError } =
+        await supabase
+
+        .from("users")
+
+        .update({
+
+            balance: newBalance
+
+        })
+
+        .eq("id", user_id);
+
+    if (walletError) {
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+            "Wallet update failed"
+
+        });
+
+    }
+
+    //------------------------------------
+    // Save Transaction
+    //------------------------------------
+
+    await supabase
+
+        .from("transactions")
+
+        .insert({
+
+            user_id,
+
+            request_ref,
+
+            phone,
+
+            product_id,
+
+            variation_code,
+
+            amount,
+
+            type: "DATA",
+
+            status: "SUCCESS",
+
+            provider_response:
+            JSON.stringify(result)
+
+        });
+
+    return res.json({
+
+        success: true,
+
+        message:
+        "Data Purchase Successful",
+
+        balance: newBalance,
+
+        result
+
+    });
+
+}
 
             const newBalance =
                 Number(user.balance) -
