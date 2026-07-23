@@ -5,11 +5,11 @@
 
 // PASTE YOUR SUPABASE URL HERE
 const SUPABASE_URL =
-"https://zjenhfapfhuoogxorung.supabase.co";
+"https://xlmwkybfkwmiinovvvob.supabase.co";
 
 // PASTE YOUR SUPABASE ANON KEY HERE
 const SUPABASE_ANON_KEY =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZW5oZmFwZmh1b29neG9ydW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3OTkwNjMsImV4cCI6MjA5NjM3NTA2M30.Jymmb6ZACaR5r0Q5pYSVJzJIkqhkmera-Q7jVXvmaX0";
+"sb_publishable_tEGEv39lkdBjcV1hS11g4w_MTd0c9_O";
 
 // Create Supabase Client
 const client = supabase.createClient(
