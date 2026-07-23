@@ -9,7 +9,7 @@ const SUPABASE_URL =
 
 // PASTE YOUR SUPABASE ANON KEY HERE
 const SUPABASE_ANON_KEY =
-"sb_publishable_tEGEv39lkdBjcV1hS11g4w_MTd0c9_O";
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbXdreWJma3dtaWlub3Z2dm9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2MjY5ODYsImV4cCI6MjEwMDIwMjk4Nn0.iyu18AEuKcvYuIGAtvTtyeCII3124jp5ho_VvgziCWs";
 
 // Create Supabase Client
 const client = supabase.createClient(
