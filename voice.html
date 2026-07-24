@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buy Voice Bundle — Hadejia Data Hub</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --ink:#14201C; --ink-soft:#4A564E;
+    --paper:#FAF6EC; --paper-dim:#EFE8D8; --line:#DED4BC;
+    --indigo:#26355C; --indigo-deep:#1B2540;
+    --teal:#2F6E62; --teal-soft:#DCEAE5;
+    --ochre:#C08A34; --ochre-soft:#F3E4C6;
+    --rust:#A8382E; --rust-soft:#F3DAD6;
+    --radius:10px;
+    --font-display:'Fraunces', serif;
+    --font-ui:'IBM Plex Sans', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font-ui);background:var(--ink);color:var(--ink);min-height:100vh;}
+  h1,h2,h3{font-family:var(--font-display);font-weight:600;margin:0;}
+  .mono{font-family:var(--font-mono);}
+  button{font-family:var(--font-ui);cursor:pointer;}
+
+  .topbar{display:flex;align-items:center;gap:12px;padding:16px 20px;color:#fff;}
+  .topbar a{color:#cfd6cf;text-decoration:none;font-size:14px;}
+  .topbar h1{font-size:18px;color:#fff;flex:1;}
+
+  .page{max-width:520px;margin:0 auto;padding:0 16px 40px;}
+  .card{background:var(--paper);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+
+  .balance-card{background:var(--teal);color:#fff;}
+  .balance-card .label{font-size:12px;opacity:.85;text-transform:uppercase;letter-spacing:.04em;}
+  .balance-card .amount{font-family:var(--font-mono);font-size:28px;margin-top:4px;}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+  .field input,.field select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:15px;color:var(--ink);}
+  .field input:focus,.field select:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal);}
+
+  .network-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .network-tabs button{background:var(--paper-dim);border:1px solid var(--line);border-radius:20px;padding:8px 16px;font-size:13px;font-weight:600;}
+  .network-tabs button.active{background:var(--indigo);color:#fff;border-color:var(--indigo);}
+
+  .plan-list{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+  .plan-option{border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;justify-content:space-between;align-items:center;background:#fff;}
+  .plan-option.selected{border-color:var(--teal);background:var(--teal-soft);}
+  .plan-option .name{font-weight:600;font-size:14px;}
+  .plan-option .sub{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .plan-option .price{font-family:var(--font-mono);font-weight:600;color:var(--indigo-deep);}
+
+  .btn{border:none;border-radius:8px;padding:13px 20px;font-size:15px;font-weight:600;width:100%;}
+  .btn-primary{background:var(--indigo);color:#fff;}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+
+  .empty{text-align:center;color:var(--ink-soft);font-size:13px;padding:30px 10px;}
+  .skeleton{background:linear-gradient(90deg,var(--paper-dim) 25%,#f4efe4 37%,var(--paper-dim) 63%);background-size:400% 100%;animation:sk 1.3s ease infinite;border-radius:6px;height:52px;}
+  @keyframes sk{0%{background-position:100% 0}100%{background-position:0 0}}
+
+  .modal-backdrop{position:fixed;inset:0;background:rgba(20,32,28,.6);display:none;align-items:center;justify-content:center;padding:20px;z-index:50;}
+  .modal-backdrop.open{display:flex;}
+  .modal{background:#fff;border-radius:var(--radius);max-width:380px;width:100%;padding:24px;text-align:center;}
+  .modal .icon{font-size:40px;margin-bottom:10px;}
+  .modal h3{font-size:18px;margin-bottom:8px;}
+  .modal p{color:var(--ink-soft);font-size:14px;margin:0 0 18px;}
+
+  #toast-wrap{position:fixed;bottom:20px;left:16px;right:16px;z-index:100;display:flex;flex-direction:column;gap:8px;}
+  .toast{background:var(--ink);color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;text-align:center;}
+  .toast.err{background:var(--rust);}
+  .toast.ok{background:var(--teal);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="dashboard.html">← Back</a>
+  <h1>Buy Voice Bundle</h1>
+</div>
+
+<div class="page">
+
+  <div class="card balance-card">
+    <div class="label">Wallet Balance</div>
+    <div class="amount mono" id="wallet-balance">Loading…</div>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label>Network</label>
+      <div class="network-tabs" id="network-tabs"></div>
+    </div>
+
+    <div class="field">
+      <label for="phone-input">Phone Number</label>
+      <input type="tel" id="phone-input" placeholder="0803xxxxxxx" maxlength="11">
+    </div>
+
+    <label style="display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;">
+      Choose a plan
+    </label>
+    <div class="plan-list" id="plan-list">
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+    </div>
+
+    <button class="btn btn-primary" id="buy-btn" disabled>Select a plan to continue</button>
+  </div>
+
+</div>
+
+<div class="modal-backdrop" id="result-modal">
+  <div class="modal" id="result-modal-content"></div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<script src="js/supabase.js"></script>
+<script>
+/* =====================================================================
+   voice.html — buys a voice/minutes bundle via POST /api/place-order
+   { type: "voice", planId, phone }. Pricing, variation_code, and
+   AutosyncNG's product_id all come from the voice_plans row server-
+   side — this page never sends or knows AutosyncNG catalog IDs.
+===================================================================== */
+
+let session = null;
+let allPlans = [];
+let selectedNetwork = null;
+let selectedPlan = null;
+
+function $(sel){ return document.querySelector(sel); }
+function money(n){ return Number(n||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function toast(msg, type='ok'){
+  const t = document.createElement('div');
+  t.className = `toast ${type==='ok'?'ok':'err'}`;
+  t.textContent = msg;
+  $('#toast-wrap').appendChild(t);
+  setTimeout(()=>t.remove(), 4200);
+}
+
+async function init(){
+  const { data:{ session: s } } = await client.auth.getSession();
+  if (!s) { location.href = 'index.html'; return; }
+  session = s;
+
+  // Prefill phone with the account's own number, and show wallet balance.
+  const { data: profile } = await client.from('users').select('phone, wallet_balance').eq('id', s.user.id).maybeSingle();
+  if (profile) {
+    $('#wallet-balance').textContent = `₦${money(profile.wallet_balance)}`;
+    if (profile.phone) $('#phone-input').value = profile.phone;
+  } else {
+    $('#wallet-balance').textContent = '₦0.00';
+  }
+
+  await loadPlans();
+}
+
+async function loadPlans(){
+  const list = $('#plan-list');
+  try {
+    const { data, error } = await client
+      .from('voice_plans')
+      .select('*')
+      .eq('status', 'active')
+      .order('network')
+      .order('selling_price');
+    if (error) throw error;
+
+    allPlans = data || [];
+
+    if (allPlans.length === 0) {
+      list.innerHTML = '';
+      list.appendChild(elEmpty('No voice bundles are available right now.'));
+      $('#network-tabs').innerHTML = '';
+      return;
+    }
+
+    const networks = [...new Set(allPlans.map(p => p.network))];
+    renderNetworkTabs(networks);
+    selectedNetwork = networks[0];
+    renderPlanList();
+  } catch (err) {
+    list.innerHTML = '';
+    list.appendChild(elEmpty(err.message));
+  }
+}
+
+function elEmpty(msg){
+  const d = document.createElement('div');
+  d.className = 'empty';
+  d.textContent = msg;
+  return d;
+}
+
+function renderNetworkTabs(networks){
+  const tabs = $('#network-tabs');
+  tabs.innerHTML = '';
+  networks.forEach(net => {
+    const btn = document.createElement('button');
+    btn.textContent = net;
+    btn.className = net === selectedNetwork ? 'active' : '';
+    btn.addEventListener('click', () => {
+      selectedNetwork = net;
+      selectedPlan = null;
+      updateBuyButton();
+      document.querySelectorAll('#network-tabs button').forEach(b => b.classList.toggle('active', b.textContent === net));
+      renderPlanList();
+    });
+    tabs.appendChild(btn);
+  });
+}
+
+function renderPlanList(){
+  const list = $('#plan-list');
+  list.innerHTML = '';
+  const plans = allPlans.filter(p => p.network === selectedNetwork);
+
+  if (plans.length === 0) {
+    list.appendChild(elEmpty(`No voice bundles for ${selectedNetwork} right now.`));
+    return;
+  }
+
+  plans.forEach(plan => {
+    const row = document.createElement('div');
+    row.className = 'plan-option' + (selectedPlan && selectedPlan.id === plan.id ? ' selected' : '');
+    row.innerHTML = `
+      <div>
+        <div class="name">${plan.plan_name}</div>
+        <div class="sub">${plan.minutes} minutes · ${plan.validity}</div>
+      </div>
+      <div class="price mono">₦${money(plan.selling_price)}</div>
+    `;
+    row.addEventListener('click', () => {
+      selectedPlan = plan;
+      updateBuyButton();
+      renderPlanList();
+    });
+    list.appendChild(row);
+  });
+}
+
+function updateBuyButton(){
+  const btn = $('#buy-btn');
+  if (selectedPlan) {
+    btn.disabled = false;
+    btn.textContent = `Buy ${selectedPlan.plan_name} — ₦${money(selectedPlan.selling_price)}`;
+  } else {
+    btn.disabled = true;
+    btn.textContent = 'Select a plan to continue';
+  }
+}
+
+$('#buy-btn').addEventListener('click', async () => {
+  const phone = $('#phone-input').value.trim();
+  if (!/^0[7-9][01]\d{8}$/.test(phone)) {
+    toast('Enter a valid Nigerian phone number', 'err');
+    return;
+  }
+  if (!selectedPlan) return;
+
+  const btn = $('#buy-btn');
+  btn.disabled = true;
+  btn.textContent = 'Processing…';
+
+  try {
+    const res = await fetch('/api/place-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify({ type: 'voice', planId: selectedPlan.id, phone })
+    });
+    const body = await res.json().catch(() => ({}));
+
+    if (!res.ok || body.success === false) {
+      throw new Error((body.error && body.error.message) || 'Purchase failed');
+    }
+
+    showResultModal({
+      ok: body.data && body.data.status !== 'pending',
+      title: body.data && body.data.status === 'pending' ? 'Order submitted' : 'Purchase successful',
+      message: body.data && body.data.status === 'pending'
+        ? 'Your voice bundle is being processed. It will arrive shortly.'
+        : `${selectedPlan.minutes} minutes sent to ${phone}.`
+    });
+
+    // Refresh balance after a successful/pending debit.
+    const { data: profile } = await client.from('users').select('wallet_balance').eq('id', session.user.id).maybeSingle();
+    if (profile) $('#wallet-balance').textContent = `₦${money(profile.wallet_balance)}`;
+
+  } catch (err) {
+    showResultModal({ ok:false, title:'Purchase failed', message: err.message });
+  } finally {
+    updateBuyButton();
+  }
+});
+
+function showResultModal({ ok, title, message }){
+  const content = $('#result-modal-content');
+  content.innerHTML = `
+    <div class="icon">${ok ? '✅' : '⚠️'}</div>
+    <h3>${title}</h3>
+    <p>${message}</p>
+    <button class="btn btn-primary" id="modal-close-btn">${ok ? 'Done' : 'Try again'}</button>
+  `;
+  $('#result-modal').classList.add('open');
+  $('#modal-close-btn').addEventListener('click', () => {
+    $('#result-modal').classList.remove('open');
+    if (ok) { selectedPlan = null; renderPlanList(); updateBuyButton(); }
+  });
+}
+
+init();
+</script>
+</body>
+</html>
