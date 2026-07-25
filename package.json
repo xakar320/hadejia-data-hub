@@ -1,0 +1,13 @@
+{
+  "name": "hadejia-data-hub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hadejia Data Hub — VTU platform (Vercel serverless + Supabase)",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "axios": "^1.7.0"
+  }
+}
