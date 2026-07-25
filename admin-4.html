@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hadejia Data Hub — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  /* ---------------------------------------------------------------
+     TOKENS
+     Palette drawn from Hadejia's own landscape rather than generic
+     fintech blue: indigo from the Kano/Hausa dye-pit tradition,
+     marsh teal from the Hadejia-Nguru wetlands, sand/ochre from the
+     surrounding savannah. Numbers and identifiers (prices, phone
+     numbers, references) always render in the mono face so figures
+     line up — a real admin-tool need, not decoration.
+  ----------------------------------------------------------------*/
+  :root{
+    --ink:#14201C;
+    --ink-soft:#4A564E;
+    --paper:#FAF6EC;
+    --paper-dim:#EFE8D8;
+    --line:#DED4BC;
+    --indigo:#26355C;
+    --indigo-deep:#1B2540;
+    --teal:#2F6E62;
+    --teal-soft:#DCEAE5;
+    --ochre:#C08A34;
+    --ochre-soft:#F3E4C6;
+    --rust:#A8382E;
+    --rust-soft:#F3DAD6;
+    --radius:10px;
+    --font-display:'Fraunces', serif;
+    --font-ui:'IBM Plex Sans', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font-ui);background:var(--paper);color:var(--ink);}
+  h1,h2,h3{font-family:var(--font-display);font-weight:600;margin:0;}
+  .mono{font-family:var(--font-mono);}
+  button{font-family:var(--font-ui);cursor:pointer;}
+  input,select,textarea{font-family:var(--font-ui);}
+  a{color:inherit;}
+
+  /* signature waterline motif — used sparingly: header rule, active
+     nav indicator, loading bar. A thin sine wave evoking the Hadejia
+     wetland channels. */
+  .waterline{
+    height:6px;width:100%;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='6' viewBox='0 0 40 6'%3E%3Cpath d='M0 3 C5 0, 15 6, 20 3 S35 0, 40 3' stroke='%232F6E62' stroke-width='1.4' fill='none'/%3E%3C/svg%3E");
+    background-repeat:repeat-x;background-size:40px 6px;
+  }
+  .waterline.loading{animation:wave-scroll 1.1s linear infinite;}
+  @keyframes wave-scroll{from{background-position-x:0;}to{background-position-x:40px;}}
+
+  /* ---------------- LOGIN ---------------- */
+  #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--ink);padding:24px;}
+  .login-card{background:var(--paper);border-radius:var(--radius);padding:36px 32px;width:100%;max-width:380px;}
+  .login-card h1{font-size:26px;color:var(--indigo-deep);margin-bottom:4px;}
+  .login-card p{color:var(--ink-soft);font-size:14px;margin:0 0 24px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+  .field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:14px;color:var(--ink);}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal);}
+  .btn{border:none;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
+  .btn-primary{background:var(--indigo);color:#fff;width:100%;justify-content:center;padding:12px;}
+  .btn-primary:hover{background:var(--indigo-deep);}
+  .btn-secondary{background:var(--paper-dim);color:var(--ink);}
+  .btn-danger{background:var(--rust-soft);color:var(--rust);}
+  .btn-ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--line);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .error-text{color:var(--rust);font-size:13px;margin-top:10px;}
+
+  /* ---------------- APP SHELL ---------------- */
+  #app{display:none;min-height:100vh;}
+  .topbar{background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;}
+  .topbar .brand{font-family:var(--font-display);font-size:18px;}
+  .topbar .who{display:flex;align-items:center;gap:14px;font-size:13px;color:#cfd6cf;}
+  .topbar .who button{background:none;border:1px solid #3a463f;color:#cfd6cf;border-radius:6px;padding:6px 10px;font-size:12px;}
+
+  .shell{display:flex;min-height:calc(100vh - 52px);}
+  .sidebar{width:210px;background:var(--ink);color:#cfd6cf;flex-shrink:0;padding:18px 0;}
+  .sidebar button{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:#cfd6cf;padding:11px 20px;font-size:14px;text-align:left;position:relative;}
+  .sidebar button.active{color:#fff;background:rgba(255,255,255,.06);}
+  .sidebar button.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='40' viewBox='0 0 6 40'%3E%3Cpath d='M3 0 C0 5, 6 15, 3 20 S0 35, 3 40' stroke='%232F6E62' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-size:6px 40px;}
+
+  main{flex:1;padding:26px;min-width:0;}
+  .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+  .section-head h2{font-size:22px;}
+  .section-head .sub{color:var(--ink-soft);font-size:13px;margin-top:2px;}
+
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;}
+  .grid-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:22px;}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;}
+  .stat .num{font-family:var(--font-mono);font-size:26px;font-weight:500;color:var(--indigo-deep);}
+  .stat .label{font-size:12px;color:var(--ink-soft);margin-top:4px;}
+
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+  .tabs button{background:var(--paper-dim);border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:13px;}
+  .tabs button.active{background:var(--indigo);color:#fff;border-color:var(--indigo);}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-soft);border-bottom:1px solid var(--line);padding:8px 10px;position:sticky;top:0;background:#fff;}
+  tbody td{padding:10px;border-bottom:1px solid var(--paper-dim);vertical-align:middle;}
+  tbody tr:hover{background:var(--paper-dim);}
+  .table-wrap{overflow-x:auto;max-height:60vh;overflow-y:auto;border:1px solid var(--line);border-radius:var(--radius);}
+
+  .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+  .badge-active,.badge-success,.badge-successful{background:var(--teal-soft);color:var(--teal);}
+  .badge-inactive,.badge-suspended{background:var(--ochre-soft);color:var(--ochre);}
+  .badge-banned,.badge-failed{background:var(--rust-soft);color:var(--rust);}
+  .badge-pending{background:#E6E1F5;color:#4B3F91;}
+
+  .toggle{position:relative;width:38px;height:20px;border-radius:20px;background:var(--line);border:none;flex-shrink:0;}
+  .toggle.on{background:var(--teal);}
+  .toggle::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s;}
+  .toggle.on::after{left:20px;}
+
+  .row-actions{display:flex;gap:6px;flex-wrap:wrap;}
+  .row-actions button{font-size:12px;padding:5px 10px;border-radius:6px;}
+
+  .empty{padding:40px 20px;text-align:center;color:var(--ink-soft);font-size:13px;}
+  .skeleton{background:linear-gradient(90deg,var(--paper-dim) 25%,#f4efe4 37%,var(--paper-dim) 63%);background-size:400% 100%;animation:sk 1.3s ease infinite;border-radius:6px;height:14px;}
+  @keyframes sk{0%{background-position:100% 0}100%{background-position:0 0}}
+
+  /* modal */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(20,32,28,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:50;}
+  .modal-backdrop.open{display:flex;}
+  .modal{background:#fff;border-radius:var(--radius);max-width:480px;width:100%;max-height:88vh;overflow-y:auto;padding:24px;}
+  .modal h3{font-size:18px;margin-bottom:16px;}
+  .modal-close{float:right;background:none;border:none;font-size:18px;color:var(--ink-soft);}
+  pre.json{background:var(--paper-dim);padding:12px;border-radius:8px;font-size:12px;font-family:var(--font-mono);white-space:pre-wrap;word-break:break-word;}
+
+  /* toast */
+  #toast-wrap{position:fixed;bottom:20px;right:20px;z-index:100;display:flex;flex-direction:column;gap:8px;}
+  .toast{background:var(--ink);color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;min-width:220px;box-shadow:0 6px 18px rgba(0,0,0,.2);}
+  .toast.err{background:var(--rust);}
+  .toast.ok{background:var(--teal);}
+
+  /* mobile: bottom tab bar instead of sidebar */
+  @media (max-width:880px){
+    .sidebar{position:fixed;bottom:0;left:0;right:0;width:100%;display:flex;padding:0;z-index:40;border-top:1px solid #26312a;}
+    .sidebar button{flex-direction:column;gap:2px;padding:10px 4px;font-size:10px;text-align:center;flex:1;}
+    .sidebar button.active::before{left:0;right:0;top:0;bottom:auto;width:auto;height:3px;background-size:40px 3px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='4' viewBox='0 0 40 4'%3E%3Cpath d='M0 2 C5 0, 15 4, 20 2 S35 0, 40 2' stroke='%232F6E62' stroke-width='1.4' fill='none'/%3E%3C/svg%3E");}
+    main{padding-bottom:80px;}
+    .shell{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="login-screen">
+  <div class="login-card">
+    <h1>Hadejia Data Hub</h1>
+    <p>Admin sign-in</p>
+    <form id="login-form">
+      <div class="field">
+        <label for="login-email">Email</label>
+        <input id="login-email" type="email" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="login-password">Password</label>
+        <input id="login-password" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="btn btn-primary" type="submit" id="login-btn">Sign in</button>
+      <div class="error-text" id="login-error" style="display:none;"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <div class="topbar">
+    <div class="brand">Hadejia Data Hub — Admin</div>
+    <div class="who">
+      <span id="who-email"></span>
+      <button id="logout-btn">Sign out</button>
+    </div>
+  </div>
+  <div class="waterline" id="top-waterline"></div>
+
+  <div class="shell">
+    <nav class="sidebar" id="sidebar">
+      <button data-tab="dashboard" class="active">📊 Dashboard</button>
+      <button data-tab="plans">🗂️ Plans</button>
+      <button data-tab="users">👥 Users</button>
+      <button data-tab="wallet">👛 Wallet</button>
+      <button data-tab="transactions">💳 Transactions</button>
+      <button data-tab="settings">⚙️ Settings</button>
+    </nav>
+
+    <main id="main"></main>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<script>
+/* =====================================================================
+   CONFIG — fill these in from your Supabase project settings.
+   The anon key is safe to expose client-side; every table this page
+   touches is protected by the RLS policies in 01_schema.sql, which
+   only grant write access to rows when the signed-in user's role is
+   'admin'/'superadmin'. This page never uses the service-role key.
+===================================================================== */
+const CONFIG = {
+  SUPABASE_URL: 'YOUR_SUPABASE_URL',
+  SUPABASE_ANON_KEY: 'YOUR_SUPABASE_ANON_KEY',
+  WALLET_ADJUST_ENDPOINT: '/api/admin/wallet-adjust',
+  REFUND_ENDPOINT: '/api/admin/refund-transaction',
+  PROVIDER_CATALOG_ENDPOINT: '/api/admin/provider-catalog'
+};
+
+const sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+let session = null;
+let adminProfile = null;
+let activeTab = 'dashboard';
+
+/* ---------------- helpers ---------------- */
+function $(sel, root=document){ return root.querySelector(sel); }
+function el(tag, attrs={}, children=[]) {
+  const node = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs)) {
+    if (k === 'html') node.innerHTML = v;
+    else if (k.startsWith('on')) node.addEventListener(k.slice(2), v);
+    else node.setAttribute(k, v);
+  }
+  (Array.isArray(children)?children:[children]).forEach(c => {
+    if (c === null || c === undefined) return;
+    node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+  });
+  return node;
+}
+function money(n){ return Number(n||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtDate(s){ return s ? new Date(s).toLocaleString('en-NG',{dateStyle:'medium',timeStyle:'short'}) : '—'; }
+function toast(msg, type='ok'){
+  const t = el('div',{class:`toast ${type==='ok'?'ok':'err'}`},msg);
+  $('#toast-wrap').appendChild(t);
+  setTimeout(()=>t.remove(), 3800);
+}
+function setLoading(on){ $('#top-waterline').classList.toggle('loading', on); }
+
+async function authedFetch(url, opts={}){
+  const res = await fetch(url, {
+    ...opts,
+    headers: {
+      'Content-Type':'application/json',
+      'Authorization': `Bearer ${session.access_token}`,
+      ...(opts.headers||{})
+    }
+  });
+  const body = await res.json().catch(()=>({}));
+  if (!res.ok || body.success === false) {
+    throw new Error((body.error && body.error.message) || `Request failed (${res.status})`);
+  }
+  return body.data;
+}
+
+function openModal(node){ $('#modal-content').innerHTML=''; $('#modal-content').appendChild(node); $('#modal-backdrop').classList.add('open'); }
+function closeModal(){ $('#modal-backdrop').classList.remove('open'); }
+$('#modal-backdrop').addEventListener('click', e => { if (e.target.id === 'modal-backdrop') closeModal(); });
+
+/* ---------------- auth ---------------- */
+$('#login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = $('#login-btn');
+  const errBox = $('#login-error');
+  errBox.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    const email = $('#login-email').value.trim();
+    const password = $('#login-password').value;
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+
+    const { data: profile, error: profileErr } = await sb
+      .from('users').select('*').eq('id', data.user.id).maybeSingle();
+    if (profileErr) throw profileErr;
+    if (!profile || !['admin','superadmin'].includes(profile.role)) {
+      await sb.auth.signOut();
+      throw new Error('This account does not have admin access.');
+    }
+    if (profile.status !== 'active') {
+      await sb.auth.signOut();
+      throw new Error('This admin account is not active.');
+    }
+
+    session = data.session;
+    adminProfile = profile;
+    enterApp();
+  } catch (err) {
+    errBox.textContent = err.message || 'Sign-in failed';
+    errBox.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Sign in';
+  }
+});
+
+$('#logout-btn').addEventListener('click', async () => {
+  await sb.auth.signOut();
+  session = null; adminProfile = null;
+  $('#app').style.display = 'none';
+  $('#login-screen').style.display = 'flex';
+});
+
+function enterApp(){
+  $('#login-screen').style.display = 'none';
+  $('#app').style.display = 'block';
+  $('#who-email').textContent = `${adminProfile.full_name || adminProfile.email} · ${adminProfile.role}`;
+  renderTab('dashboard');
+}
+
+/* ---------------- nav ---------------- */
+$('#sidebar').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-tab]');
+  if (!btn) return;
+  renderTab(btn.dataset.tab);
+});
+function renderTab(tab){
+  activeTab = tab;
+  document.querySelectorAll('#sidebar button').forEach(b => b.classList.toggle('active', b.dataset.tab===tab));
+  const main = $('#main');
+  main.innerHTML = '';
+  const renderers = { dashboard: renderDashboard, plans: renderPlans, users: renderUsers, wallet: renderWallet, transactions: renderTransactions, settings: renderSettings };
+  renderers[tab]();
+}
+
+/* =====================================================================
+   DASHBOARD
+===================================================================== */
+async function renderDashboard(){
+  const main = $('#main');
+  main.appendChild(el('div',{class:'section-head'},[el('div',{},[el('h2',{},'Dashboard'), el('div',{class:'sub'},'Live snapshot of the platform')])]));
+  const grid = el('div',{class:'grid-stats'});
+  main.appendChild(grid);
+  const stats = [
+    {label:'Total users', key:'users'},
+    {label:'Suspended / banned', key:'flagged'},
+    {label:"Transactions today", key:'txToday'},
+    {label:"Volume today (₦)", key:'volToday'},
+    {label:'Pending transactions', key:'pending'},
+  ];
+  stats.forEach(s => grid.appendChild(el('div',{class:'stat',id:`stat-${s.key}`},[el('div',{class:'skeleton',style:'width:60%;height:24px;margin-bottom:6px;'}),el('div',{class:'label'},s.label)])));
+
+  setLoading(true);
+  try {
+    const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+
+    const [{count:userCount}, {count:flaggedCount}, {data:todayTx}, {count:pendingCount}] = await Promise.all([
+      sb.from('users').select('*',{count:'exact',head:true}),
+      sb.from('users').select('*',{count:'exact',head:true}).in('status',['suspended','banned']),
+      sb.from('transactions').select('amount,status').gte('created_at', todayStart.toISOString()),
+      sb.from('transactions').select('*',{count:'exact',head:true}).eq('status','pending')
+    ]);
+
+    const txToday = (todayTx||[]).length;
+    const volToday = (todayTx||[]).filter(t=>t.status==='success').reduce((s,t)=>s+Number(t.amount),0);
+
+    const values = { users:userCount||0, flagged:flaggedCount||0, txToday, volToday: `₦${money(volToday)}`, pending: pendingCount||0 };
+    stats.forEach(s => {
+      const box = $(`#stat-${s.key}`);
+      box.innerHTML = '';
+      box.appendChild(el('div',{class:'num mono'}, String(values[s.key])));
+      box.appendChild(el('div',{class:'label'}, s.label));
+    });
+  } catch(err){
+    toast(err.message,'err');
+  } finally {
+    setLoading(false);
+  }
+}
+
+/* =====================================================================
+   PLANS
+===================================================================== */
+const PLAN_TYPES = {
+  data: { table:'data_plans', label:'Data',
+    columns:['network','plan_name','data_size','validity','plan_code','product_id','cost_price','selling_price'],
+    fields:[
+      {key:'network',label:'Network',type:'text'},
+      {key:'plan_type',label:'Plan Type (SME/GIFTING…)',type:'text'},
+      {key:'plan_name',label:'Plan Name',type:'text'},
+      {key:'data_size',label:'Data Size (e.g. 1GB)',type:'text'},
+      {key:'validity',label:'Validity (e.g. 30 days)',type:'text'},
+      {key:'plan_code',label:'Provider Variation Code',type:'text'},
+      {key:'product_id',label:'Provider Product ID (network-level, from AutosyncNG) — optional for now',type:'text',required:false},
+      {key:'cost_price',label:'Cost Price (₦)',type:'number'},
+      {key:'selling_price',label:'Selling Price (₦)',type:'number'},
+    ]},
+  airtime: { table:'airtime_plans', label:'Airtime',
+    columns:['network','discount_percentage','min_amount','max_amount'],
+    fields:[
+      {key:'network',label:'Network',type:'text'},
+      {key:'discount_percentage',label:'Discount %',type:'number'},
+      {key:'min_amount',label:'Min Amount (₦)',type:'number'},
+      {key:'max_amount',label:'Max Amount (₦)',type:'number'},
+    ]},
+  voice: { table:'voice_plans', label:'Voice',
+    columns:['network','plan_name','minutes','validity','plan_code','product_id','cost_price','selling_price'],
+    fields:[
+      {key:'network',label:'Network',type:'text'},
+      {key:'plan_name',label:'Plan Name',type:'text'},
+      {key:'minutes',label:'Minutes',type:'number'},
+      {key:'validity',label:'Validity',type:'text'},
+      {key:'plan_code',label:'Provider Variation Code',type:'text'},
+      {key:'product_id',label:'Provider Product ID (network-level, from AutosyncNG Talk More)',type:'text'},
+      {key:'cost_price',label:'Cost Price (₦)',type:'number'},
+      {key:'selling_price',label:'Selling Price (₦)',type:'number'},
+    ]},
+  cable: { table:'cable_plans', label:'Cable',
+    columns:['provider','package_name','plan_code','cost_price','selling_price'],
+    fields:[
+      {key:'provider',label:'Provider (DSTV/GOTV/STARTIMES)',type:'text'},
+      {key:'package_name',label:'Package Name',type:'text'},
+      {key:'plan_code',label:'Provider Plan Code',type:'text'},
+      {key:'cost_price',label:'Cost Price (₦)',type:'number'},
+      {key:'selling_price',label:'Selling Price (₦)',type:'number'},
+    ]},
+  electricity: { table:'electricity_plans', label:'Electricity',
+    columns:['disco','meter_type','provider_code','commission_rate','min_amount','max_amount'],
+    fields:[
+      {key:'disco',label:'Disco (e.g. IKEDC)',type:'text'},
+      {key:'meter_type',label:'Meter Type',type:'select',options:['prepaid','postpaid']},
+      {key:'provider_code',label:'Provider Code',type:'text'},
+      {key:'commission_rate',label:'Commission %',type:'number'},
+      {key:'min_amount',label:'Min Amount (₦)',type:'number'},
+      {key:'max_amount',label:'Max Amount (₦)',type:'number'},
+    ]},
+};
+let activePlanType = 'data';
+
+async function renderPlans(){
+  const main = $('#main');
+  main.appendChild(el('div',{class:'section-head'},[
+    el('div',{},[el('h2',{},'Plans'), el('div',{class:'sub'},'Manage pricing and availability across every service')]),
+    el('button',{class:'btn btn-primary',onclick:()=>openPlanForm(activePlanType,null)},'+ Add plan')
+  ]));
+
+  const tabs = el('div',{class:'tabs'});
+  Object.entries(PLAN_TYPES).forEach(([key,cfg])=>{
+    tabs.appendChild(el('button',{class:key===activePlanType?'active':'', onclick:()=>{activePlanType=key; renderTab('plans');}}, cfg.label));
+  });
+  main.appendChild(tabs);
+
+  const wrap = el('div',{class:'table-wrap'});
+  main.appendChild(wrap);
+  wrap.appendChild(el('div',{class:'empty'},'Loading…'));
+
+  setLoading(true);
+  try {
+    const cfg = PLAN_TYPES[activePlanType];
+    const { data, error } = await sb.from(cfg.table).select('*').order('created_at',{ascending:false});
+    if (error) throw error;
+    wrap.innerHTML = '';
+    if (!data || data.length === 0) {
+      wrap.appendChild(el('div',{class:'empty'},'No plans yet — add the first one.'));
+      return;
+    }
+    const table = el('table');
+    const thead = el('thead',{},el('tr',{},[...cfg.columns.map(c=>el('th',{},c.replace(/_/g,' '))), el('th',{},'status'), el('th',{},'')]));
+    table.appendChild(thead);
+    const tbody = el('tbody');
+    data.forEach(row=>{
+      const tr = el('tr',{},[
+        ...cfg.columns.map(c=>{
+          const isMoney = c.includes('price') || c.includes('amount');
+          return el('td',{class:isMoney?'mono':''}, row[c]===null||row[c]===undefined?'—':(isMoney?money(row[c]):String(row[c])));
+        }),
+        el('td',{},el('button',{class:`toggle ${row.status==='active'?'on':''}`, onclick:()=>togglePlanStatus(cfg,row)})),
+        el('td',{},el('div',{class:'row-actions'},[
+          el('button',{class:'btn btn-secondary',onclick:()=>openPlanForm(activePlanType,row)},'Edit'),
+          el('button',{class:'btn btn-danger',onclick:()=>deletePlan(cfg,row)},'Delete'),
+        ]))
+      ]);
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+  } catch(err){
+    wrap.innerHTML = '';
+    wrap.appendChild(el('div',{class:'empty'}, err.message));
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function togglePlanStatus(cfg,row){
+  const next = row.status === 'active' ? 'inactive' : 'active';
+  setLoading(true);
+  try {
+    const { error } = await sb.from(cfg.table).update({status:next}).eq('id',row.id);
+    if (error) throw error;
+    toast(`Plan set to ${next}`);
+    renderTab('plans');
+  } catch(err){ toast(err.message,'err'); } finally { setLoading(false); }
+}
+
+async function deletePlan(cfg,row){
+  if (!confirm('Delete this plan? This cannot be undone.')) return;
+  setLoading(true);
+  try {
+    const { error } = await sb.from(cfg.table).delete().eq('id',row.id);
+    if (error) throw error;
+    toast('Plan deleted');
+    renderTab('plans');
+  } catch(err){ toast(err.message,'err'); } finally { setLoading(false); }
+}
+
+function openPlanForm(typeKey, existing){
+  const cfg = PLAN_TYPES[typeKey];
+  const form = el('form',{});
+  const modal = el('div',{},[
+    el('button',{class:'modal-close',type:'button',onclick:closeModal},'✕'),
+    el('h3',{}, existing ? `Edit ${cfg.label} plan` : `Add ${cfg.label} plan`),
+    form
+  ]);
+  cfg.fields.forEach(f=>{
+    const field = el('div',{class:'field'});
+    field.appendChild(el('label',{},f.label));
+    let input;
+    if (f.type==='select'){
+      input = el('select',{name:f.key,required:'true'}, f.options.map(o=>el('option',{value:o, selected: existing && existing[f.key]===o ? 'true':null}, o)));
+    } else {
+      input = el('input',{type:f.type,name:f.key,required:'true',step: f.type==='number'?'0.01':undefined, value: existing && existing[f.key]!==undefined && existing[f.key]!==null ? existing[f.key] : ''});
+    }
+    field.appendChild(input);
+    form.appendChild(field);
+  });
+  form.appendChild(el('button',{class:'btn btn-primary',type:'submit',style:'width:100%;'}, existing?'Save changes':'Create plan'));
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const payload = {};
+    cfg.fields.forEach(f=>{
+      const raw = form.elements[f.key].value;
+      payload[f.key] = f.type==='number' ? Number(raw) : raw;
+    });
+    setLoading(true);
+    try {
+      if (existing) {
+        const { error } = await sb.from(cfg.table).update(payload).eq('id',existing.id);
+        if (error) throw error;
+        toast('Plan updated');
+      } else {
+        payload.status = 'active';
+        const { error } = await sb.from(cfg.table).insert(payload);
+        if (error) throw error;
+        toast('Plan created');
+      }
+      closeModal();
+      renderTab('plans');
+    } catch(err){ toast(err.message,'err'); } finally { setLoading(false); }
+  });
+
+  openModal(modal);
+}
+
+/* =====================================================================
+   USERS
+===================================================================== */
+async function renderUsers(){
+  const main = $('#main');
+  main.appendChild(el('div',{class:'section-head'},[el('div',{},[el('h2',{},'Users'), el('div',{class:'sub'},'Account status — wallet balances are managed only from the Wallet tab')])]));
+  const searchRow = el('div',{class:'card',style:'margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:end;'});
+  searchRow.appendChild(el('div',{class:'field',style:'flex:1;min-width:200px;margin-bottom:0;'},[el('label',{},'Search by name, email or phone'),el('input',{id:'user-search',type:'text',placeholder:'e.g. 0803… or jane@…'})]));
+  searchRow.appendChild(el('button',{class:'btn btn-primary',onclick:loadUsers},'Search'));
+  main.appendChild(searchRow);
+
+  const wrap = el('div',{class:'table-wrap',id:'users-wrap'});
+  main.appendChild(wrap);
+  await loadUsers();
+
+  async function loadUsers(){
+    const wrap = $('#users-wrap');
+    wrap.innerHTML = ''; wrap.appendChild(el('div',{class:'empty'},'Loading…'));
+    setLoading(true);
+    try {
+      const term = $('#user-search').value.trim();
+      let query = sb.from('users').select('*').order('created_at',{ascending:false}).limit(100);
+      if (term) query = query.or(`full_name.ilike.%${term}%,email.ilike.%${term}%,phone.ilike.%${term}%`);
+      const { data, error } = await query;
+      if (error) throw error;
+      wrap.innerHTML = '';
+      if (!data || data.length===0){ wrap.appendChild(el('div',{class:'empty'},'No matching users.')); return; }
+      const table = el('table');
+      table.appendChild(el('thead',{},el('tr',{},['Name','Email','Phone','Role','Status','Balance (₦)','Joined',''].map(h=>el('th',{},h)))));
+      const tbody = el('tbody');
+      data.forEach(u=>{
+        tbody.appendChild(el('tr',{},[
+          el('td',{}, u.full_name||'—'),
+          el('td',{}, u.email),
+          el('td',{class:'mono'}, u.phone),
+          el('td',{}, u.role),
+          el('td',{}, el('span',{class:`badge badge-${u.status}`}, u.status)),
+          el('td',{class:'mono'}, money(u.wallet_balance)),
+          el('td',{}, fmtDate(u.created_at)),
+          el('td',{}, el('div',{class:'row-actions'}, userActions(u)))
+        ]));
+      });
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+    } catch(err){ wrap.innerHTML=''; wrap.appendChild(el('div',{class:'empty'},err.message)); }
+    finally{ setLoading(false); }
+  }
+
+  function userActions(u){
+    const buttons = [];
+    if (u.status !== 'active') buttons.push(el('button',{class:'btn btn-secondary',onclick:()=>setUserStatus(u,'active')},'Activate'));
+    if (u.status !== 'suspended') buttons.push(el('button',{class:'btn btn-secondary',onclick:()=>setUserStatus(u,'suspended')},'Suspend'));
+    if (u.status !== 'banned') buttons.push(el('button',{class:'btn btn-danger',onclick:()=>setUserStatus(u,'banned')},'Ban'));
+    buttons.push(el('button',{class:'btn btn-ghost',onclick:()=>{activeTab='wallet'; renderTab('wallet'); setTimeout(()=>{ $('#wallet-search').value = u.phone; $('#wallet-search-btn').click(); },0);}},'Wallet →'));
+    return buttons;
+  }
+
+  async function setUserStatus(u, status){
+    if (!confirm(`Set ${u.full_name||u.email} to "${status}"?`)) return;
+    setLoading(true);
+    try {
+      const { error } = await sb.from('users').update({status}).eq('id',u.id);
+      if (error) throw error;
+      toast(`Account set to ${status}`);
+      loadUsers();
+    } catch(err){ toast(err.message,'err'); } finally { setLoading(false); }
+  }
+}
+
+/* =====================================================================
+   WALLET
+===================================================================== */
+async function renderWallet(){
+  const main = $('#main');
+  main.appendChild(el('div',{class:'section-head'},[el('div',{},[el('h2',{},'Wallet'), el('div',{class:'sub'},'Search a user to view balance and make a manual adjustment')])]));
+
+  const searchRow = el('div',{class:'card',style:'margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:end;'});
+  searchRow.appendChild(el('div',{class:'field',style:'flex:1;min-width:200px;margin-bottom:0;'},[el('label',{},'Phone or email'),el('input',{id:'wallet-search',type:'text',placeholder:'0803… or jane@…'})]));
+  searchRow.appendChild(el('button',{class:'btn btn-primary',id:'wallet-search-btn',onclick:searchWalletUser},'Find user'));
+  main.appendChild(searchRow);
+
+  const resultBox = el('div',{id:'wallet-result'});
+  main.appendChild(resultBox);
+
+  async function searchWalletUser(){
+    const term = $('#wallet-search').value.trim();
+    if (!term) return;
+    resultBox.innerHTML = '';
+    resultBox.appendChild(el('div',{class:'empty'},'Searching…'));
+    setLoading(true);
+    try {
+      const { data, error } = await sb.from('users').select('*').or(`phone.eq.${term},email.eq.${term}`).maybeSingle();
+      if (error) throw error;
+      if (!data) { resultBox.innerHTML=''; resultBox.appendChild(el('div',{class:'empty'},'No user found with that phone or email.')); return; }
+      await showWalletDetail(data);
+    } catch(err){ resultBox.innerHTML=''; resultBox.appendChild(el('div',{class:'empty'},err.message)); }
+    finally{ setLoading(false); }
+  }
+
+  async function showWalletDetail(user){
+    resultBox.innerHTML = '';
+    const card = el('div',{class:'card',style:'margin-bottom:16px;'});
+    card.appendChild(el('h3',{style:'margin-bottom:4px;'}, user.full_name || user.email));
+    card.appendChild(el('div',{class:'sub',style:'color:var(--ink-soft);margin-bottom:14px;'}, `${user.phone} · ${user.email}`));
+    card.appendChild(el('div',{class:'num mono',style:'font-size:28px;color:var(--indigo-deep);margin-bottom:16px;'}, `₦${money(user.wallet_balance)}`));
+
+    const form = el('form',{style:'display:flex;gap:10px;flex-wrap:wrap;align-items:end;'});
+    form.appendChild(el('div',{class:'field',style:'margin-bottom:0;'},[el('label',{},'Action'), el('select',{name:'action'},[el('option',{value:'credit'},'Credit'), el('option',{value:'debit'},'Debit')])]));
+    form.appendChild(el('div',{class:'field',style:'margin-bottom:0;'},[el('label',{},'Amount (₦)'), el('input',{name:'amount',type:'number',min:'1',step:'0.01',required:'true'})]));
+    form.appendChild(el('div',{class:'field',style:'flex:1;min-width:180px;margin-bottom:0;'},[el('label',{},'Reason'), el('input',{name:'reason',type:'text',placeholder:'Goodwill credit for…',required:'true'})]));
+    form.appendChild(el('button',{class:'btn btn-primary',type:'submit'},'Apply'));
+    card.appendChild(form);
+    resultBox.appendChild(card);
+
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      setLoading(true);
+      try {
+        const result = await authedFetch(CONFIG.WALLET_ADJUST_ENDPOINT, {
+          method:'POST',
+          body: JSON.stringify({ userId:user.id, action: form.elements.action.value, amount: Number(form.elements.amount.value), reason: form.elements.reason.value })
+        });
+        toast(`Wallet ${form.elements.action.value}ed — new balance ₦${money(result.balanceAfter)}`);
+        user.wallet_balance = result.balanceAfter;
+        await showWalletDetail(user);
+      } catch(err){ toast(err.message,'err'); } finally { setLoading(false); }
+    });
+
+    const historyWrap = el('div',{class:'table-wrap'});
+    resultBox.appendChild(el('h3',{style:'font-size:14px;margin:16px 0 8px;'},'Recent wallet history'));
+    resultBox.appendChild(historyWrap);
+    const { data: history, error } = await sb.from('wallet_history').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(20);
+    if (error) { historyWrap.appendChild(el('div',{class:'empty'},error.message)); return; }
+    if (!history || history.length===0) { historyWrap.appendChild(el('div',{class:'empty'},'No wallet activity yet.')); return; }
+    const table = el('table');
+    table.appendChild(el('thead',{},el('tr',{},['Date','Type','Source','Amount (₦)','Balance after (₦)','Description'].map(h=>el('th',{},h)))));
+    const tbody = el('tbody');
+    history.forEach(h=>{
+      tbody.appendChild(el('tr',{},[
+        el('td',{}, fmtDate(h.created_at)),
+        el('td',{}, el('span',{class:`badge ${h.type==='credit'?'badge-active':'badge-pending'}`}, h.type)),
+        el('td',{}, h.source),
+        el('td',{class:'mono'}, money(h.amount)),
+        el('td',{class:'mono'}, money(h.balance_after)),
+        el('td',{}, h.description||'—'),
+      ]));
+    });
+    table.appendChild(tbody);
+    historyWrap.appendChild(table);
+  }
+}
+
+/* =====================================================================
+   TRANSACTIONS
+===================================================================== */
+let txFilters = { status:'', type:'' };
+let txOffset = 0;
+const TX_PAGE_SIZE = 25;
+
+async function renderTransactions(){
+  const main = $('#main');
+  main.appendChild(el('div',{class:'section-head'},[el('div',{},[el('h2',{},'Transactions'), el('div',{class:'sub'},'All purchases and wallet funding across the platform')])]));
+
+  const filterRow = el('div',{class:'card',style:'margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:end;'});
+  const statusSel = el('select',{onchange:e=>{txFilters.status=e.target.value; txOffset=0; loadTx(true);}},
+    ['', 'pending','success','failed','reversed'].map(s=>el('option',{value:s}, s||'All statuses')));
+  const typeSel = el('select',{onchange:e=>{txFilters.type=e.target.value; txOffset=0; loadTx(true);}},
+    ['', 'data','airtime','voice','cable','electricity','wallet_funding'].map(s=>el('option',{value:s}, s||'All types')));
+  filterRow.appendChild(el('div',{class:'field',style:'margin-bottom:0;'},[el('label',{},'Status'), statusSel]));
+  filterRow.appendChild(el('div',{class:'field',style:'margin-bottom:0;'},[el('label',{},'Type'), typeSel]));
+  main.appendChild(filterRow);
+
+  const wrap = el('div',{class:'table-wrap',id:'tx-wrap'});
+  main.appendChild(wrap);
+  const loadMoreWrap = el('div',{style:'text-align:center;margin-top:14px;'});
+  const loadMoreBtn = el('button',{class:'btn btn-secondary',onclick:()=>loadTx(false)},'Load more');
+  loadMoreWrap.appendChild(loadMoreBtn);
+  main.appendChild(loadMoreWrap);
+
+  txOffset = 0;
+  await loadTx(true);
+
+  async function loadTx(reset){
+    const wrap = $('#tx-wrap');
+    if (reset) { wrap.innerHTML=''; wrap.appendChild(el('div',{class:'empty'},'Loading…')); }
+    setLoading(true);
+    try {
+      let query = sb.from('transactions').select('*, users(full_name, phone)').order('created_at',{ascending:false}).range(txOffset, txOffset+TX_PAGE_SIZE-1);
+      if (txFilters.status) query = query.eq('status', txFilters.status);
+      if (txFilters.type) query = query.eq('type', txFilters.type);
+      const { data, error } = await query;
+      if (error) throw error;
+      if (reset) wrap.innerHTML = '';
+      if (reset && (!data || data.length===0)) { wrap.appendChild(el('div',{class:'empty'},'No transactions match these filters.')); loadMoreBtn.style.display='none'; return; }
+
+      let table = wrap.querySelector('table');
+      if (!table) {
+        table = el('table');
+        table.appendChild(el('thead',{},el('tr',{},['Date','User','Type','Network','Recipient','Amount (₦)','Status','Ref',''].map(h=>el('th',{},h)))));
+        table.appendChild(el('tbody'));
+        wrap.appendChild(table);
+      }
+      const tbody = table.querySelector('tbody');
+      data.forEach(t=>{
+        tbody.appendChild(el('tr',{},[
+          el('td',{}, fmtDate(t.created_at)),
+          el('td',{}, t.users ? `${t.users.full_name||'—'}` : '—'),
+          el('td',{}, t.type),
+          el('td',{}, t.network||'—'),
+          el('td',{class:'mono'}, t.recipient||'—'),
+          el('td',{class:'mono'}, money(t.amount)),
+          el('td',{}, el('span',{class:`badge badge-${t.status}`}, t.status)),
+          el('td',{class:'mono',style:'max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'}, t.provider_reference||'—'),
+          el('td',{}, el('button',{class:'btn btn-ghost',onclick:()=>openTxDetail(t)},'View')),
+        ]));
+      });
+      txOffset += data.length;
+      loadMoreBtn.style.display = data.length < TX_PAGE_SIZE ? 'none' : 'inline-flex';
+    } catch(err){
+      if (reset) { wrap.innerHTML=''; wrap.appendChild(el('div',{class:'empty'},err.message)); }
+      else toast(err.message,'err');
+    } finally { setLoading(false); }
+  }
+}
+
+function openTxDetail(t){
+  const modal = el('div',{},[
+    el('button',{class:'modal-close',type:'button',onclick:closeModal},'✕'),
+    el('h3',{}, `Transaction ${t.id.slice(0,8)}…`),
+    el('div',{class:'field'},[el('label',{},'Status'), el('span',{class:`badge badge-${t.status}`}, t.status)]),
+    el('div',{class:'field'},[el('label',{},'Amount'), el('span',{class:'mono'}, `₦${money(t.amount)}`)]),
+    el('div',{class:'field'},[el('label',{},'Cost price'), el('span',{class:'mono'}, t.cost_price!==null?`₦${money(t.cost_price)}`:'—')]),
+    el('div',{class:'field'},[el('label',{},'Provider reference'), el('span',{class:'mono'}, t.provider_reference||'—')]),
+    el('div',{class:'field'},[el('label',{},'Request payload'), el('pre',{class:'json'}, JSON.stringify(t.request_payload,null,2))]),
+    el('div',{class:'field'},[el('label',{},'Response payload'), el('pre',{class:'json'}, JSON.stringify(t.response_payload,null,2))]),
+    t.status==='success' ? el('button',{class:'btn btn-danger',style:'width:100%;',onclick:()=>refundTx(t)},'Reverse & refund wallet') : null
+  ]);
+  openModal(modal);
+}
+
+async function refundTx(t){
+  const reason = prompt('Reason for reversing this transaction:');
+  if (reason === null) return;
+  setLoading(true);
+  try {
+    await authedFetch(CONFIG.REFUND_ENDPOINT, { method:'POST', body: JSON.stringify({ transactionId:t.id, reason }) });
+    toast('Transaction reversed and wallet refunded');
+    closeModal();
+    renderTab('transactions');
+  } catch(err){ toast(err.message,'err'); } finally { setLoading(false); }
+}
+
+/* =====================================================================
+   SETTINGS
+===================================================================== */
+async function renderSettings(){
+  const main = $('#main');
+  main.appendChild(el('div',{class:'section-head'},[el('div',{},[el('h2',{},'Settings'), el('div',{class:'sub'},'Maintenance mode and provider configuration')])]));
+  const container = el('div',{id:'settings-container'});
+  main.appendChild(container);
+  container.appendChild(el('div',{class:'empty'},'Loading…'));
+
+  setLoading(true);
+  try {
+    const { data, error } = await sb.from('admin_settings').select('*');
+    if (error) throw error;
+    container.innerHTML = '';
+    const byKey = Object.fromEntries((data||[]).map(r=>[r.setting_key,r]));
+
+    // --- maintenance mode ---
+    const maint = byKey.maintenance_mode || { setting_value:{enabled:false,message:''} };
+    const maintCard = el('div',{class:'card',style:'margin-bottom:16px;'});
+    maintCard.appendChild(el('h3',{style:'margin-bottom:12px;'},'Maintenance mode'));
+    const maintForm = el('form',{});
+    const enabledField = el('div',{class:'field'},[el('label',{},'Status'),
+      el('select',{name:'enabled'},[
+        el('option',{value:'false', selected: !maint.setting_value.enabled?'true':null},'Live'),
+        el('option',{value:'true', selected: maint.setting_value.enabled?'true':null},'Under maintenance'),
+      ])]);
+    const msgField = el('div',{class:'field'},[el('label',{},'Message shown to users'), el('textarea',{name:'message',rows:'2'}, maint.setting_value.message||'')]);
+    maintForm.appendChild(enabledField); maintForm.appendChild(msgField);
+    maintForm.appendChild(el('button',{class:'btn btn-primary',type:'submit'},'Save'));
+    maintForm.addEventListener('submit', e=>saveSetting(e,'maintenance_mode',()=>({enabled: maintForm.elements.enabled.value==='true', message: maintForm.elements.message.value})));
+    maintCard.appendChild(maintForm);
+    container.appendChild(maintCard);
+
+    // --- API provider ---
+    const apiProv = byKey.api_provider || { setting_value:{data:'',airtime:'',cable:'',electricity:''} };
+    const apiCard = el('div',{class:'card',style:'margin-bottom:16px;'});
+    apiCard.appendChild(el('h3',{style:'margin-bottom:12px;'},'Active provider per service'));
+    const apiForm = el('form',{});
+    ['data','airtime','cable','electricity'].forEach(k=>{
+      apiForm.appendChild(el('div',{class:'field'},[el('label',{}, k), el('input',{name:k,type:'text',value:apiProv.setting_value[k]||''})]));
+    });
+    apiForm.appendChild(el('button',{class:'btn btn-primary',type:'submit'},'Save'));
+    apiForm.addEventListener('submit', e=>saveSetting(e,'api_provider',()=>({
+      data:apiForm.elements.data.value, airtime:apiForm.elements.airtime.value,
+      cable:apiForm.elements.cable.value, electricity:apiForm.elements.electricity.value
+    })));
+    apiCard.appendChild(apiForm);
+    container.appendChild(apiCard);
+
+    // --- payment gateway ---
+    const pg = byKey.payment_gateway || { setting_value:{provider:'',public_key:''} };
+    const pgCard = el('div',{class:'card',});
+    pgCard.appendChild(el('h3',{style:'margin-bottom:4px;'},'Payment gateway'));
+    pgCard.appendChild(el('div',{class:'sub',style:'color:var(--ink-soft);margin-bottom:12px;'},'Secret keys stay in Vercel environment variables — only the public key and provider name are stored here.'));
+    const pgForm = el('form',{});
+    pgForm.appendChild(el('div',{class:'field'},[el('label',{},'Provider'), el('input',{name:'provider',type:'text',value:pg.setting_value.provider||''})]));
+    pgForm.appendChild(el('div',{class:'field'},[el('label',{},'Public key'), el('input',{name:'public_key',type:'text',value:pg.setting_value.public_key||''})]));
+    pgForm.appendChild(el('button',{class:'btn btn-primary',type:'submit'},'Save'));
+    pgForm.addEventListener('submit', e=>saveSetting(e,'payment_gateway',()=>({provider:pgForm.elements.provider.value, public_key:pgForm.elements.public_key.value})));
+    pgCard.appendChild(pgForm);
+    container.appendChild(pgCard);
+
+    // --- provider catalog viewer ---
+    const catCard = el('div',{class:'card',style:'margin-top:16px;'});
+    catCard.appendChild(el('h3',{style:'margin-bottom:4px;'},'AutosyncNG provider catalog'));
+    catCard.appendChild(el('div',{class:'sub',style:'color:var(--ink-soft);margin-bottom:12px;'},
+      'Pull the live product_id and variation_code values straight from AutosyncNG — use these exact values when creating/editing a plan. This never changes anything, it only reads.'));
+    const catTabs = el('div',{class:'tabs'});
+    const catTypes = ['talk-more','data-sme','airtime','cable','electricity'];
+    let selectedCatType = 'talk-more';
+    catTypes.forEach(t=>{
+      catTabs.appendChild(el('button',{class:t===selectedCatType?'active':'', onclick:(e)=>{
+        selectedCatType = t;
+        catTabs.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.textContent===t));
+        fetchCatalog(t);
+      }}, t));
+    });
+    catCard.appendChild(catTabs);
+    const catResult = el('div',{id:'catalog-result'});
+    catCard.appendChild(catResult);
+    container.appendChild(catCard);
+
+    async function fetchCatalog(type){
+      catResult.innerHTML = '';
+      catResult.appendChild(el('div',{class:'empty'},'Fetching from AutosyncNG…'));
+      setLoading(true);
+      try {
+        const result = await authedFetch(`${CONFIG.PROVIDER_CATALOG_ENDPOINT}?types=${encodeURIComponent(type)}`);
+        const entry = result[type];
+        catResult.innerHTML = '';
+        if (!entry || !entry.success) {
+          catResult.appendChild(el('div',{class:'empty'}, (entry && entry.message) || 'Could not fetch this catalog.'));
+          return;
+        }
+        const category = entry.raw && entry.raw.data && entry.raw.data.category;
+        const products = category ? category.products : null;
+        if (!products || products.length===0){
+          catResult.appendChild(el('div',{class:'empty'},'No products returned for this category.'));
+          return;
+        }
+        const table = el('table');
+        table.appendChild(el('thead',{},el('tr',{},['Product name','product_id','variation name','variation_code','amount'].map(h=>el('th',{},h)))));
+        const tbody = el('tbody');
+        products.forEach(p=>{
+          if (!p.variations || p.variations.length===0){
+            tbody.appendChild(el('tr',{},[
+              el('td',{},p.name), el('td',{class:'mono'},String(p.id!==undefined?p.id:p.code)),
+              el('td',{},'—'), el('td',{},'—'), el('td',{},'—')
+            ]));
+          } else {
+            p.variations.forEach((v,i)=>{
+              tbody.appendChild(el('tr',{},[
+                i===0 ? el('td',{},p.name) : el('td',{},''),
+                i===0 ? el('td',{class:'mono'},String(p.id!==undefined?p.id:p.code)) : el('td',{},''),
+                el('td',{},v.name||'—'),
+                el('td',{class:'mono'},v.code||'—'),
+                el('td',{class:'mono'},v.amount!==undefined?money(v.amount):'—'),
+              ]));
+            });
+          }
+        });
+        table.appendChild(tbody);
+        const wrap = el('div',{class:'table-wrap'});
+        wrap.appendChild(table);
+        catResult.appendChild(wrap);
+      } catch(err){
+        catResult.innerHTML='';
+        catResult.appendChild(el('div',{class:'empty'},err.message));
+      } finally { setLoading(false); }
+    }
+    fetchCatalog(selectedCatType);
+
+  } catch(err){
+    container.innerHTML=''; container.appendChild(el('div',{class:'empty'},err.message));
+  } finally { setLoading(false); }
+
+  async function saveSetting(e, key, getValue){
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { error } = await sb.from('admin_settings').update({ setting_value:getValue(), updated_by:adminProfile.id }).eq('setting_key',key);
+      if (error) throw error;
+      toast('Settings saved');
+    } catch(err){ toast(err.message,'err'); } finally { setLoading(false); }
+  }
+}
+
+/* ---------------- boot ---------------- */
+(async function init(){
+  const { data } = await sb.auth.getSession();
+  if (data && data.session) {
+    const { data: profile } = await sb.from('users').select('*').eq('id', data.session.user.id).maybeSingle();
+    if (profile && ['admin','superadmin'].includes(profile.role) && profile.status === 'active') {
+      session = data.session; adminProfile = profile; enterApp();
+    }
+  }
+})();
+</script>
+</body>
+</html>
