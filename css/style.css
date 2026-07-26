@@ -1,0 +1,181 @@
+/* ===============================
+   Hadejia Data Hub
+   Premium style.css
+================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',Arial,sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#eef7ff,#dbeafe,#f0fdfa);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:450px;
+}
+
+.card{
+    background:#fff;
+    padding:35px;
+    border-radius:25px;
+    box-shadow:0 20px 45px rgba(0,0,0,.15);
+    text-align:center;
+    animation:fadeIn .5s ease;
+}
+
+/* ===== Logo ===== */
+
+.logo{
+    width:170px;
+    height:170px;
+    object-fit:contain;
+    display:block;
+    margin:0 auto 20px;
+    transition:.4s;
+}
+
+.logo:hover{
+    transform:scale(1.05);
+}
+
+/* ===== Heading ===== */
+
+h1{
+    font-size:38px;
+    color:#0f766e;
+    font-weight:700;
+    margin-bottom:10px;
+}
+
+p{
+    color:#666;
+    margin-bottom:25px;
+    font-size:18px;
+}
+
+/* ===== Inputs ===== */
+
+input{
+    width:100%;
+    padding:16px;
+    margin-bottom:15px;
+    border:1px solid #ddd;
+    border-radius:14px;
+    font-size:16px;
+    transition:.3s;
+}
+
+input:focus{
+    border-color:#0f766e;
+    box-shadow:0 0 10px rgba(15,118,110,.25);
+    outline:none;
+}
+
+/* ===== Button ===== */
+
+button{
+    width:100%;
+    height:55px;
+    border:none;
+    border-radius:14px;
+    background:#0f766e;
+    color:#fff;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    background:#115e59;
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(15,118,110,.35);
+}
+
+button:disabled{
+    background:#999;
+    cursor:not-allowed;
+}
+
+/* ===== Links ===== */
+
+a{
+    color:#0f766e;
+    text-decoration:none;
+    font-weight:600;
+    display:inline-block;
+    margin-top:15px;
+}
+
+a:hover{
+    text-decoration:underline;
+}
+
+/* ===== Alerts ===== */
+
+.success{
+    background:#dcfce7;
+    color:#166534;
+    padding:14px;
+    border-radius:12px;
+    margin-top:15px;
+}
+
+.error{
+    background:#fee2e2;
+    color:#b91c1c;
+    padding:14px;
+    border-radius:12px;
+    margin-top:15px;
+}
+
+/* ===== Animation ===== */
+
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(25px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* ===== Mobile ===== */
+
+@media(max-width:480px){
+
+.card{
+    padding:25px;
+}
+
+.logo{
+    width:140px;
+    height:140px;
+}
+
+h1{
+    font-size:30px;
+}
+
+p{
+    font-size:17px;
+}
+
+button{
+    height:52px;
+    font-size:17px;
+}
+
+}
