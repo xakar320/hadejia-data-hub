@@ -4,7 +4,7 @@
   "private": true,
   "description": "Hadejia Data Hub — VTU platform (Vercel serverless + Supabase)",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
