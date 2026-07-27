@@ -1,117 +1,291 @@
-async function buyData() {
+// =====================================================================
+// js/data.js — Buy Data page logic
+// Relies on the global `client` created in js/supabase.js. Buys a data
+// bundle via POST /api/place-order with { type: "data", planId, phone }.
+// Pricing, variation_code, and AutosyncNG's product_id all come from
+// the data_plans row server-side — this page never sends or knows
+// AutosyncNG catalog IDs.
+// =====================================================================
 
-    const network = document.getElementById("network").value;
-    const plan = document.getElementById("plan").value;
-    const phone = document.getElementById("phone").value;
-    const pin = document.getElementById("transactionPin").value;
+let session = null;
+let allPlans = [];
+let selectedNetwork = null;
+let selectedPlan = null;
 
-    if (!phone || phone.length != 11) {
-        alert("Enter valid phone number");
-        return;
-    }
+function $(sel) { return document.querySelector(sel); }
 
-    if (pin.length != 4) {
-        alert("Enter your 4 digit PIN");
-        return;
-    }
-
-    // Load user
-    const { data: user } = await client
-        .from("users")
-        .select("*")
-        .eq("id", currentUser.id)
-        .single();
-
-    if (!user) {
-        alert("User not found");
-        return;
-    }
-
-    // Verify PIN
-    if (user.transaction_pin !== pin) {
-        alert("Incorrect Transaction PIN");
-        return;
-    }
-
-    const amount = Number(plan);
-
-    // Wallet Check
-    if (Number(user.balance) < amount) {
-        alert("Insufficient wallet balance");
-        return;
-    }
-
-    processPurchase(network, plan, phone, amount);
+function money(n) {
+    return Number(n || 0).toLocaleString('en-NG', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
 }
 
-async function processPurchase(network, plan, phone, amount){
+function toast(msg, type = 'ok') {
+    const t = document.createElement('div');
+    t.className = `toast ${type === 'ok' ? 'ok' : 'err'}`;
+    t.textContent = msg;
+    $('#toast-wrap').appendChild(t);
+    setTimeout(() => t.remove(), 4200);
+}
 
-    const response = await fetch("/api/place-order",{
+function elEmpty(msg) {
+    const d = document.createElement('div');
+    d.className = 'empty';
+    d.textContent = msg;
+    return d;
+}
 
-        method:"POST",
+// ===============================
+// INIT
+// ===============================
 
-        headers:{
-            "Content-Type":"application/json"
-        },
+async function init() {
+    const { data: { session: s } } = await client.auth.getSession();
 
-        body:JSON.stringify({
-
-            network,
-            plan,
-            phone
-
-        })
-
-    });
-
-    const result = await response.json();
-
-    if(!result.status){
-
-        alert(result.message);
-
+    if (!s) {
+        location.href = 'index.html';
         return;
-
     }
 
-    // deduct wallet
+    session = s;
 
-    const newBalance = Number(currentBalance) - amount;
+    const { data: profile } = await client
+        .from('users')
+        .select('phone, wallet_balance')
+        .eq('id', s.user.id)
+        .maybeSingle();
 
-    await client
+    if (profile) {
+        $('#wallet-balance').textContent = `₦${money(profile.wallet_balance)}`;
+        if (profile.phone) $('#phone-input').value = profile.phone;
+    } else {
+        $('#wallet-balance').textContent = '₦0.00';
+    }
 
-    .from("users")
+    await loadPlans();
+}
 
-    .update({
+// ===============================
+// LOAD PLANS
+// ===============================
 
-        balance:newBalance
+async function loadPlans() {
+    const list = $('#plan-list');
 
-    })
+    try {
+        const { data, error } = await client
+            .from('data_plans')
+            .select('*')
+            .eq('status', 'active')
+            .order('network')
+            .order('selling_price');
 
-    .eq("id",currentUser.id);
+        if (error) throw error;
 
-    // save transaction
+        allPlans = data || [];
 
-    await client
+        if (allPlans.length === 0) {
+            list.innerHTML = '';
+            list.appendChild(elEmpty('No data plans are available right now.'));
+            $('#network-tabs').innerHTML = '';
+            return;
+        }
 
-    .from("transactions")
+        const networks = [...new Set(allPlans.map(p => p.network))];
+        renderNetworkTabs(networks);
+        selectedNetwork = networks[0];
+        renderPlanList();
 
-    .insert([{
+    } catch (err) {
+        list.innerHTML = '';
+        list.appendChild(elEmpty(err.message));
+    }
+}
 
-        user_id:currentUser.id,
+// ===============================
+// RENDER: NETWORK TABS
+// ===============================
 
-        type:"Data Purchase",
+function renderNetworkTabs(networks) {
+    const tabs = $('#network-tabs');
+    tabs.innerHTML = '';
 
-        details:network+" "+phone,
+    networks.forEach(net => {
+        const btn = document.createElement('button');
+        btn.textContent = net;
+        btn.className = net === selectedNetwork ? 'active' : '';
 
-        amount,
+        btn.addEventListener('click', () => {
+            selectedNetwork = net;
+            selectedPlan = null;
+            updateBuyButton();
 
-        status:"Success"
+            document.querySelectorAll('#network-tabs button').forEach(b => {
+                b.classList.toggle('active', b.textContent === net);
+            });
 
-    }]);
+            renderPlanList();
+        });
 
-    alert("Data Purchase Successful");
+        tabs.appendChild(btn);
+    });
+}
 
-    location.reload();
+// ===============================
+// RENDER: PLAN LIST
+// ===============================
 
-            }
+function renderPlanList() {
+    const list = $('#plan-list');
+    list.innerHTML = '';
+
+    const plans = allPlans.filter(p => p.network === selectedNetwork);
+
+    if (plans.length === 0) {
+        list.appendChild(elEmpty(`No data plans for ${selectedNetwork} right now.`));
+        return;
+    }
+
+    plans.forEach(plan => {
+        const row = document.createElement('div');
+        row.className = 'plan-option' + (selectedPlan && selectedPlan.id === plan.id ? ' selected' : '');
+
+        row.innerHTML = `
+            <div>
+                <div class="name">${plan.plan_name}</div>
+                <div class="sub">${plan.data_size} · ${plan.validity}</div>
+            </div>
+            <div class="price mono">₦${money(plan.selling_price)}</div>
+        `;
+
+        row.addEventListener('click', () => {
+            selectedPlan = plan;
+            updateBuyButton();
+            renderPlanList();
+        });
+
+        list.appendChild(row);
+    });
+}
+
+// ===============================
+// BUY BUTTON STATE
+// ===============================
+
+function updateBuyButton() {
+    const btn = $('#buy-btn');
+
+    if (selectedPlan) {
+        btn.disabled = false;
+        btn.textContent = `Buy ${selectedPlan.plan_name} — ₦${money(selectedPlan.selling_price)}`;
+    } else {
+        btn.disabled = true;
+        btn.textContent = 'Select a plan to continue';
+    }
+}
+
+// ===============================
+// PURCHASE
+// ===============================
+
+async function buyDataBundle() {
+    const phone = $('#phone-input').value.trim();
+
+    if (!/^0[7-9][01]\d{8}$/.test(phone)) {
+        toast('Enter a valid Nigerian phone number', 'err');
+        return;
+    }
+
+    if (!selectedPlan) return;
+
+    const btn = $('#buy-btn');
+    btn.disabled = true;
+    btn.textContent = 'Processing…';
+
+    try {
+        const res = await fetch('/api/place-order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`
+            },
+            body: JSON.stringify({ type: 'data', planId: selectedPlan.id, phone })
+        });
+
+        let body;
+        try {
+            body = await res.json();
+        } catch (parseErr) {
+            const text = await res.text().catch(() => '');
+            throw new Error(
+                `Server did not return a valid response (HTTP ${res.status}). ` +
+                `This usually means an environment variable is missing on Vercel. ` +
+                (text ? `Details: ${text.slice(0, 200)}` : '')
+            );
+        }
+
+        if (!res.ok || body.success === false) {
+            throw new Error((body.error && body.error.message) || `Purchase failed (HTTP ${res.status})`);
+        }
+
+        const isPending = body.data && body.data.status === 'pending';
+
+        showResultModal({
+            ok: !isPending,
+            title: isPending ? 'Order submitted' : 'Purchase successful',
+            message: isPending
+                ? 'Your data bundle is being processed. It will arrive shortly.'
+                : `${selectedPlan.data_size} sent to ${phone}.`
+        });
+
+        const { data: profile } = await client
+            .from('users')
+            .select('wallet_balance')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+        if (profile) $('#wallet-balance').textContent = `₦${money(profile.wallet_balance)}`;
+
+    } catch (err) {
+        console.error(err);
+        showResultModal({ ok: false, title: 'Purchase failed', message: err.message });
+    } finally {
+        updateBuyButton();
+    }
+}
+
+// ===============================
+// RESULT MODAL
+// ===============================
+
+function showResultModal({ ok, title, message }) {
+    const content = $('#result-modal-content');
+
+    content.innerHTML = `
+        <div class="icon">${ok ? '✅' : '⚠️'}</div>
+        <h3>${title}</h3>
+        <p>${message}</p>
+        <button class="btn btn-primary" id="modal-close-btn">${ok ? 'Done' : 'Try again'}</button>
+    `;
+
+    $('#result-modal').classList.add('open');
+
+    $('#modal-close-btn').addEventListener('click', () => {
+        $('#result-modal').classList.remove('open');
+        if (ok) {
+            selectedPlan = null;
+            renderPlanList();
+            updateBuyButton();
+        }
+    });
+}
+
+// ===============================
+// START
+// ===============================
+
+window.addEventListener('load', () => {
+    init();
+    $('#buy-btn').addEventListener('click', buyDataBundle);
+});
