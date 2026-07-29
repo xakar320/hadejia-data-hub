@@ -155,6 +155,17 @@ async function loadTransactions() {
             `;
         });
 
+        // "See all" link to the full Transaction History page — only
+        // added once, and only when there's actually something to see.
+        if (data && data.length > 0 && !document.getElementById('seeAllTransactionsLink')) {
+            const link = document.createElement('a');
+            link.id = 'seeAllTransactionsLink';
+            link.href = 'transactions.html';
+            link.textContent = 'See all transactions →';
+            link.style.cssText = 'display:block;text-align:center;padding:12px;font-size:13px;color:#2F6E62;text-decoration:none;font-weight:600;';
+            list.appendChild(link);
+        }
+
     } catch (err) {
         console.error(err);
         const list = document.getElementById("transactionList");
