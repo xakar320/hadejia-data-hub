@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transaction History — Hadejia Data Hub</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/voice.css">
+<link rel="stylesheet" href="css/nav.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  .tx-filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .tx-filters select{flex:1;min-width:120px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px;color:var(--ink);}
+  .tx-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;cursor:pointer;}
+  .tx-item .tx-left .tx-type{font-weight:600;font-size:14px;text-transform:capitalize;}
+  .tx-item .tx-left .tx-sub{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .tx-item .tx-left .tx-date{font-size:11px;color:var(--ink-soft);margin-top:4px;}
+  .tx-item .tx-right{text-align:right;}
+  .tx-item .tx-amount{font-family:var(--font-mono);font-weight:600;font-size:15px;}
+  .tx-amount.success{color:var(--teal);}
+  .tx-amount.failed,.tx-amount.reversed{color:var(--rust);}
+  .tx-amount.pending,.tx-amount.processing{color:var(--ochre);}
+  .tx-badge{display:inline-block;font-size:11px;font-weight:600;margin-top:4px;text-transform:capitalize;}
+  .tx-badge.success{color:var(--teal);}
+  .tx-badge.failed,.tx-badge.reversed{color:var(--rust);}
+  .tx-badge.pending,.tx-badge.processing{color:var(--ochre);}
+  #load-more-btn{margin-top:6px;}
+  .detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--paper-dim);font-size:13px;text-align:left;}
+  .detail-row .label{color:var(--ink-soft);}
+  .detail-row .value{font-family:var(--font-mono);font-weight:600;text-align:right;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="dashboard.html">← Back</a>
+  <h1>Transaction History</h1>
+</div>
+
+<div class="page">
+
+  <div class="card">
+    <div class="tx-filters">
+      <select id="filter-type">
+        <option value="">All types</option>
+        <option value="data">Data</option>
+        <option value="airtime">Airtime</option>
+        <option value="voice">Voice</option>
+        <option value="cable">Cable</option>
+        <option value="electricity">Electricity</option>
+        <option value="wallet_funding">Wallet Funding</option>
+      </select>
+      <select id="filter-status">
+        <option value="">All statuses</option>
+        <option value="success">Success</option>
+        <option value="pending">Pending</option>
+        <option value="failed">Failed</option>
+        <option value="reversed">Reversed</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="tx-list"></div>
+
+  <button class="btn btn-primary" id="load-more-btn" style="display:none;background:var(--paper-dim);color:var(--ink);">Load more</button>
+
+</div>
+
+<div class="modal-backdrop" id="detail-modal">
+  <div class="modal" id="detail-modal-content"></div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<script src="js/supabase.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/transactions.js"></script>
+</body>
+</html>
