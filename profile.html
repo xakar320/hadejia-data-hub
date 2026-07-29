@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile — Hadejia Data Hub</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/voice.css">
+<link rel="stylesheet" href="css/nav.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  .avatar-row{display:flex;align-items:center;gap:14px;margin-bottom:6px;}
+  .avatar-circle{width:56px;height:56px;border-radius:50%;background:var(--teal-soft);color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:22px;font-weight:600;flex-shrink:0;}
+  .avatar-name{font-family:var(--font-display);font-size:19px;font-weight:600;}
+  .avatar-email{font-size:12px;color:var(--ink-soft);}
+  .referral-box{background:var(--paper-dim);border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+  .referral-code{font-family:var(--font-mono);font-weight:600;font-size:15px;letter-spacing:.05em;}
+  .section-label{font-size:12px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="dashboard.html">← Back</a>
+  <h1>Profile</h1>
+</div>
+
+<div class="page">
+
+  <div class="card">
+    <div class="avatar-row">
+      <div class="avatar-circle" id="avatar-initial">?</div>
+      <div>
+        <div class="avatar-name" id="display-name">Loading…</div>
+        <div class="avatar-email" id="display-email"></div>
+      </div>
+    </div>
+    <div class="referral-box">
+      <div>
+        <div style="font-size:11px;color:var(--ink-soft);text-transform:uppercase;">Your Referral Code</div>
+        <div class="referral-code" id="referral-code">—</div>
+      </div>
+      <button class="btn" style="width:auto;padding:8px 14px;background:var(--indigo);color:#fff;" id="copy-referral-btn">Copy</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Personal Information</div>
+    <form id="profile-form">
+      <div class="field">
+        <label for="full-name-input">Full Name</label>
+        <input type="text" id="full-name-input" placeholder="Your full name">
+      </div>
+      <div class="field">
+        <label for="phone-input">Phone Number</label>
+        <input type="tel" id="phone-input" maxlength="11" placeholder="0803xxxxxxx">
+      </div>
+      <div class="field">
+        <label>Email (cannot be changed)</label>
+        <input type="email" id="email-display" disabled style="background:var(--paper-dim);color:var(--ink-soft);">
+      </div>
+      <button class="btn btn-primary" type="submit" id="save-profile-btn">Save Changes</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Transaction PIN</div>
+    <p style="font-size:13px;color:var(--ink-soft);margin:-6px 0 14px;">
+      Used to confirm purchases. Choose 4–6 digits.
+    </p>
+    <form id="pin-form">
+      <div class="field" id="current-pin-field" style="display:none;">
+        <label for="current-pin-input">Current PIN</label>
+        <input type="password" id="current-pin-input" inputmode="numeric" maxlength="6" placeholder="••••">
+      </div>
+      <div class="field">
+        <label for="new-pin-input">New PIN</label>
+        <input type="password" id="new-pin-input" inputmode="numeric" maxlength="6" placeholder="••••">
+      </div>
+      <div class="field">
+        <label for="confirm-pin-input">Confirm New PIN</label>
+        <input type="password" id="confirm-pin-input" inputmode="numeric" maxlength="6" placeholder="••••">
+      </div>
+      <button class="btn btn-primary" type="submit" id="save-pin-btn">Update PIN</button>
+    </form>
+  </div>
+
+</div>
+
+<div id="toast-wrap"></div>
+
+<script src="js/supabase.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/profile.js"></script>
+</body>
+</html>
