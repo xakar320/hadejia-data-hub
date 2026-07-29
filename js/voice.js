@@ -200,6 +200,9 @@ async function buyVoiceBundle() {
 
     if (!selectedPlan) return;
 
+    const pin = await hdhRequestPin();
+    if (!pin) return; // cancelled
+
     const btn = $('#buy-btn');
     btn.disabled = true;
     btn.textContent = 'Processing…';
@@ -214,7 +217,8 @@ async function buyVoiceBundle() {
             body: JSON.stringify({
                 type: 'voice',
                 planId: selectedPlan.id,
-                phone: phone
+                phone: phone,
+                pin: pin
             })
         });
 

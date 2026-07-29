@@ -1,209 +1,257 @@
-// ===============================
-// Hadejia Data Hub
-// airtime.js
-// ===============================
+// =====================================================================
+// js/airtime.js — Buy Airtime page logic
+// Relies on the global `client` from js/supabase.js and hdhRequestPin()
+// from js/pin-modal.js. Buys airtime via POST /api/place-order with
+// { type: "airtime", network, phone, amount, pin }. product_id comes
+// from the airtime_plans row server-side — never sent from here.
+// =====================================================================
 
-const client = supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-);
+let session = null;
+let allPlans = [];
+let selectedPlan = null;
+let selectedQuickAmount = null;
 
-let currentUser = null;
-let currentBalance = 0;
+const QUICK_AMOUNTS = [100, 200, 500, 1000, 2000];
 
-// ===============================
-// CHECK USER
-// ===============================
+function $(sel) { return document.querySelector(sel); }
 
-async function checkUser() {
-
-    const {
-        data: { session }
-    } = await client.auth.getSession();
-
-    if (!session) {
-        location.href = "index.html";
-        return;
-    }
-
-    currentUser = session.user;
-
-    const { data } = await client
-        .from("users")
-        .select("balance")
-        .eq("id", currentUser.id)
-        .single();
-
-    currentBalance = Number(data.balance || 0);
-
+function money(n) {
+    return Number(n || 0).toLocaleString('en-NG', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
-checkUser();
+function toast(msg, type = 'ok') {
+    const t = document.createElement('div');
+    t.className = `toast ${type === 'ok' ? 'ok' : 'err'}`;
+    t.textContent = msg;
+    $('#toast-wrap').appendChild(t);
+    setTimeout(() => t.remove(), 4200);
+}
+
+function elEmpty(msg) {
+    const d = document.createElement('div');
+    d.className = 'empty';
+    d.textContent = msg;
+    return d;
+}
 
 // ===============================
-// BUY AIRTIME
+// INIT
 // ===============================
 
-async function buyAirtime() {
+async function init() {
+    const { data: { session: s } } = await client.auth.getSession();
+    if (!s) { location.href = 'index.html'; return; }
+    session = s;
 
-    const network =
-        document.getElementById("network").value;
+    const { data: profile } = await client
+        .from('users')
+        .select('phone, wallet_balance')
+        .eq('id', s.user.id)
+        .maybeSingle();
 
-    const phone =
-        document.getElementById("phone").value.trim();
-
-    const amount =
-        Number(document.getElementById("amount").value);
-
-    const pin =
-        document.getElementById("pin").value.trim();
-
-    if (!/^0\d{10}$/.test(phone)) {
-
-        alert("Enter valid phone number");
-
-        return;
-
+    if (profile) {
+        $('#wallet-balance').textContent = `₦${money(profile.wallet_balance)}`;
+        if (profile.phone) $('#phone-input').value = profile.phone;
     }
 
-    if (amount < 50) {
+    renderQuickAmounts();
+    await loadNetworks();
 
-        alert("Minimum airtime is ₦50");
+    $('#amount-input').addEventListener('input', () => {
+        selectedQuickAmount = null;
+        document.querySelectorAll('#quick-amounts button').forEach(b => b.classList.remove('active'));
+        updateBuyButton();
+    });
+}
 
-        return;
+// ===============================
+// LOAD NETWORKS
+// ===============================
 
-    }
-
-    if (currentBalance < amount) {
-
-        alert("Insufficient wallet balance");
-
-        return;
-
-    }
-
-    if (pin.length !== 4) {
-
-        alert("Enter your 4-digit transaction PIN");
-
-        return;
-
-    }
+async function loadNetworks() {
+    const tabs = $('#network-tabs');
+    tabs.innerHTML = '';
 
     try {
+        const { data, error } = await client
+            .from('airtime_plans')
+            .select('*')
+            .eq('status', 'active')
+            .order('network');
 
-        // Verify PIN
+        if (error) throw error;
 
-        const { data: user } = await client
+        allPlans = data || [];
 
-            .from("users")
-
-            .select("transaction_pin")
-
-            .eq("id", currentUser.id)
-
-            .single();
-
-        if (user.transaction_pin !== pin) {
-
-            alert("Incorrect transaction PIN");
-
+        if (allPlans.length === 0) {
+            tabs.appendChild(elEmpty('Airtime purchases are not available right now.'));
             return;
-
         }
 
-        // Send Airtime Request
-
-        const response = await fetch("/api/place-order", {
-
-            method: "POST",
-
-            headers: {
-
-                "Content-Type": "application/json"
-
-            },
-
-            body: JSON.stringify({
-
-                serviceType: "airtime",
-
-                network,
-
-                phone,
-
-                amount
-
-            })
-
+        allPlans.forEach((plan, i) => {
+            const btn = document.createElement('button');
+            btn.textContent = plan.network;
+            if (i === 0) btn.classList.add('active');
+            btn.addEventListener('click', () => selectNetwork(plan, btn));
+            tabs.appendChild(btn);
         });
 
-        const result = await response.json();
+        selectNetwork(allPlans[0], tabs.querySelector('button'));
 
-        if (!result.status) {
-
-            alert(result.message);
-
-            return;
-
-        }
-
-        // Deduct Wallet
-
-        await client
-
-            .from("users")
-
-            .update({
-
-                balance: currentBalance - amount
-
-            })
-
-            .eq("id", currentUser.id);
-
-        // Save Transaction
-
-        await client
-
-            .from("transactions")
-
-            .insert([{
-
-                user_id: currentUser.id,
-
-                type: "Airtime",
-
-                details: network + " Airtime to " + phone,
-
-                amount: amount,
-
-                status: "Success"
-
-            }]);
-
-        alert("Airtime Purchase Successful");
-
-        location.href = "dashboard.html";
-
+    } catch (err) {
+        tabs.innerHTML = '';
+        tabs.appendChild(elEmpty(err.message));
     }
+}
 
-    catch (err) {
+function selectNetwork(plan, btnEl) {
+    selectedPlan = plan;
+    document.querySelectorAll('#network-tabs button').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
 
-        console.error(err);
+    const discountBadge = $('#discount-badge-wrap');
+    discountBadge.innerHTML = Number(plan.discount_percentage) > 0
+        ? `<span class="discount-badge">${plan.discount_percentage}% off</span>`
+        : '';
 
-        alert("Network Error");
+    $('#amount-hint').textContent = `Min ₦${money(plan.min_amount)} — Max ₦${money(plan.max_amount)}`;
+    $('#amount-input').min = plan.min_amount;
+    $('#amount-input').max = plan.max_amount;
 
-    }
-
+    updateBuyButton();
 }
 
 // ===============================
-// BUTTON
+// QUICK AMOUNTS
 // ===============================
 
-document
+function renderQuickAmounts() {
+    const wrap = $('#quick-amounts');
+    wrap.innerHTML = '';
+    QUICK_AMOUNTS.forEach(amt => {
+        const btn = document.createElement('button');
+        btn.textContent = `₦${money(amt)}`;
+        btn.addEventListener('click', () => {
+            selectedQuickAmount = amt;
+            $('#amount-input').value = amt;
+            document.querySelectorAll('#quick-amounts button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            updateBuyButton();
+        });
+        wrap.appendChild(btn);
+    });
+}
 
-.getElementById("buyAirtimeBtn")
+// ===============================
+// BUY BUTTON STATE
+// ===============================
 
-.addEventListener("click", buyAirtime);
+function updateBuyButton() {
+    const btn = $('#buy-btn');
+    const amount = Number($('#amount-input').value);
+
+    if (selectedPlan && amount >= Number(selectedPlan.min_amount) && amount <= Number(selectedPlan.max_amount)) {
+        btn.disabled = false;
+        btn.textContent = `Buy ₦${money(amount)} ${selectedPlan.network} Airtime`;
+    } else {
+        btn.disabled = true;
+        btn.textContent = selectedPlan ? 'Enter a valid amount' : 'Select a network first';
+    }
+}
+
+// ===============================
+// PURCHASE
+// ===============================
+
+$('#buy-btn').addEventListener('click', async () => {
+    const phone = $('#phone-input').value.trim();
+    const amount = Number($('#amount-input').value);
+
+    if (!/^0[7-9][01]\d{8}$/.test(phone)) {
+        toast('Enter a valid Nigerian phone number', 'err');
+        return;
+    }
+    if (!selectedPlan) return;
+
+    const pin = await hdhRequestPin();
+    if (!pin) return;
+
+    const btn = $('#buy-btn');
+    btn.disabled = true;
+    btn.textContent = 'Processing…';
+
+    try {
+        const res = await fetch('/api/place-order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`
+            },
+            body: JSON.stringify({
+                type: 'airtime',
+                network: selectedPlan.network,
+                phone,
+                amount,
+                pin
+            })
+        });
+
+        let body;
+        try {
+            body = await res.json();
+        } catch (parseErr) {
+            const text = await res.text().catch(() => '');
+            throw new Error(
+                `Server did not return a valid response (HTTP ${res.status}). ` +
+                (text ? `Details: ${text.slice(0, 200)}` : '')
+            );
+        }
+
+        if (!res.ok || body.success === false) {
+            throw new Error((body.error && body.error.message) || `Purchase failed (HTTP ${res.status})`);
+        }
+
+        const isPending = body.data && body.data.status === 'pending';
+
+        showResultModal({
+            ok: !isPending,
+            title: isPending ? 'Order submitted' : 'Purchase successful',
+            message: isPending
+                ? 'Your airtime is being processed. It will arrive shortly.'
+                : `₦${money(amount)} ${selectedPlan.network} airtime sent to ${phone}.`
+        });
+
+        const { data: profile } = await client
+            .from('users')
+            .select('wallet_balance')
+            .eq('id', session.user.id)
+            .maybeSingle();
+        if (profile) $('#wallet-balance').textContent = `₦${money(profile.wallet_balance)}`;
+
+    } catch (err) {
+        console.error(err);
+        showResultModal({ ok: false, title: 'Purchase failed', message: err.message });
+    } finally {
+        updateBuyButton();
+    }
+});
+
+// ===============================
+// RESULT MODAL
+// ===============================
+
+function showResultModal({ ok, title, message }) {
+    const content = $('#result-modal-content');
+    content.innerHTML = `
+        <div class="icon">${ok ? '✅' : '⚠️'}</div>
+        <h3>${title}</h3>
+        <p>${message}</p>
+        <button class="btn btn-primary" id="modal-close-btn">${ok ? 'Done' : 'Try again'}</button>
+    `;
+    $('#result-modal').classList.add('open');
+    $('#modal-close-btn').addEventListener('click', () => {
+        $('#result-modal').classList.remove('open');
+    });
+}
+
+window.addEventListener('load', init);
