@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.hadejia_data_hub.twa",
+        "sha256_cert_fingerprints": ["8C:AB:7F:82:33:11:FA:F7:BD:8F:50:54:06:C8:67:6D:0A:20:75:05:AC:15:A6:6F:8F:E3:C7:CF:13:50:F1:FD"]
+      }
+    }]
