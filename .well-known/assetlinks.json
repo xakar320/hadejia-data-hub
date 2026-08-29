@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "ng.com.hadejiadatahub.twa",
+        "sha256_cert_fingerprints": ["09:25:37:26:54:95:FD:5B:F7:AD:A4:29:84:B1:A0:44:47:3B:81:D6:30:18:1C:19:5A:60:58:57:40:32:16:93"]
+      }
+    }]
