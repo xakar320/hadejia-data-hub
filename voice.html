@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buy Voice Bundle — Hadejia Data Hub</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/voice.css">
+<link rel="stylesheet" href="css/nav.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1B2540">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+</head>
+<body>
+
+<div class="topbar">
+  <a href="dashboard.html">← Back</a>
+  <h1>Buy Voice Bundle</h1>
+</div>
+
+<div class="page">
+
+  <div class="card balance-card">
+    <div class="label">Wallet Balance</div>
+    <div class="amount mono" id="wallet-balance">Loading…</div>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label>Network</label>
+      <div class="network-tabs" id="network-tabs"></div>
+    </div>
+
+    <div class="field" id="category-field" style="display:none;">
+      <label>Plan Category</label>
+      <select id="category-select"></select>
+    </div>
+
+    <div class="field">
+      <label for="phone-input">Phone Number</label>
+      <input type="tel" id="phone-input" placeholder="e.g. 08012345678" maxlength="14">
+    </div>
+
+    <label class="plan-list-label">Choose a plan</label>
+    <div class="plan-list" id="plan-list">
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+    </div>
+
+    <button class="btn btn-primary" id="buy-btn" disabled>Select a plan to continue</button>
+  </div>
+
+</div>
+
+<div class="modal-backdrop" id="result-modal">
+  <div class="modal" id="result-modal-content"></div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<script src="js/supabase.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/pin-modal.js"></script>
+<script src="js/voice.js"></script>
+<script src="js/pwa-register.js"></script>
+</body>
+</html>

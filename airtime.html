@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buy Airtime — Hadejia Data Hub</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/voice.css">
+<link rel="stylesheet" href="css/nav.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  .quick-amounts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .quick-amounts button{background:var(--paper-dim);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;color:var(--ink);}
+  .quick-amounts button.active{background:var(--indigo);color:#fff;border-color:var(--indigo);}
+  .amount-hint{font-size:12px;color:var(--ink-soft);margin-top:-8px;margin-bottom:14px;}
+  .discount-badge{display:inline-block;background:var(--ochre-soft);color:var(--ochre);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;margin-left:8px;}
+</style>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1B2540">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+</head>
+<body>
+
+<div class="topbar">
+  <a href="dashboard.html">← Back</a>
+  <h1>Buy Airtime</h1>
+</div>
+
+<div class="page">
+
+  <div class="card balance-card">
+    <div class="label">Wallet Balance</div>
+    <div class="amount mono" id="wallet-balance">Loading…</div>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label>Network <span id="discount-badge-wrap"></span></label>
+      <div class="network-tabs" id="network-tabs"></div>
+    </div>
+
+    <div class="field">
+      <label for="phone-input">Phone Number</label>
+      <input type="tel" id="phone-input" placeholder="e.g. 08012345678" maxlength="14">
+    </div>
+
+    <label class="plan-list-label">Quick Amounts</label>
+    <div class="quick-amounts" id="quick-amounts"></div>
+
+    <div class="field">
+      <label for="amount-input">Or Enter Amount (₦)</label>
+      <input type="number" id="amount-input" placeholder="e.g. 500">
+    </div>
+    <div class="amount-hint" id="amount-hint"></div>
+
+    <button class="btn btn-primary" id="buy-btn" disabled>Select a network first</button>
+  </div>
+
+</div>
+
+<div class="modal-backdrop" id="result-modal">
+  <div class="modal" id="result-modal-content"></div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<script src="js/supabase.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/pin-modal.js"></script>
+<script src="js/airtime.js"></script>
+<script src="js/pwa-register.js"></script>
+</body>
+</html>
