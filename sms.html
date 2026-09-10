@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Send SMS — Hadejia Data Hub</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/voice.css">
+<link rel="stylesheet" href="css/nav.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  #message-input, #recipients-input { width:100%; font-family:inherit; font-size:14px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; resize:vertical; background:var(--paper); color:var(--ink); }
+  #message-input { min-height:100px; }
+  #recipients-input { min-height:70px; }
+  .char-hint { font-size:12px; color:var(--ink-soft); margin-top:-8px; margin-bottom:14px; display:flex; justify-content:space-between; }
+  .cost-box { background:var(--paper-dim); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:14px; font-size:13px; }
+  .cost-box .row { display:flex; justify-content:space-between; margin-bottom:4px; }
+  .cost-box .row:last-child { margin-bottom:0; font-weight:600; }
+</style>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1B2540">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+</head>
+<body>
+
+<div class="topbar">
+  <a href="dashboard.html">← Back</a>
+  <h1>Send SMS</h1>
+</div>
+
+<div class="page">
+
+  <div class="card balance-card">
+    <div class="label">Wallet Balance</div>
+    <div class="amount mono" id="wallet-balance">Loading…</div>
+  </div>
+
+  <div class="card">
+
+    <div class="field">
+      <label for="recipients-input">Recipients (comma-separated)</label>
+      <textarea id="recipients-input" placeholder="e.g. 08012345678, 08098765432"></textarea>
+    </div>
+    <div class="char-hint"><span id="recipient-count">0 recipient(s)</span></div>
+
+    <div class="field">
+      <label for="sender-input">Sender ID</label>
+      <input type="text" id="sender-input" maxlength="20" placeholder="Leave blank to use default">
+    </div>
+
+    <div class="field">
+      <label for="message-input">Message</label>
+      <textarea id="message-input" maxlength="1000" placeholder="Type your message…"></textarea>
+    </div>
+    <div class="char-hint">
+      <span id="char-count">0 / 1000</span>
+      <span id="segment-count">0 segment(s)</span>
+    </div>
+
+    <div class="cost-box" id="cost-box" style="display:none;">
+      <div class="row"><span>Units</span><span id="cost-units">0</span></div>
+      <div class="row"><span>Estimated Cost</span><span id="cost-amount">₦0</span></div>
+    </div>
+
+    <button class="btn btn-primary" id="send-btn" disabled>Enter recipients and a message</button>
+
+  </div>
+
+</div>
+
+<div class="modal-backdrop" id="result-modal">
+  <div class="modal" id="result-modal-content"></div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<script src="js/supabase.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/pin-modal.js"></script>
+<script src="js/sms.js"></script>
+<script src="js/pwa-register.js"></script>
+</body>
+</html>
