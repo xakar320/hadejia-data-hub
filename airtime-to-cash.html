@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Airtime to Cash — Hadejia Data Hub</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/voice.css">
+<link rel="stylesheet" href="css/nav.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  select#network-select, input#phone-input, input#amount-input, input#share-pin-input, input#otp-input {
+    width:100%; font-family:inherit; font-size:14px; padding:10px 12px;
+    border:1px solid var(--line); border-radius:8px; background:var(--paper); color:var(--ink);
+  }
+  .rate-hint { font-size:12px; color:var(--ink-soft); margin-top:-8px; margin-bottom:14px; }
+  .cost-box { background:var(--paper-dim); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:14px; font-size:13px; }
+  .cost-box .row { display:flex; justify-content:space-between; margin-bottom:4px; }
+  .cost-box .row:last-child { margin-bottom:0; font-weight:600; }
+  #otp-step { display:none; }
+  .resend-link { display:block; text-align:center; margin-top:10px; font-size:13px; color:var(--ink-soft); text-decoration:underline; background:none; border:none; padding:6px; width:100%; }
+</style>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1B2540">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+</head>
+<body>
+
+<div class="topbar">
+  <a href="dashboard.html">← Back</a>
+  <h1>Airtime to Cash</h1>
+</div>
+
+<div class="page">
+
+  <div class="card balance-card">
+    <div class="label">Wallet Balance</div>
+    <div class="amount mono" id="wallet-balance">Loading…</div>
+  </div>
+
+  <div class="card" id="request-step">
+
+    <div class="field">
+      <label for="network-select">Network</label>
+      <select id="network-select">
+        <option value="">Loading networks…</option>
+      </select>
+    </div>
+    <div class="rate-hint" id="rate-hint"></div>
+
+    <div class="field">
+      <label for="phone-input">Phone Number (holding the airtime)</label>
+      <input type="tel" id="phone-input" placeholder="e.g. 08012345678">
+    </div>
+
+    <div class="field">
+      <label for="amount-input">Airtime Amount (₦)</label>
+      <input type="number" id="amount-input" placeholder="e.g. 2000">
+    </div>
+
+    <div class="cost-box" id="cost-box" style="display:none;">
+      <div class="row"><span>You will receive</span><span id="cost-amount">₦0</span></div>
+    </div>
+
+    <div class="field">
+      <label for="share-pin-input">Airtime Share PIN (for this phone number)</label>
+      <input type="password" id="share-pin-input" inputmode="numeric" maxlength="6" placeholder="4-6 digit share PIN">
+    </div>
+
+    <button class="btn btn-primary" id="initiate-btn" disabled>Fill in the details above</button>
+
+  </div>
+
+  <div class="card" id="otp-step">
+    <p>An OTP was sent to the phone number provided. Enter it below to complete the conversion.</p>
+
+    <div class="field">
+      <label for="otp-input">OTP</label>
+      <input type="text" id="otp-input" inputmode="numeric" maxlength="6" placeholder="Enter OTP">
+    </div>
+
+    <button class="btn btn-primary" id="confirm-btn">Confirm</button>
+    <button class="resend-link" id="resend-btn">Didn't get it? Resend OTP</button>
+  </div>
+
+</div>
+
+<div class="modal-backdrop" id="result-modal">
+  <div class="modal" id="result-modal-content"></div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<script src="js/supabase.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/pin-modal.js"></script>
+<script src="js/airtime-to-cash.js"></script>
+<script src="js/pwa-register.js"></script>
+</body>
+</html>
