@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Withdraw — Hadejia Data Hub</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/voice.css">
+<link rel="stylesheet" href="css/nav.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  select#bank-select, input#bank-search, input#account-number-input, input#amount-input {
+    width:100%; font-family:inherit; font-size:14px; padding:10px 12px;
+    border:1px solid var(--line); border-radius:8px; background:var(--paper); color:var(--ink);
+  }
+  .bank-info-box { background:var(--paper-dim); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:14px; font-size:13px; }
+  .bank-info-box .row { display:flex; justify-content:space-between; margin-bottom:4px; }
+  .bank-info-box .row:last-child { margin-bottom:0; }
+  .verified-name { font-weight:600; color:var(--ink); margin-top:6px; font-size:14px; }
+  .change-link { display:block; text-align:center; margin-top:10px; font-size:13px; color:var(--ink-soft); text-decoration:underline; background:none; border:none; padding:6px; width:100%; }
+  #bank-form { display:none; }
+  #bank-results {
+    display:none; position:absolute; top:100%; left:0; right:0; z-index:20;
+    max-height:220px; overflow-y:auto; background:var(--paper); border:1px solid var(--line);
+    border-top:none; border-radius:0 0 8px 8px; box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  }
+  #bank-results.open { display:block; }
+  #bank-results .bank-option { padding:10px 12px; font-size:14px; color:var(--ink); cursor:pointer; border-bottom:1px solid var(--line); }
+  #bank-results .bank-option:last-child { border-bottom:none; }
+  #bank-results .bank-option:active, #bank-results .bank-option.highlighted { background:var(--paper-dim); }
+  #bank-results .no-match { padding:10px 12px; font-size:13px; color:var(--ink-soft); }
+</style>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1B2540">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+</head>
+<body>
+
+<div class="topbar">
+  <a href="dashboard.html">← Back</a>
+  <h1>Withdraw</h1>
+</div>
+
+<div class="page">
+
+  <div class="card" id="disabled-notice" style="display:none;">
+    <p>Withdrawals are temporarily unavailable. Please check back later.</p>
+  </div>
+
+  <div class="card balance-card" id="balance-card">
+    <div class="label">Wallet Balance</div>
+    <div class="amount mono" id="wallet-balance">Loading…</div>
+  </div>
+
+  <div class="card" id="bank-on-file-card" style="display:none;">
+    <div class="bank-info-box">
+      <div class="row"><span>Bank</span><span id="on-file-bank"></span></div>
+      <div class="row"><span>Account</span><span id="on-file-account"></span></div>
+      <div class="row"><span>Name</span><span id="on-file-name"></span></div>
+    </div>
+    <button class="change-link" id="change-bank-btn">Change bank account</button>
+  </div>
+
+  <div class="card" id="bank-form">
+    <div class="field" style="position:relative;">
+      <label for="bank-search">Bank</label>
+      <input type="text" id="bank-search" placeholder="Tap to see all banks or type to search…" autocomplete="off">
+      <div id="bank-results"></div>
+    </div>
+
+    <div class="field">
+      <label for="account-number-input">Account Number</label>
+      <input type="text" id="account-number-input" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
+    </div>
+
+    <div class="verified-name" id="verified-name"></div>
+
+    <button class="btn btn-primary" id="verify-btn" disabled>Enter bank details to verify</button>
+    <button class="btn btn-primary" id="save-bank-btn" style="display:none; margin-top:10px;">Save this account</button>
+  </div>
+
+  <div class="card" id="withdraw-card" style="display:none;">
+    <div class="field">
+      <label for="amount-input">Amount to Withdraw (₦)</label>
+      <input type="number" id="amount-input" placeholder="Minimum ₦100">
+    </div>
+
+    <div class="bank-info-box" id="fee-box" style="display:none;">
+      <div class="row"><span>Fee</span><span id="fee-amount">₦0</span></div>
+      <div class="row"><span>Total debited from wallet</span><span id="total-debit-amount">₦0</span></div>
+    </div>
+
+    <button class="btn btn-primary" id="withdraw-btn">Withdraw</button>
+  </div>
+
+</div>
+
+<div class="modal-backdrop" id="result-modal">
+  <div class="modal" id="result-modal-content"></div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<script src="js/supabase.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/pin-modal.js"></script>
+<script src="js/withdraw.js"></script>
+<script src="js/pwa-register.js"></script>
+</body>
+</html>
