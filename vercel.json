@@ -1,0 +1,12 @@
+{
+  "functions": {
+    "api/place-order.js": { "maxDuration": 60 },
+    "api/whatsapp-webhook.js": { "maxDuration": 60 }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/reconcile-failed-transactions",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}
