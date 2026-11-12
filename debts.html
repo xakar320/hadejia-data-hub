@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debts Book — Hadejia Data Hub</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/voice.css">
+<link rel="stylesheet" href="css/nav.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  .d-input{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;margin-bottom:8px;background:#fff;color:var(--ink);}
+  .d-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px;}
+  .d-row{display:flex;justify-content:space-between;gap:10px;}
+  .d-title{font-weight:600;font-size:14px;}
+  .d-sub{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .d-owed{font-family:var(--font-mono);font-weight:700;font-size:15px;color:var(--rust);text-align:right;}
+  .d-owed.paid{color:var(--teal);}
+  .d-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .d-actions button{padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px;cursor:pointer;color:var(--ink);}
+  .d-actions button.primary{background:var(--ink,#1B2540);color:#fff;border-color:transparent;}
+  .d-tabs{display:flex;gap:8px;margin:10px 0;}
+  .d-tabs button{padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:13px;cursor:pointer;color:var(--ink);text-transform:capitalize;}
+  .d-tabs button.active{background:var(--ink,#1B2540);color:#fff;border-color:transparent;}
+</style>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1B2540">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+</head>
+<body>
+
+<div class="topbar">
+  <a href="dashboard.html">← Back</a>
+  <h1>Debts Book 📚</h1>
+</div>
+
+<div class="page">
+
+  <div class="card">
+    <div style="font-weight:700;margin-bottom:4px;">Total still owed to you</div>
+    <div id="d-total" style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--rust);">₦0.00</div>
+    <div style="font-size:12px;color:var(--ink-soft);margin-top:4px;">When you search one of these numbers in Transactions, or type it when buying, you will see a warning until you mark the debt as paid.</div>
+  </div>
+
+  <div class="card">
+    <div style="font-weight:700;margin-bottom:10px;">Record a new debt</div>
+    <input class="d-input" id="d-phone" type="tel" placeholder="Phone number e.g. 08012345678">
+    <input class="d-input" id="d-name" type="text" placeholder="Name (optional)">
+    <input class="d-input" id="d-item" type="text" placeholder="What you gave e.g. Airtel 1.5GB, N300 voice">
+    <input class="d-input" id="d-amount" type="number" min="1" placeholder="Amount owed (₦)">
+    <input class="d-input" id="d-note" type="text" placeholder="Note (optional) e.g. will pay Friday">
+    <button class="btn btn-primary" id="d-save">Save debt</button>
+  </div>
+
+  <div class="card">
+    <input class="d-input" id="d-search" type="text" placeholder="Search by phone or name…" style="margin-bottom:0;">
+    <div class="d-tabs" id="d-tabs">
+      <button class="active" data-s="open">open</button>
+      <button data-s="paid">paid</button>
+      <button data-s="all">all</button>
+    </div>
+  </div>
+
+  <div id="d-list"></div>
+
+</div>
+
+<div id="toast-wrap"></div>
+
+<script src="js/supabase.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/debts.js"></script>
+<script src="js/pwa-register.js"></script>
+</body>
+</html>
