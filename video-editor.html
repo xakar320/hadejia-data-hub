@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Editor — Hadejia Data Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/voice.css">
+<link rel="stylesheet" href="css/nav.css">
+<link rel="stylesheet" href="css/studio.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1B2540">
+</head>
+<body>
+<div class="topbar"><a href="studio.html">← Studio</a><h1>Video Editor</h1></div>
+<div class="page wide">
+  <div id="blocked" class="card" style="display:none;"></div>
+  <div id="app" style="display:none;">
+    <div class="cv-wrap"><canvas id="cv" width="720" height="1280"></canvas></div>
+    <video id="vid" playsinline muted preload="auto" style="display:none"></video>
+    <div style="display:flex;gap:8px;align-items:center;margin:10px 0;">
+      <button class="btn btn-primary" id="b-play" style="width:90px;flex:none;">▶ Play</button>
+      <input type="range" id="scrub" min="0" max="0" step="0.05" value="0" style="flex:1;">
+      <span id="tl" class="mono" style="font-size:12px;white-space:nowrap;">0:00 / 0:00</span>
+    </div>
+    <div id="strip" class="chips" style="margin-bottom:6px;"></div>
+    <div class="tabs" id="tabs"></div>
+    <div class="panel" id="panel"></div>
+  </div>
+</div>
+<input type="file" id="f-vid" accept="video/*" multiple hidden>
+<input type="file" id="f-logo" accept="image/*" hidden>
+<input type="file" id="f-music" accept="audio/*" hidden>
+<input type="file" id="f-voice" accept="audio/*" hidden>
+<div id="toast-wrap"></div>
+<script src="js/supabase.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/studio-store.js"></script>
+<script src="js/video-editor.js"></script>
+</body>
+</html>
