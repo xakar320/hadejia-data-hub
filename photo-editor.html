@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo Editor — Hadejia Data Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/voice.css">
+<link rel="stylesheet" href="css/nav.css">
+<link rel="stylesheet" href="css/studio.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1B2540">
+</head>
+<body>
+<div class="topbar"><a href="studio.html">← Studio</a><h1>Photo Editor</h1></div>
+<div class="page wide">
+  <div id="blocked" class="card" style="display:none;"></div>
+  <div id="app" style="display:none;">
+    <div class="ed-bar">
+      <button class="btn btn-ghost" id="b-undo">↩ Undo</button>
+      <button class="btn btn-ghost" id="b-redo">↪ Redo</button>
+      <button class="btn btn-ghost" id="b-save">💾 Save</button>
+      <button class="btn btn-primary" id="b-dl">⬇ Download</button>
+    </div>
+    <div class="cv-wrap"><canvas id="cv" width="800" height="800"></canvas></div>
+    <div class="tabs" id="tabs"></div>
+    <div class="panel" id="panel"></div>
+  </div>
+</div>
+<input type="file" id="f-photo" accept="image/*" hidden>
+<input type="file" id="f-logo" accept="image/*" hidden>
+<div id="toast-wrap"></div>
+<script src="js/supabase.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/studio-store.js"></script>
+<script src="js/photo-editor.js"></script>
+</body>
+</html>
